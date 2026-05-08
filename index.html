@@ -1362,6 +1362,12 @@
   .area-talkpoints h4 { color:#92400e; margin-bottom:10px; }
   .area-talkpoints ol { margin:0; padding-left:20px; }
   .area-talkpoints li { padding:6px 0; font-size:13px; line-height:1.55; }
+  .area-unit-insights { background:#eff6ff; border:1px solid #bfdbfe; border-radius:6px; padding:14px 16px; }
+  .area-unit-insights h4 { color:#1e40af; margin-bottom:10px; }
+  .unit-insights-list { list-style:none; padding:0; margin:0; }
+  .unit-insights-list li { padding:8px 0 8px 22px; font-size:13px; line-height:1.55; position:relative; border-bottom:1px dashed #dbeafe; }
+  .unit-insights-list li:last-child { border-bottom:none; }
+  .unit-insights-list li::before { content:"■"; position:absolute; left:4px; color:#3b82f6; font-size:9px; top:11px; }
   .area-citations { display:flex; gap:14px; flex-wrap:wrap; margin-top:14px; padding-top:12px; border-top:1px solid #eee; font-size:11.5px; }
   .area-citations a { color:var(--accent, #b08850); text-decoration:none; border-bottom:1px dotted; }
   .area-citations a:hover { color:var(--text); }
@@ -2855,7 +2861,144 @@ function renderAreaCard(areaKey) {
       '</div>' +
     '</div>' +
     (stats ? '<div class="area-stats">' + stats + '</div>' : '') +
+    '<div id="unitInsights"></div>' +
     infra + comps + talks + citations;
+
+  renderUnitInsights();
+}
+
+// ----- Helpers for parsing curated ranges -----
+function parseAedRange(s) {
+  if (!s || typeof s !== "string" || s.toLowerCase().includes("n/a")) return null;
+  const cleaned = s.replace(/[,\s]/g, '').replace(/–/g, '-');
+  const m = cleaned.match(/(\d+(?:\.\d+)?)-(\d+(?:\.\d+)?)/);
+  if (m) { const lo = parseFloat(m[1]), hi = parseFloat(m[2]); return { lo, hi, mid: (lo + hi) / 2 }; }
+  const single = cleaned.match(/(\d+(?:\.\d+)?)/);
+  if (single) { const v = parseFloat(single[1]); return { lo: v, hi: v, mid: v }; }
+  return null;
+}
+function parsePctRange(s) {
+  if (!s || typeof s !== "string" || s.toLowerCase().includes("n/a")) return null;
+  const m = s.match(/([+-]?\d+(?:\.\d+)?)\s*(?:to|–|〜|-)\s*([+-]?\d+(?:\.\d+)?)/);
+  if (m) { const lo = parseFloat(m[1]), hi = parseFloat(m[2]); return { lo, hi, mid: (lo + hi) / 2 }; }
+  const single = s.match(/([+-]?\d+(?:\.\d+)?)/);
+  if (single) { const v = parseFloat(single[1]); return { lo: v, hi: v, mid: v }; }
+  return null;
+}
+
+function generateUnitInsights() {
+  if (!areasData || !currentAreaKey) return [];
+  const a = areasData[currentAreaKey];
+  if (!a) return [];
+
+  const price = parseFloat((document.getElementById("price") || {}).value) || 0;
+  const sqft = parseFloat((document.getElementById("sqft") || {}).value) || 0;
+  const grossYield = parseFloat((document.getElementById("grossYield") || {}).value) || 0;
+  const appreciation = parseFloat((document.getElementById("appreciation") || {}).value) || 0;
+  const holdYears = parseFloat((document.getElementById("holdYears") || {}).value) || 0;
+  const holdMonths = parseFloat((document.getElementById("holdMonths") || {}).value) || 0;
+  const propertyType = (document.getElementById("propertyType") || {}).value || "branded";
+  const apprMode = (document.getElementById("appreciationMode") || {}).value || "cumulative";
+
+  if (!price || !sqft) return [];
+
+  const psf = price / sqft;
+  const isVilla = propertyType === "villa";
+  const benchKey = isVilla ? "villa" : "apartment";
+  const benchLabelEn = isVilla ? "villa" : "apartment";
+  const benchLabelJp = isVilla ? "ヴィラ" : "アパート";
+
+  const psfRange = parseAedRange(a.avgPriceSqftAed && a.avgPriceSqftAed[benchKey]);
+  const yieldRange = parsePctRange(a.avgRentalYieldPct && a.avgRentalYieldPct[benchKey]);
+  const fiveYr = parsePctRange(a.priceSqft5yrPct);
+
+  const insights = [];
+
+  // 1) Price/sqft positioning
+  if (psfRange) {
+    const delta = ((psf - psfRange.mid) / psfRange.mid) * 100;
+    const fmtPsf = Math.round(psf).toLocaleString();
+    const fmtMid = Math.round(psfRange.mid).toLocaleString();
+    let posEn, posJp;
+    if (Math.abs(delta) < 5)      { posEn = "in line with";   posJp = "ほぼ平均水準"; }
+    else if (delta >  25)         { posEn = "well above";     posJp = "を大きく上回る"; }
+    else if (delta >  0)          { posEn = "above";          posJp = "をやや上回る"; }
+    else if (delta < -25)         { posEn = "well below";     posJp = "を大きく下回る"; }
+    else                          { posEn = "below";          posJp = "をやや下回る"; }
+    insights.push({
+      en: `At AED ${fmtPsf}/sqft, this unit is priced ${delta > 0 ? "+" : ""}${delta.toFixed(0)}% ${posEn} the ${a.nameEN} ${benchLabelEn} average (AED ${a.avgPriceSqftAed[benchKey]}/sqft, mid AED ${fmtMid}).`,
+      jp: `坪単価AED ${fmtPsf}/sqft（${a.nameJP || a.nameEN}の${benchLabelJp}平均 AED ${a.avgPriceSqftAed[benchKey]}、中央値AED ${fmtMid}）${posJp}水準（${delta > 0 ? "+" : ""}${delta.toFixed(0)}%）。`
+    });
+  }
+
+  // 2) Yield positioning
+  if (yieldRange && grossYield) {
+    if (grossYield >= yieldRange.lo && grossYield <= yieldRange.hi) {
+      insights.push({
+        en: `Projected gross yield ${grossYield}% sits inside the area's ${yieldRange.lo}–${yieldRange.hi}% ${benchLabelEn} range — well-supported by market data.`,
+        jp: `想定粗利回り${grossYield}%は、エリアの${benchLabelJp}利回りレンジ（${yieldRange.lo}〜${yieldRange.hi}%）内で、市場データで十分裏付けられます。`
+      });
+    } else if (grossYield > yieldRange.hi) {
+      const over = grossYield - yieldRange.hi;
+      insights.push({
+        en: `Projected gross yield ${grossYield}% is +${over.toFixed(1)}pp above the area's typical ${yieldRange.lo}–${yieldRange.hi}% range — verify with a live rental comparable before quoting.`,
+        jp: `想定粗利回り${grossYield}%はエリア標準（${yieldRange.lo}〜${yieldRange.hi}%）を+${over.toFixed(1)}pp上回るため、賃貸コンプの確認を推奨。`
+      });
+    } else {
+      const under = yieldRange.lo - grossYield;
+      insights.push({
+        en: `Projected gross yield ${grossYield}% is ${under.toFixed(1)}pp below the area's typical ${yieldRange.lo}–${yieldRange.hi}% range — conservative and defensible.`,
+        jp: `想定粗利回り${grossYield}%はエリア標準（${yieldRange.lo}〜${yieldRange.hi}%）を${under.toFixed(1)}pp下回り、保守的な想定。`
+      });
+    }
+  }
+
+  // 3) Appreciation vs area's 5-yr realized
+  if (fiveYr && appreciation) {
+    const totalMonths = holdYears * 12 + holdMonths;
+    if (totalMonths >= 6) {
+      const userAnn = (apprMode === "annual")
+        ? appreciation
+        : (Math.pow(1 + appreciation / 100, 12 / totalMonths) - 1) * 100;
+      const areaAnnLo = (Math.pow(1 + fiveYr.lo / 100, 1/5) - 1) * 100;
+      const areaAnnHi = (Math.pow(1 + fiveYr.hi / 100, 1/5) - 1) * 100;
+      let stanceEn, stanceJp;
+      if (userAnn < areaAnnLo - 1)      { stanceEn = "conservative vs"; stanceJp = "より保守的"; }
+      else if (userAnn > areaAnnHi + 1) { stanceEn = "aggressive vs";   stanceJp = "より強気"; }
+      else                              { stanceEn = "in line with";   stanceJp = "に沿った"; }
+      const userStrEn = (apprMode === "annual")
+        ? `${appreciation}%/yr`
+        : `${appreciation}% over ${totalMonths}mo (~${userAnn.toFixed(1)}%/yr)`;
+      const userStrJp = (apprMode === "annual")
+        ? `年率${appreciation}%`
+        : `${totalMonths}ヶ月で${appreciation}%（年率約${userAnn.toFixed(1)}%）`;
+      insights.push({
+        en: `Appreciation assumption of ${userStrEn} is ${stanceEn} the area's 5-yr realized growth of ${fiveYr.lo > 0 ? "+" : ""}${fiveYr.lo}% to +${fiveYr.hi}% (~${areaAnnLo.toFixed(1)}–${areaAnnHi.toFixed(1)}%/yr, DLD).`,
+        jp: `想定値上がり率${userStrJp}は、エリアの過去5年実績（+${fiveYr.lo}〜+${fiveYr.hi}%、年率約${areaAnnLo.toFixed(1)}〜${areaAnnHi.toFixed(1)}%、DLD）${stanceJp}水準。`
+      });
+    }
+  }
+
+  // 4) Branded ultra-prime premium note
+  if (propertyType === "branded" && a.tier === "ultra-prime") {
+    insights.push({
+      en: `Branded ultra-prime residences in ${a.nameEN} typically command a 15–25% rental premium over non-branded equivalents — supports the projected yield.`,
+      jp: `${a.nameJP || a.nameEN}のブランデッド・ウルトラプライム物件は、非ブランド比で通常15〜25%高い賃料を実現します。`
+    });
+  }
+
+  return insights;
+}
+
+function renderUnitInsights() {
+  const slot = document.getElementById("unitInsights");
+  if (!slot) return;
+  if (!areasData || !currentAreaKey) { slot.innerHTML = ""; return; }
+  const insights = generateUnitInsights();
+  if (!insights.length) { slot.innerHTML = ""; return; }
+  slot.innerHTML = '<div class="area-block area-unit-insights"><h4>📊 <span class="ja">この物件のポジショニング</span><span class="en">This Unit\'s Position</span></h4><ul class="unit-insights-list">' +
+    insights.map(t => '<li><span class="ja">' + escapeHtml(t.jp) + '</span><span class="en">' + escapeHtml(t.en) + '</span></li>').join('') +
+    '</ul></div>';
 }
 
 function loadPreset(key) {
@@ -3940,6 +4083,7 @@ function render() {
 
   drawScenarioChart(r.scenarios);
   drawCumulativeChart(r.cashflowSeries);
+  renderUnitInsights();
 }
 
 function drawScenarioChart(s) {
