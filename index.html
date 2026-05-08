@@ -3158,14 +3158,15 @@ function updateCpAreaHint() {
 function escapeHtml(s) { return String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 
 function renderAreaCard(areaKey) {
+  console.log("[v3] renderAreaCard ←", areaKey, "(areasData loaded:", !!areasData, ")");
   currentAreaKey = areaKey;
   const el = document.getElementById("areaContent");
-  if (!el) return;
+  if (!el) { console.warn("[v3] #areaContent element not found"); return; }
   if (!areaKey) {
     el.innerHTML = '<div class="area-empty"><span class="ja">この物件にはエリア情報が設定されていません。</span><span class="en">No area set for this property.</span></div>';
     return;
   }
-  if (!areasData) return; // still loading; will re-render on fetch complete
+  if (!areasData) { console.warn("[v3] areasData not yet loaded — card will refresh once fetch completes"); return; }
   const a = getAreaProfile(areaKey);
   if (!a) {
     // Uncurated area — show display name + a verify-on-DXB-Interact CTA
