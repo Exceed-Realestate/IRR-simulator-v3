@@ -3,7 +3,9 @@
     "dataAsOf": "2026-05",
     "primarySource": "DXB Interact (DLD-derived) + Bayut/Property Finder market reports",
     "note": "Numbers are approximate ranges. Agents must click the dxbInteractUrl and verify the live figure on DXB Interact / Property Finder before quoting a precise number to a client.",
-    "schemaVersion": 1
+    "schemaVersion": 1,
+    "dxbInteractFallback": "https://dxbinteract.com/",
+    "dxbInteractUrlPattern": "/area-analysis/{kebab-slug}"
   },
   "palmJumeirah": {
     "nameEN": "Palm Jumeirah",
@@ -60,7 +62,7 @@
         "context": "Hotel-branded yield play; good reference for short-let ROI"
       }
     ],
-    "dxbInteractUrl": "https://dxbinteract.com/dubai/areas/palm-jumeirah",
+    "dxbInteractUrl": "https://dxbinteract.com/area-analysis/palm-jumeirah",
     "dldUrl": "https://dubailand.gov.ae/en/open-data/real-estate-data/",
     "talkingPoints": [
       {
@@ -154,7 +156,7 @@
         "context": "Beach-adjacent yield benchmark"
       }
     ],
-    "dxbInteractUrl": "https://dxbinteract.com/dubai/areas/dubai-creek-harbour",
+    "dxbInteractUrl": "https://dxbinteract.com/area-analysis/dubai-creek-harbour",
     "dldUrl": "https://dubailand.gov.ae/en/open-data/real-estate-data/",
     "talkingPoints": [
       {
@@ -248,7 +250,7 @@
         "context": "Downtown branded comparable"
       }
     ],
-    "dxbInteractUrl": "https://dxbinteract.com/dubai/areas/world-trade-center-residence",
+    "dxbInteractUrl": "https://dxbinteract.com/area-analysis/za-abeel-1",
     "dldUrl": "https://dubailand.gov.ae/en/open-data/real-estate-data/",
     "talkingPoints": [
       {
@@ -333,7 +335,7 @@
         "context": "Comparable trophy-villa launch trajectory"
       }
     ],
-    "dxbInteractUrl": "https://dxbinteract.com/dubai/areas/palm-jebel-ali",
+    "dxbInteractUrl": "https://dxbinteract.com/area-analysis/palm-jebel-ali",
     "dldUrl": "https://dubailand.gov.ae/en/open-data/real-estate-data/",
     "talkingPoints": [
       {
@@ -428,7 +430,7 @@
         "context": "Newer comparable masterplan — useful for capital-growth pacing"
       }
     ],
-    "dxbInteractUrl": "https://dxbinteract.com/dubai/areas/dubai-hills-estate",
+    "dxbInteractUrl": "https://dxbinteract.com/area-analysis/dubai-hills-estate",
     "dldUrl": "https://dubailand.gov.ae/en/open-data/real-estate-data/",
     "talkingPoints": [
       {
@@ -526,7 +528,7 @@
         "context": "Recent record-tower comparable"
       }
     ],
-    "dxbInteractUrl": "https://dxbinteract.com/dubai/areas/business-bay",
+    "dxbInteractUrl": "https://dxbinteract.com/area-analysis/business-bay",
     "dldUrl": "https://dubailand.gov.ae/en/open-data/real-estate-data/",
     "talkingPoints": [
       {
@@ -624,7 +626,7 @@
         "context": "Ultra-prime branded ceiling"
       }
     ],
-    "dxbInteractUrl": "https://dxbinteract.com/dubai/areas/downtown-dubai",
+    "dxbInteractUrl": "https://dxbinteract.com/area-analysis/downtown-dubai",
     "dldUrl": "https://dubailand.gov.ae/en/open-data/real-estate-data/",
     "talkingPoints": [
       {
@@ -718,7 +720,7 @@
         "context": "Recent boutique deliveries"
       }
     ],
-    "dxbInteractUrl": "https://dxbinteract.com/dubai/areas/dubai-marina",
+    "dxbInteractUrl": "https://dxbinteract.com/area-analysis/dubai-marina",
     "dldUrl": "https://dubailand.gov.ae/en/open-data/real-estate-data/",
     "talkingPoints": [
       {
@@ -804,7 +806,7 @@
         "context": "High-yield investor-product comparable"
       }
     ],
-    "dxbInteractUrl": "https://dxbinteract.com/dubai/areas/jvc-jumeirah-village-circle",
+    "dxbInteractUrl": "https://dxbinteract.com/area-analysis/jumeirah-village-circle",
     "dldUrl": "https://dubailand.gov.ae/en/open-data/real-estate-data/",
     "talkingPoints": [
       {
@@ -898,7 +900,7 @@
         "context": "Marina-side branded reference"
       }
     ],
-    "dxbInteractUrl": "https://dxbinteract.com/dubai/areas/jumeirah-beach-residence-jbr",
+    "dxbInteractUrl": "https://dxbinteract.com/area-analysis/jumeirah-beach-residence",
     "dldUrl": "https://dubailand.gov.ae/en/open-data/real-estate-data/",
     "talkingPoints": [
       {
@@ -984,7 +986,7 @@
         "context": "Lower-tier sister communities"
       }
     ],
-    "dxbInteractUrl": "https://dxbinteract.com/dubai/areas/damac-hills",
+    "dxbInteractUrl": "https://dxbinteract.com/area-analysis/damac-hills",
     "dldUrl": "https://dubailand.gov.ae/en/open-data/real-estate-data/",
     "talkingPoints": [
       {
@@ -1073,7 +1075,7 @@
         "context": "Adjacent beachfront comparable"
       }
     ],
-    "dxbInteractUrl": "https://dxbinteract.com/dubai/areas/bluewaters-island",
+    "dxbInteractUrl": "https://dxbinteract.com/area-analysis/bluewaters-island",
     "dldUrl": "https://dubailand.gov.ae/en/open-data/real-estate-data/",
     "talkingPoints": [
       {
@@ -1162,7 +1164,7 @@
         "context": "Recent ultra-prime delivery comparable"
       }
     ],
-    "dxbInteractUrl": "https://dxbinteract.com/dubai/areas/difc",
+    "dxbInteractUrl": "https://dxbinteract.com/area-analysis/difc",
     "dldUrl": "https://dubailand.gov.ae/en/open-data/real-estate-data/",
     "talkingPoints": [
       {
