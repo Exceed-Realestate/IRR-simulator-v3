@@ -1,0 +1,3379 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EXIT IRR Simulator | EXCEED REAL ESTATE</title>
+<link rel="icon" type="image/jpeg" href="./exceed_logo.jpg">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --primary: #0a2540;
+    --primary-light: #1e3a5f;
+    --accent: #c9a961;
+    --accent-dark: #a6874a;
+    --bg: #f6f7f9;
+    --card: #ffffff;
+    --border: #e5e7eb;
+    --text: #1a1a1a;
+    --text-muted: #6b7280;
+    --positive: #10b981;
+    --negative: #ef4444;
+    --s1: #3b82f6;
+    --s2: #10b981;
+    --s3: #a855f7;
+    --s4: #f59e0b;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 68px; }
+  body {
+    font-family: "Hiragino Sans", "ヒラギノ角ゴシック", "Hiragino Kaku Gothic ProN", "Yu Gothic", "游ゴシック", "Meiryo", "Inter", -apple-system, sans-serif;
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ============ LANGUAGE VISIBILITY ============ */
+  body[data-lang="ja"] .lang-en,
+  body[data-lang="ja"] .en { display: none !important; }
+  body[data-lang="en"] .lang-ja,
+  body[data-lang="en"] .ja { display: none !important; }
+
+  /* ============ HEADER ============ */
+  header.site-header {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: #fff;
+    padding: 28px 40px;
+    border-bottom: 4px solid var(--accent);
+  }
+  .header-inner {
+    max-width: 1400px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 20px;
+  }
+  header.site-header h1 { margin: 0; font-size: 24px; font-weight: 600; letter-spacing: 0.5px; }
+  header.site-header .subtitle { font-size: 11px; opacity: 0.85; margin-top: 6px; letter-spacing: 1.5px; }
+  .brand { display: flex; align-items: center; gap: 16px; }
+  .brand-logo {
+    width: 48px; height: 48px;
+    object-fit: contain;
+    border-radius: 6px;
+    background: #fff;
+    padding: 4px;
+  }
+  .header-actions { display: flex; align-items: center; gap: 12px; }
+  .lang-toggle {
+    display: inline-flex;
+    background: rgba(255,255,255,0.15);
+    border-radius: 6px;
+    padding: 3px;
+    gap: 2px;
+  }
+  .lang-toggle button {
+    background: transparent; color: rgba(255,255,255,0.75);
+    border: none; padding: 7px 16px;
+    border-radius: 4px; cursor: pointer;
+    font-family: inherit; font-size: 12px;
+    letter-spacing: 1px; font-weight: 700;
+  }
+  .lang-toggle button.active { background: var(--accent); color: var(--primary); }
+  .lang-toggle button:not(.active):hover { color: #fff; }
+  .print-btn {
+    background: var(--accent); color: var(--primary);
+    border: none; padding: 9px 18px;
+    border-radius: 4px; font-weight: 700;
+    cursor: pointer; font-size: 12px;
+    letter-spacing: 1px; font-family: inherit;
+  }
+  .print-btn:hover { background: #fff; }
+
+  /* ============ STICKY NAV ============ */
+  nav.sticky-nav {
+    position: sticky; top: 0;
+    background: rgba(255,255,255,0.98);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+    z-index: 50;
+    padding: 0 40px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .nav-inner {
+    max-width: 1400px; margin: 0 auto;
+    display: flex; align-items: center;
+    gap: 0; overflow-x: auto;
+  }
+  .nav-link {
+    padding: 16px 22px;
+    color: var(--text-muted); text-decoration: none;
+    font-size: 13px; font-weight: 600;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap; transition: color 0.15s, border-color 0.15s;
+  }
+  .nav-link:hover { color: var(--primary); }
+  .nav-link.active { color: var(--primary); border-bottom-color: var(--accent); }
+  .nav-link .badge {
+    color: var(--accent-dark);
+    font-size: 12px;
+    margin-right: 6px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .nav-link.active .badge { color: var(--accent-dark); }
+  .nav-brochure-btn {
+    margin-left: auto;
+    background: var(--primary); color: #fff;
+    border: none; padding: 10px 22px;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 13px; font-weight: 700;
+    cursor: pointer; letter-spacing: 0.5px;
+    display: inline-flex; align-items: center; gap: 8px;
+    transition: all 0.15s;
+  }
+  .nav-brochure-btn:hover {
+    background: var(--accent); color: var(--primary);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(201,169,97,0.3);
+  }
+  .nav-brochure-btn .count-badge {
+    background: var(--accent); color: var(--primary);
+    padding: 2px 8px; border-radius: 10px;
+    font-size: 11px; font-weight: 800;
+  }
+  .nav-brochure-btn:hover .count-badge { background: var(--primary); color: #fff; }
+
+  /* ============ HERO ============ */
+  .hero {
+    max-width: 1400px; margin: 24px auto;
+    padding: 28px 40px;
+    background: linear-gradient(135deg, #fef9ed 0%, #fdf4dc 100%);
+    border-radius: 12px;
+    border: 1px solid rgba(201, 169, 97, 0.3);
+  }
+  .hero h2 { color: var(--primary); margin: 0 0 10px 0; font-size: 22px; font-weight: 700; }
+  .hero p { color: var(--text-muted); max-width: 1100px; margin: 6px 0; font-size: 13px; line-height: 1.8; }
+
+  /* ============ SECTIONS ============ */
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 40px;
+  }
+  .qa-section {
+    margin-bottom: 40px;
+    scroll-margin-top: 72px;
+  }
+  .section-header {
+    margin-bottom: 22px;
+    border-left: 5px solid var(--accent);
+    padding-left: 20px;
+  }
+  .section-header .kicker {
+    font-size: 12px; color: var(--accent-dark);
+    font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; margin-bottom: 4px;
+  }
+  .section-header h2 {
+    margin: 0; font-size: 26px; color: var(--primary);
+    font-weight: 700; line-height: 1.3;
+  }
+  .section-header .desc {
+    margin-top: 6px; color: var(--text-muted);
+    font-size: 14px;
+  }
+
+  /* Client question box */
+  .question-block {
+    background: #fef9ed;
+    border-left: 4px solid var(--accent);
+    padding: 18px 22px;
+    margin-bottom: 24px;
+    border-radius: 0 8px 8px 0;
+    position: relative;
+  }
+  .question-block::before {
+    content: attr(data-label);
+    position: absolute; top: -10px; left: 18px;
+    background: var(--accent); color: var(--primary);
+    font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+    padding: 3px 12px; border-radius: 4px;
+  }
+  .question-block p { margin: 6px 0; }
+  .question-block .q-text { font-size: 14px; color: #5b4b28; font-weight: 500; line-height: 1.8; }
+
+  /* Answer block */
+  .answer-block {
+    background: var(--card);
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  .answer-block .answer-label {
+    display: inline-block;
+    background: var(--primary); color: #fff;
+    font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+    padding: 4px 12px; border-radius: 4px;
+    margin-bottom: 18px;
+  }
+  .answer-block h3 {
+    color: var(--primary); font-size: 17px;
+    margin: 24px 0 12px 0;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    font-weight: 700;
+  }
+  .answer-block h3:first-of-type { margin-top: 0; }
+  .answer-block h4 {
+    color: var(--accent-dark); font-size: 14px;
+    margin: 18px 0 8px 0; font-weight: 700;
+  }
+  .answer-block p { margin: 8px 0; font-size: 13px; }
+  .answer-block ul, .answer-block ol { padding-left: 22px; margin: 8px 0; font-size: 13px; }
+  .answer-block li { margin: 4px 0; }
+
+  /* Tables */
+  table.data-table {
+    width: 100%; border-collapse: collapse;
+    margin: 12px 0 18px;
+    font-size: 13px;
+  }
+  table.data-table th, table.data-table td {
+    padding: 10px 14px; text-align: left;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  table.data-table th {
+    background: var(--primary); color: #fff;
+    font-weight: 600; font-size: 12px; letter-spacing: 0.5px;
+  }
+  table.data-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  table.data-table tr:nth-child(even) { background: #fafbfc; }
+  table.data-table tr.total td {
+    border-top: 2px solid var(--primary);
+    font-weight: 700; background: #fef9ed;
+  }
+
+  /* Callouts */
+  .callout {
+    background: #eff6ff;
+    border-left: 4px solid var(--s1);
+    padding: 14px 18px; margin: 14px 0;
+    border-radius: 0 6px 6px 0; font-size: 13px;
+    line-height: 1.8;
+  }
+  .callout.warning { background: #fef2f2; border-left-color: var(--negative); }
+  .callout.success { background: #f0fdf4; border-left-color: var(--positive); }
+  .callout strong { color: var(--primary); }
+
+  .code-block {
+    background: #0a2540; color: #c9a961;
+    padding: 14px 18px; border-radius: 6px;
+    font-family: "Menlo", "Courier New", monospace;
+    font-size: 12px; line-height: 1.9;
+    margin: 14px 0; overflow-x: auto; white-space: pre;
+  }
+
+  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  @media (max-width: 768px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+  .info-card {
+    background: #fafbfc;
+    border: 1px solid var(--border);
+    border-radius: 6px; padding: 14px;
+  }
+  .info-card .label {
+    font-size: 11px; color: var(--text-muted);
+    letter-spacing: 1px; text-transform: uppercase;
+    margin-bottom: 4px; font-weight: 700;
+  }
+
+  /* ============ SIMULATOR ============ */
+  .sim-wrapper {
+    margin-top: 60px;
+    padding-top: 40px;
+    border-top: 3px solid var(--accent);
+  }
+  .sim-title-bar {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: #fff;
+    padding: 20px 32px;
+    border-radius: 10px;
+    margin-bottom: 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 12px;
+  }
+  .sim-title-bar h2 { margin: 0; font-size: 22px; color: #fff; font-weight: 700; }
+  .sim-title-bar .subtitle { font-size: 12px; opacity: 0.8; letter-spacing: 1px; margin-top: 4px; }
+  .sim-title-bar .kicker {
+    font-size: 10px; color: var(--accent);
+    font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .simulator-container {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 28px;
+  }
+  @media (max-width: 960px) { .simulator-container { grid-template-columns: 1fr; } }
+
+  .sim-card {
+    background: var(--card);
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    padding: 22px; margin-bottom: 18px;
+  }
+  .sim-card h3 {
+    margin: 0 0 16px 0;
+    font-size: 13px; font-weight: 700;
+    color: var(--primary); letter-spacing: 1px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--accent);
+  }
+  .sim-card h3 .count {
+    display: inline-block;
+    background: var(--accent); color: var(--primary);
+    width: 22px; height: 22px; line-height: 22px;
+    text-align: center; border-radius: 50%;
+    font-size: 11px; margin-right: 8px;
+  }
+  .field { display: flex; flex-direction: column; margin-bottom: 12px; }
+  .field label { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; font-weight: 500; }
+  .field input, .field select {
+    padding: 8px 10px; border: 1px solid var(--border); border-radius: 4px;
+    font-size: 13px; font-family: inherit; background: #fff;
+    width: 100%; min-width: 0;
+  }
+  .field input:focus, .field select:focus {
+    outline: none; border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(201, 169, 97, 0.2);
+  }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .checkbox-field { display: flex; align-items: center; gap: 8px; padding: 6px 0; }
+  .checkbox-field input[type="checkbox"] { width: 16px; height: 16px; }
+  .checkbox-field label { margin: 0; font-size: 13px; color: var(--text); }
+
+  .currency-bar {
+    display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+    background: linear-gradient(135deg, #f8fafc 0%, #fff 100%);
+    border: 1px solid var(--border); border-radius: 12px;
+    padding: 12px 18px; margin-bottom: 16px;
+  }
+  .currency-bar .cb-title {
+    font-size: 12px; font-weight: 700; color: var(--primary);
+    letter-spacing: 0.05em; text-transform: uppercase;
+    border-right: 2px solid var(--accent); padding-right: 14px;
+  }
+  .currency-bar .cb-item { display: flex; align-items: center; gap: 8px; }
+  .currency-bar label { font-size: 12px; color: var(--text-muted); margin: 0; font-weight: 600; }
+  .currency-bar select, .currency-bar input {
+    padding: 6px 10px; border: 1px solid var(--border);
+    border-radius: 6px; font-size: 13px; min-width: 110px;
+    background: #fff; color: var(--text); font-weight: 600;
+  }
+  .currency-bar input { min-width: 90px; max-width: 110px; }
+  .currency-bar #extraCurrency { min-width: 130px; max-width: 160px; }
+  .currency-btns {
+    display: inline-flex; border: 1px solid var(--border);
+    border-radius: 8px; overflow: hidden; background: #fff;
+  }
+  .cur-btn {
+    background: #fff; border: none; padding: 8px 16px;
+    font-size: 13px; font-weight: 700; color: var(--text-muted);
+    cursor: pointer; transition: all 0.15s;
+    border-right: 1px solid var(--border); font-family: inherit;
+    letter-spacing: 0.03em;
+  }
+  .cur-btn:last-child { border-right: none; }
+  .cur-btn:hover { filter: brightness(0.96); color: var(--text); }
+  .currency-bar .fx-meta { margin-left: auto; }
+  .currency-bar .fx-meta small {
+    font-size: 11px; color: var(--text-muted); font-weight: 500;
+  }
+  .currency-bar .fx-meta small a { color: var(--text-muted); text-decoration: underline; }
+
+  .appr-btns {
+    display: inline-flex; border: 1px solid var(--border);
+    border-radius: 6px; overflow: hidden; background: #fff;
+    margin-bottom: 6px;
+  }
+  .appr-btn {
+    background: #fff; border: none; padding: 5px 14px;
+    font-size: 12px; font-weight: 600; color: var(--text-muted);
+    cursor: pointer; transition: all 0.15s;
+    border-right: 1px solid var(--border); font-family: inherit;
+    flex: 1;
+  }
+  .appr-btn:last-child { border-right: none; }
+  .appr-btn:hover { background: #f1f5f9; color: var(--text); }
+  .appr-btn.active { background: var(--primary); color: #fff; }
+
+  .size-equiv {
+    display: block; margin-top: 4px; font-size: 11px;
+    color: var(--text-muted); font-weight: 500;
+  }
+
+  .calc-card { margin-top: 12px; }
+  .calc-card #calcDisplay {
+    width: 100%; padding: 10px 12px; font-size: 18px;
+    font-weight: 700; text-align: right; font-family: 'Courier New', monospace;
+    background: var(--primary); color: #fff; border: none;
+    border-radius: 6px; margin-bottom: 8px;
+  }
+  .calc-keys {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+  }
+  .calc-btn {
+    background: #fff; border: 1px solid var(--border);
+    border-radius: 6px; padding: 10px 0; font-size: 14px;
+    font-weight: 600; cursor: pointer; transition: all 0.1s;
+    font-family: inherit; color: var(--text);
+  }
+  .calc-btn:hover { background: #f1f5f9; }
+  .calc-btn:active { transform: scale(0.96); }
+  .calc-btn.op { background: #f8fafc; color: var(--primary); font-weight: 700; }
+  .calc-btn.op:hover { background: #e2e8f0; }
+  .calc-btn.eq { background: var(--accent); color: var(--primary); font-weight: 700; }
+  .calc-btn.eq:hover { filter: brightness(0.95); }
+
+  /* Calendar timeline chart (year × quarter grid) */
+  .timeline-chart {
+    background: #fafbfc; border: 1px solid var(--border); border-radius: 8px;
+    padding: 14px 16px; font-size: 12px;
+  }
+  .timeline-chart .tl-row {
+    display: grid; grid-template-columns: 100px 1fr; gap: 10px;
+    align-items: center; margin-bottom: 4px;
+  }
+  .timeline-chart .tl-header { border-bottom: 1px dashed var(--border); padding-bottom: 4px; margin-bottom: 6px; }
+  .timeline-chart .tl-row-label { font-size: 12px; line-height: 1.2; }
+  .timeline-chart .tl-row-label strong { color: var(--primary); font-size: 13px; }
+  .timeline-chart .tl-row-label small { color: var(--text-muted); font-size: 11px; }
+  .timeline-chart .tl-cells { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+  .timeline-chart .tl-q-header {
+    text-align: center; font-size: 11px; font-weight: 700; color: var(--text-muted);
+    padding: 2px 0;
+  }
+  .timeline-chart .tl-q {
+    height: 30px; border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600; color: #fff;
+  }
+  .timeline-chart .tl-q.non-owned {
+    background: transparent; border: 1px dashed #e2e8f0; color: #cbd5e1;
+  }
+  .timeline-chart .tl-q.construction { background: #94a3b8; }
+  .timeline-chart .tl-q.operating    { background: var(--s2); }
+  .timeline-chart .tl-q.vacant {
+    background: repeating-linear-gradient(45deg, #fde68a, #fde68a 5px, #fef3c7 5px, #fef3c7 10px);
+    color: #78716c;
+  }
+  .timeline-chart .tl-legend {
+    margin-top: 10px; display: flex; gap: 14px; font-size: 11px; color: var(--text-muted);
+    flex-wrap: wrap;
+  }
+  .timeline-chart .tl-legend-dot {
+    display: inline-block; width: 12px; height: 12px; border-radius: 2px;
+    vertical-align: middle; margin-right: 4px;
+  }
+
+  /* V3 sales-mode: hide partial-percentage tags / Dubai toggle */
+  body.sales-mode .timeline-chart .tl-seg.vacant { background: #94a3b8; color: #fff; }
+  body.sales-mode #cashflowTable tr small[style*="font-style:italic"] { display: none; }
+  body.sales-mode #cashflowTable tr[style*="background:#fef3c7"] { display: none; }
+
+  .cp-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+  }
+  .cp-grid .field { margin: 0; }
+  .cp-grid .cp-full { grid-column: 1 / -1; }
+  .cp-grid input, .cp-grid select { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px; font-family: inherit; }
+  .cp-grid input[type="file"] { padding: 6px; background: #f8fafc; }
+  @media (max-width: 600px) { .cp-grid { grid-template-columns: 1fr; } }
+
+  .cur-btn[data-cur="HKD"] {
+    background: linear-gradient(135deg, rgba(222,41,16,0.42) 0%, rgba(222,41,16,0.08) 60%, rgba(255,255,255,0.5) 100%), #fff;
+  }
+  .cur-btn[data-cur="USD"] {
+    background:
+      linear-gradient(135deg, rgba(60,59,110,0.42) 0%, rgba(60,59,110,0) 50%),
+      linear-gradient(315deg, rgba(178,34,52,0.42) 0%, rgba(178,34,52,0) 50%),
+      #fff;
+  }
+  .cur-btn[data-cur="JPY"] {
+    background: radial-gradient(circle at 50% 50%, rgba(188,0,45,0.55) 0%, rgba(188,0,45,0.18) 24%, rgba(255,255,255,0) 38%), #fff;
+  }
+  .cur-btn[data-cur="EUR"] {
+    background:
+      radial-gradient(circle at 50% 50%, rgba(255,204,0,0.55) 0%, rgba(255,204,0,0) 32%),
+      linear-gradient(135deg, rgba(0,51,153,0.40) 0%, rgba(0,51,153,0.05) 70%),
+      #fff;
+  }
+  .cur-btn.active { background: var(--primary); color: #fff; box-shadow: inset 0 -3px 0 var(--accent); }
+
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  @media (max-width: 768px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+  .kpi {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: #fff; padding: 18px; border-radius: 8px;
+    position: relative; overflow: hidden;
+  }
+  .kpi::before {
+    content: ""; position: absolute; top: 0; right: 0;
+    width: 60px; height: 60px; background: var(--accent);
+    opacity: 0.1; border-radius: 50%; transform: translate(30%, -30%);
+  }
+  .kpi-label { font-size: 11px; opacity: 0.75; letter-spacing: 1px; margin-bottom: 6px; text-transform: uppercase; }
+  .kpi-value { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .kpi-sub { font-size: 11px; opacity: 0.75; margin-top: 4px; }
+  .kpi.accent { background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); color: var(--primary); }
+  .kpi.accent .kpi-label { color: var(--primary); opacity: 0.7; }
+
+  .scenario-toggles {
+    display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;
+  }
+  .scenario-toggle {
+    padding: 8px 14px;
+    border: 2px solid var(--border);
+    background: #fff;
+    color: var(--text-muted);
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+    letter-spacing: 0.2px;
+  }
+  .scenario-toggle:hover:not(:disabled) {
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+  .scenario-toggle.active.s1 { background: var(--s1); color: #fff; border-color: var(--s1); }
+  .scenario-toggle.active.s2 { background: var(--s2); color: #fff; border-color: var(--s2); }
+  .scenario-toggle.active.s3 { background: var(--s3); color: #fff; border-color: var(--s3); }
+  .scenario-toggle.active.s4 { background: var(--s4); color: #fff; border-color: var(--s4); }
+  .scenario-toggle:disabled {
+    opacity: 0.35; cursor: not-allowed;
+    background: #f3f4f6; color: #9ca3af; border-color: var(--border);
+  }
+  .scenario-toggle:disabled::after {
+    content: " · 完成物件には適用外";
+    font-weight: 400; font-size: 10px;
+  }
+  body[data-lang="en"] .scenario-toggle:disabled::after {
+    content: " · N/A for Ready";
+  }
+  .scenario-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 18px; }
+  @media (max-width: 768px) { .scenario-grid { grid-template-columns: 1fr; } }
+  .scenario { border: 2px solid var(--border); border-radius: 8px; padding: 16px; }
+  .scenario.s1 { border-top: 4px solid var(--s1); }
+  .scenario.s2 { border-top: 4px solid var(--s2); }
+  .scenario.s3 { border-top: 4px solid var(--s3); }
+  .scenario.s4 { border-top: 4px solid var(--s4); }
+  .scenario-title { font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+  .scenario.s1 .scenario-title { color: var(--s1); }
+  .scenario.s2 .scenario-title { color: var(--s2); }
+  .scenario.s3 .scenario-title { color: var(--s3); }
+  .scenario.s4 .scenario-title { color: var(--s4); }
+  .scenario.s4 .scenario-custom { display: flex; gap: 8px; margin-bottom: 8px; }
+  .scenario.s4 .scenario-custom .field { flex: 1; margin: 0; }
+  .scenario.s4 .scenario-custom label { font-size: 11px; }
+  .scenario.s4 .scenario-custom input { padding: 5px 8px; font-size: 12px; }
+  .scenario-desc { font-size: 11px; color: var(--text-muted); margin-bottom: 12px; }
+  .scenario-metric { display: flex; justify-content: space-between; font-size: 12px; padding: 4px 0; border-bottom: 1px dashed var(--border); }
+  .scenario-metric:last-child { border-bottom: none; }
+  .scenario-metric .val { font-weight: 700; font-variant-numeric: tabular-nums; }
+
+  .chart-container { position: relative; height: 300px; margin-top: 10px; }
+  .chart-container.small { height: 240px; }
+
+  .note {
+    font-size: 11px; color: var(--text-muted);
+    margin-top: 16px; padding: 12px;
+    background: #f9fafb; border-left: 3px solid var(--accent);
+    border-radius: 4px; line-height: 1.8;
+  }
+
+  .tab-group {
+    display: flex; border-bottom: 2px solid var(--border);
+    margin-bottom: 14px; overflow-x: auto;
+  }
+  .tab {
+    padding: 10px 18px; font-size: 13px; font-weight: 600;
+    color: var(--text-muted); cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px; white-space: nowrap;
+  }
+  .tab.active { color: var(--primary); border-bottom-color: var(--accent); font-weight: 700; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* ============ BROCHURE MODAL ============ */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(10, 37, 64, 0.72);
+    backdrop-filter: blur(6px);
+    z-index: 1000;
+    align-items: center; justify-content: center;
+    padding: 40px 20px;
+  }
+  .modal-overlay.open { display: flex; animation: fadeIn 0.2s ease-out; }
+  @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+  @keyframes slideUp { from { transform: translateY(20px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
+
+  .modal {
+    background: #fff; border-radius: 12px;
+    max-width: 1200px; width: 100%;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    animation: slideUp 0.25s ease-out;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+  .modal-header {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: #fff;
+    padding: 20px 28px;
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 3px solid var(--accent);
+  }
+  .modal-header h2 { margin: 0; font-size: 20px; color: #fff; font-weight: 700; }
+  .modal-header .subtitle { font-size: 12px; opacity: 0.8; letter-spacing: 1px; margin-top: 4px; }
+  .modal-close {
+    background: rgba(255,255,255,0.15); color: #fff;
+    border: none; width: 36px; height: 36px;
+    border-radius: 50%; cursor: pointer;
+    font-size: 20px; line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .modal-close:hover { background: var(--accent); color: var(--primary); }
+
+  .modal-body { padding: 24px 28px; overflow-y: auto; }
+  .modal-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 14px;
+  }
+  .brochure-card {
+    background: var(--card); border-radius: 8px;
+    border: 1px solid var(--border);
+    padding: 16px;
+    transition: all 0.2s;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .brochure-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+  }
+  .brochure-card .b-tag {
+    display: inline-block;
+    background: var(--primary); color: #fff;
+    font-size: 10px; font-weight: 700; letter-spacing: 1px;
+    padding: 3px 8px; border-radius: 3px;
+    align-self: flex-start;
+  }
+  .brochure-card .b-tag.ready { background: var(--positive); }
+  .brochure-card .b-tag.offplan { background: var(--accent); color: var(--primary); }
+  .brochure-card h4 {
+    margin: 2px 0; font-size: 13px;
+    color: var(--primary); line-height: 1.4; font-weight: 700;
+  }
+  .brochure-card .b-price {
+    font-size: 16px; font-weight: 700;
+    color: var(--accent-dark); font-variant-numeric: tabular-nums;
+  }
+  .brochure-card .b-specs {
+    font-size: 11px; color: var(--text-muted);
+    display: flex; flex-wrap: wrap; gap: 10px;
+  }
+  .brochure-card .b-specs strong { color: var(--text); }
+  .brochure-card .b-actions {
+    display: flex; gap: 6px;
+    margin-top: auto; padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+  .b-btn {
+    flex: 1; padding: 7px 10px;
+    border-radius: 4px;
+    font-size: 11px; font-weight: 600;
+    text-align: center; text-decoration: none;
+    border: 1px solid var(--border);
+    cursor: pointer; font-family: inherit;
+    background: #fff; color: var(--primary);
+  }
+  .b-btn.primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .b-btn.primary:hover { background: var(--accent); color: var(--primary); border-color: var(--accent); }
+  .b-btn:not(.primary):hover { background: var(--bg); border-color: var(--primary); }
+
+  .modal-footer {
+    padding: 14px 28px;
+    background: #fafbfc;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .modal-footer a {
+    color: var(--primary); font-weight: 600;
+    text-decoration: none;
+  }
+  .modal-footer a:hover { color: var(--accent-dark); text-decoration: underline; }
+
+  /* ============ FOOTER ============ */
+  footer {
+    text-align: center;
+    padding: 40px 20px;
+    font-size: 11px;
+    background: var(--primary);
+    color: rgba(255,255,255,0.7);
+    margin-top: 60px;
+    line-height: 1.9;
+  }
+  footer strong { color: var(--accent); }
+
+  /* ============ DEMO TOUR ============ */
+  .demo-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--primary);
+    color: #fff;
+    border: 2px solid var(--accent);
+    padding: 11px 22px;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 14px;
+    transition: all 0.15s;
+    letter-spacing: 0.4px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+  }
+  .demo-button:hover {
+    background: var(--accent);
+    color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(201,169,97,0.4);
+  }
+  .demo-button .play-icon {
+    background: var(--accent);
+    color: var(--primary);
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    transition: all 0.15s;
+  }
+  .demo-button:hover .play-icon {
+    background: var(--primary);
+    color: var(--accent);
+  }
+
+  body.demo-running { overflow-x: hidden; }
+  body.demo-running .demo-target {
+    position: relative;
+    outline: 4px solid #10b981 !important;
+    outline-offset: 5px;
+    border-radius: 6px;
+    animation: demoPulse 1.2s ease-in-out infinite;
+    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.18), 0 0 24px rgba(16, 185, 129, 0.5);
+    scroll-margin-top: 100px;
+    z-index: 50;
+  }
+  @keyframes demoPulse {
+    0%, 100% {
+      outline-color: #10b981;
+      box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.18), 0 0 24px rgba(16, 185, 129, 0.5);
+    }
+    50% {
+      outline-color: #6ee7b7;
+      outline-offset: 8px;
+      box-shadow: 0 0 0 12px rgba(16, 185, 129, 0.28), 0 0 36px rgba(16, 185, 129, 0.7);
+    }
+  }
+
+  #demo-tooltip {
+    position: fixed;
+    background: var(--primary);
+    color: #fff;
+    padding: 18px 22px;
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.65;
+    z-index: 10001;
+    max-width: 340px;
+    width: calc(100vw - 32px);
+    box-sizing: border-box;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.45), 0 0 0 1px rgba(16, 185, 129, 0.4);
+    animation: demoFadeIn 0.25s ease-out;
+    border: 2px solid #10b981;
+  }
+  @keyframes demoFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  #demo-tooltip .step-title {
+    font-weight: 700; color: #6ee7b7;
+    margin-bottom: 8px; font-size: 11px;
+    letter-spacing: 1.5px; text-transform: uppercase;
+  }
+  #demo-tooltip .step-text { color: #fff; }
+  #demo-tooltip .step-controls {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 14px; gap: 14px;
+  }
+  #demo-tooltip .step-progress {
+    display: flex; gap: 5px;
+  }
+  #demo-tooltip .step-progress .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: rgba(255,255,255,0.25); transition: all 0.25s;
+  }
+  #demo-tooltip .step-progress .dot.active {
+    background: #10b981; width: 22px; border-radius: 3px;
+  }
+  #demo-tooltip .step-skip {
+    background: rgba(255,255,255,0.12);
+    color: #fff; border: 1px solid rgba(255,255,255,0.2);
+    padding: 5px 12px; border-radius: 4px;
+    font-size: 11px; cursor: pointer;
+    font-family: inherit; letter-spacing: 0.4px;
+  }
+  #demo-tooltip .step-skip:hover {
+    background: #10b981; color: #fff;
+    border-color: #10b981;
+  }
+
+  /* ============ INLINE CITATIONS ============ */
+  a.cite {
+    display: inline-block;
+    font-size: 0.72em;
+    vertical-align: 0.18em;
+    color: var(--accent-dark);
+    text-decoration: none;
+    margin: 0 1px 0 2px;
+    padding: 1px 5px;
+    border-radius: 3px;
+    background: rgba(201, 169, 97, 0.12);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    transition: all 0.12s;
+    line-height: 1.2;
+  }
+  a.cite:hover {
+    background: var(--primary);
+    color: #fff;
+  }
+  a.cite::before {
+    content: "↗ ";
+    opacity: 0.6;
+    font-size: 0.85em;
+  }
+
+  /* ============ RESOURCES BLOCK ============ */
+  .resources-block {
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+  .resources-block summary {
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    background: var(--bg);
+    color: var(--primary);
+    border: 1px solid var(--border);
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    list-style: none;
+    user-select: none;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .resources-block summary::-webkit-details-marker { display: none; }
+  .resources-block summary::before {
+    content: "▸";
+    display: inline-block;
+    margin-right: 8px;
+    transition: transform 0.2s;
+    font-size: 10px;
+  }
+  .resources-block[open] summary::before { transform: rotate(90deg); }
+  .resources-block summary:hover {
+    background: var(--primary); color: #fff; border-color: var(--primary);
+  }
+  .resources-content {
+    margin-top: 18px;
+    padding: 22px 26px;
+    background: #fafbfc;
+    border-radius: 6px;
+    border-left: 3px solid var(--accent);
+  }
+  .resources-content h5 {
+    color: var(--primary);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin: 18px 0 8px;
+    font-weight: 700;
+  }
+  .resources-content h5:first-child { margin-top: 0; }
+  .resources-content ul {
+    margin: 0; padding-left: 20px;
+    font-size: 13px;
+    line-height: 2;
+  }
+  .resources-content a {
+    color: var(--primary);
+    text-decoration: none;
+    border-bottom: 1px dotted var(--accent-dark);
+    font-weight: 600;
+  }
+  .resources-content a:hover { color: var(--accent-dark); border-bottom-style: solid; }
+  .resources-content small {
+    color: var(--text-muted);
+    font-size: 11.5px;
+    font-weight: 400;
+  }
+
+  @media print {
+    @page { size: A4 portrait; margin: 10mm; }
+    body { background: #fff; font-size: 11px; }
+    nav.sticky-nav, .print-btn, .lang-toggle, .nav-brochure-btn, .modal-overlay,
+    .demo-button, #demo-tooltip { display: none !important; }
+
+    /* Preserve all background colors / gradients in print */
+    *, *::before, *::after {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      color-adjust: exact !important;
+    }
+
+    /* ====== Simulator-only print mode (LANDSCAPE) ====== */
+    body.print-sim-only header.site-header,
+    body.print-sim-only nav.sticky-nav,
+    body.print-sim-only .hero,
+    body.print-sim-only .container > .qa-section,
+    body.print-sim-only footer,
+    body.print-sim-only #demo-tooltip,
+    body.print-sim-only .modal-overlay,
+    body.print-sim-only .scenario-toggles { display: none !important; }
+
+    body.print-sim-only #simulator { margin: 0 !important; padding: 0 !important; border-top: none !important; }
+    body.print-sim-only .sim-wrapper { margin-top: 0 !important; padding-top: 0 !important; border-top: none !important; }
+    body.print-sim-only .container { padding: 0 !important; max-width: 100% !important; }
+
+    body.print-sim-only .sim-title-bar {
+      padding: 10px 16px !important; margin-bottom: 10px !important;
+      border-radius: 4px !important;
+      page-break-inside: avoid !important;
+      page-break-after: avoid !important;
+    }
+    body.print-sim-only .sim-title-bar h2 { font-size: 16px !important; margin: 0 !important; }
+    body.print-sim-only .sim-title-bar .kicker { font-size: 9px !important; }
+    body.print-sim-only .sim-title-bar .subtitle { font-size: 10px !important; }
+    body.print-sim-only .sim-title-bar .nav-brochure-btn { display: none !important; }
+
+    /* SINGLE COLUMN flow — packed tight to fit landscape A4 in 2 pages */
+    body.print-sim-only .simulator-container {
+      display: block !important;
+      width: 100% !important;
+    }
+    body.print-sim-only .input-panel,
+    body.print-sim-only .output-panel {
+      display: block !important;
+      width: 100% !important;
+    }
+    /* Inputs: 4-column compact row on top */
+    body.print-sim-only .input-panel {
+      display: grid !important;
+      grid-template-columns: repeat(4, 1fr) !important;
+      gap: 5px !important;
+      margin-bottom: 5px !important;
+      page-break-inside: avoid !important;
+    }
+    body.print-sim-only .input-panel > .sim-card {
+      padding: 6px 8px !important;
+      margin-bottom: 0 !important;
+    }
+
+    body.print-sim-only .sim-card {
+      padding: 7px 10px !important;
+      margin-bottom: 5px !important;
+      border: 1px solid #d1d5db !important;
+      box-shadow: none !important;
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+    }
+    body.print-sim-only .sim-card h3 {
+      font-size: 9px !important;
+      padding-bottom: 3px !important;
+      margin: 0 0 4px !important;
+      letter-spacing: 0.3px !important;
+    }
+    body.print-sim-only .sim-card h3 .count {
+      width: 16px !important; height: 16px !important; line-height: 16px !important;
+      font-size: 9px !important; margin-right: 5px !important;
+    }
+
+    body.print-sim-only .field { margin-bottom: 3px !important; }
+    body.print-sim-only .field label { font-size: 8px !important; margin-bottom: 1px !important; }
+    body.print-sim-only .field input,
+    body.print-sim-only .field select {
+      padding: 3px 5px !important; font-size: 9px !important;
+      border: 1px solid #d1d5db !important;
+    }
+    body.print-sim-only .field-row { gap: 4px !important; }
+    body.print-sim-only .checkbox-field { padding: 1px 0 !important; }
+    body.print-sim-only .checkbox-field label { font-size: 9px !important; }
+
+    body.print-sim-only .kpi-grid {
+      display: grid !important;
+      grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+      gap: 5px !important;
+      margin-bottom: 5px !important;
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+    }
+    body.print-sim-only .kpi {
+      padding: 7px 10px !important;
+      overflow: hidden !important;
+    }
+    body.print-sim-only .kpi::before { display: none !important; }
+    body.print-sim-only .kpi-value { font-size: 13px !important; word-break: keep-all !important; }
+    body.print-sim-only .kpi-label { font-size: 7.5px !important; margin-bottom: 2px !important; letter-spacing: 0.3px !important; }
+    body.print-sim-only .kpi-sub { font-size: 7.5px !important; margin-top: 1px !important; }
+
+    body.print-sim-only .scenario-grid {
+      display: grid !important;
+      grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+      gap: 5px !important;
+      margin-bottom: 6px !important;
+      page-break-inside: avoid !important;
+    }
+    body.print-sim-only .scenario {
+      padding: 6px 9px !important;
+      page-break-inside: avoid !important;
+      border: 1px solid #d1d5db !important;
+      overflow: hidden !important;
+    }
+    body.print-sim-only .scenario-title { font-size: 9px !important; word-break: keep-all !important; }
+    body.print-sim-only .scenario-desc { font-size: 8px !important; margin-bottom: 3px !important; min-height: 0 !important; }
+    body.print-sim-only .scenario-metric { font-size: 8.5px !important; padding: 1px 0 !important; }
+
+    body.print-sim-only .chart-container {
+      height: 130px !important;
+      max-height: 130px !important;
+      width: 100% !important;
+      page-break-inside: avoid !important;
+      position: relative !important;
+    }
+    body.print-sim-only .chart-container.small { height: 120px !important; max-height: 120px !important; }
+    body.print-sim-only .chart-container canvas {
+      max-width: 100% !important;
+      max-height: 100% !important;
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    body.print-sim-only table.data-table { font-size: 8.5px !important; margin: 2px 0 !important; }
+    body.print-sim-only table.data-table th,
+    body.print-sim-only table.data-table td { padding: 3px 7px !important; }
+    body.print-sim-only table tr { page-break-inside: avoid !important; }
+
+    body.print-sim-only .note {
+      font-size: 7.5px !important;
+      padding: 5px 9px !important;
+      line-height: 1.4 !important;
+      page-break-inside: avoid !important;
+      margin-top: 5px !important;
+    }
+
+    /* Force page break before the first table (Initial outlay) so:
+       - Page 1: Inputs + KPIs + Scenarios + Scenario chart
+       - Page 2: Tables A, B, C + Cumulative chart + Note
+       Output-panel structure: child 1 = kpi-grid, child 2 = scenarios card,
+       child 3 = initial outlay card (= where we want the break) */
+    body.print-sim-only .output-panel > .sim-card:nth-child(3) {
+      page-break-before: always !important;
+      break-before: page !important;
+    }
+
+    /* Default whole-page print fallback */
+    body:not(.print-sim-only) .sim-card,
+    body:not(.print-sim-only) .answer-block { box-shadow: none; border: 1px solid var(--border); page-break-inside: avoid; }
+    body:not(.print-sim-only) .answer-block { padding: 16px; }
+    body:not(.print-sim-only) .sim-card { padding: 14px; margin-bottom: 10px; }
+    body:not(.print-sim-only) details[class~="resources-block"] > .resources-content { display: block !important; }
+    body:not(.print-sim-only) .simulator-container { grid-template-columns: 1fr; gap: 14px; }
+    body:not(.print-sim-only) .input-panel,
+    body:not(.print-sim-only) .output-panel { width: 100%; }
+    body:not(.print-sim-only) .chart-container { height: 280px; page-break-inside: avoid; }
+    body:not(.print-sim-only) table.data-table { font-size: 10px; }
+    body:not(.print-sim-only) table.data-table th,
+    body:not(.print-sim-only) table.data-table td { padding: 6px 8px; }
+    body:not(.print-sim-only) h1, body:not(.print-sim-only) h2,
+    body:not(.print-sim-only) h3, body:not(.print-sim-only) h4 { page-break-after: avoid; }
+    body:not(.print-sim-only) .qa-section,
+    body:not(.print-sim-only) .sim-card,
+    body:not(.print-sim-only) .answer-block { page-break-inside: avoid; }
+  }
+
+  /* ============ MOBILE RESPONSIVENESS ============ */
+  html, body { overflow-x: hidden; max-width: 100vw; }
+
+  @media (max-width: 768px) {
+    body { font-size: 13px; }
+    /* Header */
+    header.site-header { padding: 18px 16px; }
+    header.site-header h1 { font-size: 17px; }
+    header.site-header .subtitle { font-size: 9px; letter-spacing: 0.8px; }
+    .brand-logo { width: 40px; height: 40px; }
+    .brand { gap: 12px; }
+    .header-inner { gap: 12px; }
+    .header-actions { gap: 8px; flex-wrap: wrap; }
+    .lang-toggle button { padding: 6px 12px; font-size: 11px; }
+    .print-btn { padding: 7px 12px; font-size: 11px; letter-spacing: 0.5px; }
+
+    /* Sticky nav */
+    nav.sticky-nav { padding: 0 12px; }
+    .nav-link { padding: 12px 12px; font-size: 12px; }
+    .nav-brochure-btn {
+      padding: 8px 14px; font-size: 11px; letter-spacing: 0.5px;
+      margin-left: 8px;
+    }
+    .nav-brochure-btn .count-badge { padding: 1px 6px; font-size: 10px; }
+
+    /* Hero */
+    .hero { margin: 16px; padding: 20px; border-radius: 8px; }
+    .hero h2 { font-size: 17px; line-height: 1.5; }
+    .hero p { font-size: 12px; line-height: 1.7; }
+
+    /* Container & sections */
+    .container { padding: 0 16px; }
+    .qa-section { margin-bottom: 28px; }
+    .section-header { padding-left: 14px; border-left-width: 4px; }
+    .section-header h2 { font-size: 19px; line-height: 1.4; }
+    .section-header .desc { font-size: 12px; }
+    .section-header .kicker { font-size: 11px; letter-spacing: 1.4px; }
+
+    .question-block { padding: 14px 16px; margin-bottom: 18px; }
+    .question-block .q-text { font-size: 12.5px; line-height: 1.7; }
+    .question-block::before { font-size: 10px; padding: 2px 9px; left: 14px; }
+
+    .answer-block { padding: 18px 16px; border-radius: 6px; }
+    .answer-block h3 { font-size: 15px; margin: 18px 0 10px; padding-bottom: 6px; }
+    .answer-block h4 { font-size: 13px; margin: 14px 0 6px; }
+    .answer-block p, .answer-block ul, .answer-block ol, .answer-block li { font-size: 12.5px; }
+
+    /* Data tables — let them scroll horizontally instead of overflowing */
+    .answer-block table.data-table,
+    .sim-card table.data-table {
+      display: block;
+      overflow-x: auto;
+      white-space: nowrap;
+      -webkit-overflow-scrolling: touch;
+    }
+    table.data-table th, table.data-table td { padding: 8px 10px; font-size: 12px; }
+
+    /* Code blocks */
+    .code-block { font-size: 10.5px; padding: 12px 14px; line-height: 1.7; }
+
+    /* Callouts */
+    .callout { padding: 12px 14px; font-size: 12.5px; line-height: 1.7; }
+
+    /* Simulator */
+    .sim-wrapper { margin-top: 36px; padding-top: 24px; }
+    .sim-title-bar { padding: 16px 20px; border-radius: 8px; }
+    .sim-title-bar h2 { font-size: 17px; }
+    .sim-title-bar .subtitle { font-size: 11px; }
+
+    .sim-card { padding: 16px; border-radius: 6px; }
+    .sim-card h3 { font-size: 12px; }
+
+    .kpi { padding: 14px; }
+    .kpi-value { font-size: 18px; }
+    .kpi-label { font-size: 10px; }
+
+    .scenario { padding: 14px; }
+    .scenario-title { font-size: 11.5px; }
+
+    /* Modal */
+    .modal-overlay { padding: 16px 8px; }
+    .modal-header { padding: 16px 18px; }
+    .modal-header h2 { font-size: 16px; }
+    .modal-header .subtitle { font-size: 10px; }
+    .modal-body { padding: 16px; }
+    .modal-grid { grid-template-columns: 1fr; gap: 12px; }
+    .brochure-card { padding: 14px; }
+
+    /* Footer */
+    footer { padding: 24px 16px; font-size: 10.5px; }
+  }
+
+  @media (max-width: 420px) {
+    /* Even tighter on small phones */
+    header.site-header h1 { font-size: 15px; }
+    .nav-link { padding: 11px 10px; font-size: 11.5px; }
+    .nav-brochure-btn { padding: 7px 10px; font-size: 10px; }
+    .section-header h2 { font-size: 17px; }
+    .scenario-grid, .kpi-grid { gap: 10px; }
+  }
+</style>
+</head>
+<body data-lang="ja">
+
+<!-- ============ HEADER ============ -->
+<header class="site-header">
+  <div class="header-inner">
+    <div class="brand">
+      <img src="./exceed_logo.jpg" alt="EXCEED" class="brand-logo">
+      <div>
+        <h1>
+          <span class="ja">EXIT IRR シミュレーター</span>
+          <span class="en">EXIT IRR Simulator</span>
+        </h1>
+        <div class="subtitle">ACQUISITION · OPERATION · EXIT — BY EXCEED REAL ESTATE L.L.C.</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="lang-toggle">
+        <button id="btn-ja" class="active" onclick="setLanguage('ja')">日本語</button>
+        <button id="btn-en" onclick="setLanguage('en')">EN</button>
+      </div>
+      <button class="print-btn" id="pdfBtn" onclick="downloadSimulatorPDF()">
+        <span class="ja">印刷 / PDF保存</span><span class="en">Print / Save PDF</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+
+<!-- ============ HERO (standalone simulator) ============ -->
+<div class="hero">
+  <div class="lang-ja">
+    <h2>EXIT シミュレーター｜ドバイ不動産 IRR 試算ツール</h2>
+    <p>物件選定から融資・運用・売却まで、保有期間中のキャッシュフローと出口時の IRR・着金額（HKD/USD/JPY/EUR）をリアルタイムに算出します。8物件のプリセットから選択するか、任意の数値を入力してご利用ください。</p>
+  </div>
+  <div class="lang-en">
+    <h2>EXIT Simulator · Dubai Property IRR Tool</h2>
+    <p>Model holding-period cash flow, sale-time IRR, and net proceeds (HKD / USD / JPY / EUR) across 8 property presets — or any custom inputs. Adjust LTV, holding period, currency, and FX to see results live.</p>
+  </div>
+  <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:14px;">
+    <button class="demo-button" onclick="runDemo()">
+      <span class="play-icon">▶</span>
+      <span class="ja">使い方を30秒で見る</span>
+      <span class="en">See how it works (30s)</span>
+    </button>
+    <button class="nav-brochure-btn" onclick="openBrochureModal()" style="margin-left:0;">
+      <span class="ja">物件資料</span><span class="en">Brochures</span>
+      <span class="count-badge">8</span>
+    </button>
+  </div>
+</div>
+
+<div class="container">
+  <!-- ===== SIMULATOR (FULL-WIDTH) ===== -->
+  <div class="sim-wrapper" id="simulator">
+    <div class="sim-title-bar">
+      <div>
+        <div class="kicker"><span class="ja">INTERACTIVE TOOL</span><span class="en">INTERACTIVE TOOL</span></div>
+        <h2><span class="ja">EXITシミュレーター</span><span class="en">Exit Simulator</span></h2>
+        <div class="subtitle">
+          <span class="ja">物件選択 → ローン・保有期間・通貨を調整 → IRR と着金額を即算出</span>
+          <span class="en">Select property → adjust loan / holding / currency → instant IRR + net proceeds</span>
+        </div>
+      </div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <select id="versionSelector" onchange="navigateVersion(this.value)" style="padding:8px 12px; border:1px solid var(--border); border-radius:6px; font-size:13px; font-weight:600; background:#fff; color:var(--primary); cursor:pointer;">
+          <option value="v0">V0 — 現行版 / Current</option>
+          <option value="v1">V1 — オプションA: 運用年のみ</option>
+          <option value="v2">V2 — オプションB: 2つのIRR</option>
+          <option value="v3">V3 — オプションC: モード切替</option>
+          <option value="v4">V4 — オプションD: 購入日固定</option>
+          <option value="v5">V5 — A+D 組み合わせ</option>
+        </select>
+        <button class="nav-brochure-btn" style="background:var(--accent);color:var(--primary);margin:0;" onclick="openBrochureModal()">
+          <span class="ja">物件資料を開く</span><span class="en">Open Brochures</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="simulator-container">
+      <!-- INPUTS -->
+      <div class="input-panel">
+        <div class="sim-card">
+          <h3><span class="count">1</span><span class="ja">物件情報</span><span class="en">Property</span></h3>
+          <div class="field">
+            <label><span class="ja">プリセット物件</span><span class="en">Preset</span></label>
+            <select id="preset">
+              <option value="custom">— <span class="ja">フリー入力</span><span class="en">Free Input</span> —</option>
+              <option value="ritz" selected>Ritz-Carlton Creekside 2BR (13.0M)</option>
+              <option value="oneZaabeel">One Za'abeel 2BR (13.5M)</option>
+              <option value="serenia">Serenia Living 2BR (7.0M)</option>
+              <option value="sixSenses3">Six Senses Palm 3BR Duplex G/6 — 6,151 sqft (32.0M)</option>
+              <option value="sixSenses3b">Six Senses Palm 3BR Duplex 1/6 — 6,478 sqft (36.0M)</option>
+              <option value="sixSenses4">Six Senses Palm 4BR Simplex — 4,375 sqft (32.0M)</option>
+              <option value="orla">ORLA Dorchester 3BR (31.0M)</option>
+              <option value="palmJebel">Palm Jebel Ali 6BR Villa (18.5M)</option>
+              <option value="emerald">Emerald Hills Mansion (125.0M)</option>
+              <optgroup id="customPresetGroup" label="Custom Properties"></optgroup>
+              <option value="addCustom">+ Add Custom Property…</option>
+            </select>
+            <div id="customPresetActions" style="display:none; margin-top:6px; font-size:11px;">
+              <a href="#" id="downloadCustomBrochure" style="color:var(--accent-dark); text-decoration:underline; margin-right:10px; display:none;">📄 Download brochure</a>
+              <a href="#" id="deleteCustomProperty" style="color:var(--negative); text-decoration:underline;">🗑️ Delete</a>
+            </div>
+          </div>
+          <div class="field">
+            <label><span class="ja">物件価格（AED）</span><span class="en">Price (AED)</span></label>
+            <input type="number" id="price" value="13000000" step="100000">
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label><span class="ja">面積（sqft）</span><span class="en">Size (sqft)</span></label>
+              <input type="number" id="sqft" value="2524" step="10">
+              <small id="sqftEquiv" class="size-equiv"></small>
+            </div>
+            <div class="field">
+              <label>Svc/sqft</label>
+              <input type="number" id="serviceChargePsf" value="32.5" step="0.5">
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label><span class="ja">タイプ</span><span class="en">Type</span></label>
+              <select id="propertyType">
+                <option value="standard">Standard</option>
+                <option value="branded" selected>Branded</option>
+                <option value="villa">Villa</option>
+              </select>
+            </div>
+            <div class="field">
+              <label><span class="ja">購入方式</span><span class="en">Mode</span></label>
+              <select id="purchaseMode">
+                <option value="offplan" selected>Off-plan</option>
+                <option value="ready">Ready (Primary)</option>
+                <option value="secondary">Secondary</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label><span class="ja">購入時期（年・四半期）</span><span class="en">Purchase Date (Year &amp; Quarter)</span></label>
+            <div style="display:flex; gap:6px;">
+              <select id="purchaseYear" style="flex:1">
+                <option value="2024">2024</option>
+                <option value="2025">2025</option>
+                <option value="2026">2026</option>
+                <option value="2027">2027</option>
+                <option value="2028">2028</option>
+                <option value="2029">2029</option>
+                <option value="2030">2030</option>
+              </select>
+              <select id="purchaseQuarter" style="flex:0 0 78px" title="購入四半期 / Purchase Quarter">
+                <option value="1">Q1</option>
+                <option value="2">Q2</option>
+                <option value="3">Q3</option>
+                <option value="4">Q4</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label><span class="ja">完成予定年・四半期</span><span class="en">Completion Year &amp; Quarter</span></label>
+            <div style="display:flex; gap:6px;">
+              <select id="completionYear" style="flex:1">
+                <option value="2026">2026</option>
+                <option value="2027">2027</option>
+                <option value="2028" selected>2028</option>
+                <option value="2029">2029</option>
+                <option value="2030">2030</option>
+                <option value="2031">2031</option>
+                <option value="2032">2032</option>
+                <option value="2033">2033</option>
+                <option value="2034">2034</option>
+                <option value="2035">2035</option>
+              </select>
+              <select id="completionQuarter" style="flex:0 0 78px" title="完成四半期 / Completion Quarter">
+                <option value="1" selected>Q1</option>
+                <option value="2">Q2</option>
+                <option value="3">Q3</option>
+                <option value="4">Q4</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="sim-card">
+          <h3><span class="count">2</span><span class="ja">ローン条件</span><span class="en">Loan</span></h3>
+          <div class="checkbox-field">
+            <input type="checkbox" id="useMortgage" checked>
+            <label for="useMortgage"><span class="ja">ローンを利用する</span><span class="en">Use mortgage</span></label>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>LTV (%)</label><input type="number" id="ltv" value="50" min="0" max="80" step="5"></div>
+            <div class="field"><label><span class="ja">金利 (%)</span><span class="en">Rate (%)</span></label><input type="number" id="mortgageRate" value="6.5" step="0.1"></div>
+          </div>
+          <div class="field">
+            <label><span class="ja">ローン期間（年）</span><span class="en">Term (yrs)</span></label>
+            <input type="number" id="mortgageTerm" value="20" min="5" max="25" step="1">
+          </div>
+        </div>
+
+        <div class="sim-card">
+          <h3><span class="count">3</span><span class="ja">運用前提</span><span class="en">Operating</span></h3>
+          <div class="field">
+            <label><span class="ja">想定賃料利回り（グロス / 年 %）</span><span class="en">Gross yield (% p.a.)</span></label>
+            <input type="number" id="grossYield" value="6.4" step="0.1">
+          </div>
+          <div class="field-row">
+            <div class="field"><label><span class="ja">空室率 (%)</span><span class="en">Vacancy (%)</span></label><input type="number" id="vacancy" value="10" min="0" max="50" step="1"></div>
+            <div class="field"><label><span class="ja">PM費 (%)</span><span class="en">PM fee (%)</span></label><input type="number" id="pmFee" value="6" min="0" max="15" step="0.5"></div>
+          </div>
+          <div class="field">
+            <label><span class="ja">家具家電費用（AED）</span><span class="en">Furniture (AED)</span></label>
+            <input type="number" id="furniture" value="0" step="50000">
+          </div>
+        </div>
+
+        <div class="sim-card">
+          <h3><span class="count">4</span><span class="ja">売却前提</span><span class="en">Sale</span></h3>
+          <div class="field">
+            <label>
+              <span class="ja"><span id="apprLabelJa">累計値上がり率</span> (%) <small id="apprNoteJa">※保有期間中の総値上がり</small></span>
+              <span class="en"><span id="apprLabelEn">Cumulative appreciation</span> (%) <small id="apprNoteEn">over hold period</small></span>
+            </label>
+            <div class="appr-btns" role="group">
+              <button type="button" class="appr-btn active" data-mode="cumulative"><span class="ja">累計</span><span class="en">Total</span></button>
+              <button type="button" class="appr-btn" data-mode="annual"><span class="ja">年間</span><span class="en">Annual</span></button>
+            </div>
+            <input type="hidden" id="appreciationMode" value="cumulative">
+            <input type="number" id="appreciation" value="35" step="1">
+          </div>
+          <div class="field">
+            <label>
+              <span class="ja">保有期間（年・四半期）<small>※購入から売却までの総期間（建設期間含む）</small></span>
+              <span class="en">Holding period (years &amp; quarters) <small>total from purchase, incl. construction</small></span>
+            </label>
+            <div style="display:flex; gap:6px;">
+              <input type="number" id="holdYears" value="5" min="0" max="20" step="1" style="flex:1">
+              <select id="holdQuarters" style="flex:0 0 78px" title="追加の四半期 / Additional quarters">
+                <option value="0" selected>Q1</option>
+                <option value="1">Q2</option>
+                <option value="2">Q3</option>
+                <option value="3">Q4</option>
+              </select>
+            </div>
+            <!-- Auto-calculated breakdown: construction / operating / vacant -->
+            <div id="holdBreakdown" style="margin-top:8px;"></div>
+          </div>
+        </div>
+
+        <!-- Mini calculator -->
+        <div class="sim-card calc-card">
+          <h3><span class="count">+</span><span class="ja">電卓</span><span class="en">Calculator</span></h3>
+          <input type="text" id="calcDisplay" value="0" readonly>
+          <div class="calc-keys">
+            <button type="button" class="calc-btn op" data-key="C">C</button>
+            <button type="button" class="calc-btn op" data-key="back">⌫</button>
+            <button type="button" class="calc-btn op" data-key="%">%</button>
+            <button type="button" class="calc-btn op" data-key="/">÷</button>
+            <button type="button" class="calc-btn" data-key="7">7</button>
+            <button type="button" class="calc-btn" data-key="8">8</button>
+            <button type="button" class="calc-btn" data-key="9">9</button>
+            <button type="button" class="calc-btn op" data-key="*">×</button>
+            <button type="button" class="calc-btn" data-key="4">4</button>
+            <button type="button" class="calc-btn" data-key="5">5</button>
+            <button type="button" class="calc-btn" data-key="6">6</button>
+            <button type="button" class="calc-btn op" data-key="-">−</button>
+            <button type="button" class="calc-btn" data-key="1">1</button>
+            <button type="button" class="calc-btn" data-key="2">2</button>
+            <button type="button" class="calc-btn" data-key="3">3</button>
+            <button type="button" class="calc-btn op" data-key="+">+</button>
+            <button type="button" class="calc-btn" data-key="0" style="grid-column: span 2">0</button>
+            <button type="button" class="calc-btn" data-key=".">.</button>
+            <button type="button" class="calc-btn eq" data-key="=">=</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- OUTPUTS -->
+      <div class="output-panel">
+        <div class="currency-bar">
+          <div class="cb-title"><span class="ja">通貨設定</span><span class="en">Currency</span></div>
+          <div class="cb-item">
+            <label><span class="ja">表示通貨</span><span class="en">Display</span></label>
+            <div class="currency-btns" role="group">
+              <button type="button" class="cur-btn active" data-cur="HKD">HKD</button>
+              <button type="button" class="cur-btn" data-cur="USD">USD</button>
+              <button type="button" class="cur-btn" data-cur="JPY">JPY</button>
+              <button type="button" class="cur-btn" data-cur="EUR">EUR</button>
+            </div>
+            <input type="hidden" id="currency" value="HKD">
+          </div>
+          <div class="cb-item">
+            <label><span class="ja">他の通貨</span><span class="en">More</span></label>
+            <select id="extraCurrency">
+              <option value="">— —</option>
+              <option value="CNY">CNY (人民元)</option>
+              <option value="KRW">KRW (韓国ウォン)</option>
+              <option value="INR">INR (インドルピー)</option>
+              <option value="RUB">RUB (ロシアルーブル)</option>
+            </select>
+          </div>
+          <div class="cb-item">
+            <label>AED → <span id="fxRateLabel">HKD</span></label>
+            <input type="number" id="fxRate" value="2.13" step="0.01">
+          </div>
+          <div class="cb-item fx-meta">
+            <small><span class="ja">最終更新</span><span class="en">Updated</span>: <span id="fxAsOf">—</span></small>
+          </div>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi">
+            <div class="kpi-label"><span class="ja">初期手出し合計</span><span class="en">Initial Outlay</span></div>
+            <div class="kpi-value" id="kpiInitialCash">—</div>
+            <div class="kpi-sub" id="kpiInitialCashHkd">—</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label"><span class="ja">売却時グロス</span><span class="en">Gross Sale</span></div>
+            <div class="kpi-value" id="kpiSalePrice">—</div>
+            <div class="kpi-sub" id="kpiSalePriceHkd">—</div>
+          </div>
+          <div class="kpi accent">
+            <div class="kpi-label"><span class="ja net-label-ja">香港着金ネット</span><span class="en net-label-en">Net to HK</span></div>
+            <div class="kpi-value" id="kpiNetHkd">—</div>
+            <div class="kpi-sub" id="kpiNetAed">— AED</div>
+          </div>
+          <div class="kpi accent">
+            <div class="kpi-label"><span class="ja">年率リターン (IRR)</span><span class="en">Annualized IRR</span></div>
+            <div class="kpi-value" id="kpiIrr">—</div>
+            <div class="kpi-sub" id="kpiMultiple">× —</div>
+          </div>
+        </div>
+
+        <div class="sim-card">
+          <h3><span class="count">5</span><span class="ja">シナリオ比較</span><span class="en">Scenario Comparison</span></h3>
+          <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px;"><span class="ja">表示するシナリオを選択してください（複数選択可）：</span><span class="en">Select scenarios to display (multiple allowed):</span></p>
+          <div class="scenario-toggles">
+            <button class="scenario-toggle active s1" id="toggle-s1" onclick="toggleScenario(1)" type="button">
+              <span class="ja">① オフプラン・リセール</span><span class="en">(1) Off-Plan</span>
+            </button>
+            <button class="scenario-toggle active s2" id="toggle-s2" onclick="toggleScenario(2)" type="button">
+              <span class="ja">② 引渡後・短期売却</span><span class="en">(2) Post-Handover</span>
+            </button>
+            <button class="scenario-toggle active s3" id="toggle-s3" onclick="toggleScenario(3)" type="button">
+              <span class="ja">③ 中長期保有</span><span class="en">(3) Long-Term Hold</span>
+            </button>
+            <button class="scenario-toggle s4" id="toggle-s4" onclick="toggleScenario(4)" type="button">
+              <span class="ja">④ カスタム</span><span class="en">(4) Custom</span>
+            </button>
+          </div>
+          <div class="scenario-grid">
+            <div class="scenario s1">
+              <div class="scenario-title"><span class="ja">シナリオ① オフプラン・リセール</span><span class="en">(1) Off-Plan Assignment</span></div>
+              <div class="scenario-desc"><span class="ja">44%支払完了後NOC取得 / 2年保有</span><span class="en">NOC after ≥44% paid / 2-yr hold</span></div>
+              <div class="scenario-metric"><span><span class="ja">累計リターン</span><span class="en">Total Return</span></span><span class="val" id="s1Return">—</span></div>
+              <div class="scenario-metric"><span><span class="ja">年率 IRR</span><span class="en">IRR p.a.</span></span><span class="val" id="s1Irr">—</span></div>
+              <div class="scenario-metric"><span><span class="ja net-label-ja">香港着金ネット</span><span class="en net-label-en">Net to HK</span></span><span class="val" id="s1Net">—</span></div>
+            </div>
+            <div class="scenario s2">
+              <div class="scenario-title"><span class="ja">シナリオ② 引渡後・短期売却</span><span class="en">(2) Post-Handover Short</span></div>
+              <div class="scenario-desc"><span class="ja">鍵受取後12ヶ月売却 / 3〜4年保有</span><span class="en">Sell 12 mo after keys / 3–4 yr</span></div>
+              <div class="scenario-metric"><span><span class="ja">累計リターン</span><span class="en">Total Return</span></span><span class="val" id="s2Return">—</span></div>
+              <div class="scenario-metric"><span><span class="ja">年率 IRR</span><span class="en">IRR p.a.</span></span><span class="val" id="s2Irr">—</span></div>
+              <div class="scenario-metric"><span><span class="ja net-label-ja">香港着金ネット</span><span class="en net-label-en">Net to HK</span></span><span class="val" id="s2Net">—</span></div>
+            </div>
+            <div class="scenario s3">
+              <div class="scenario-title"><span class="ja">シナリオ③ 中長期保有</span><span class="en">(3) Long-Term Hold</span></div>
+              <div class="scenario-desc"><span class="ja">インカム＋キャピタル / 7年保有</span><span class="en">Income + capital / 7-yr hold</span></div>
+              <div class="scenario-metric"><span><span class="ja">累計リターン</span><span class="en">Total Return</span></span><span class="val" id="s3Return">—</span></div>
+              <div class="scenario-metric"><span><span class="ja">年率 IRR</span><span class="en">IRR p.a.</span></span><span class="val" id="s3Irr">—</span></div>
+              <div class="scenario-metric"><span><span class="ja net-label-ja">香港着金ネット</span><span class="en net-label-en">Net to HK</span></span><span class="val" id="s3Net">—</span></div>
+            </div>
+            <div class="scenario s4">
+              <div class="scenario-title"><span class="ja">シナリオ④ カスタム</span><span class="en">(4) Custom</span></div>
+              <div class="scenario-desc"><span class="ja">任意の保有期間・値上がり率を入力</span><span class="en">Custom hold period &amp; appreciation</span></div>
+              <div class="scenario-custom">
+                <div class="field">
+                  <label><span class="ja">年数</span><span class="en">Years</span></label>
+                  <input type="number" id="s4Years" value="5" min="1" max="20" step="1">
+                </div>
+                <div class="field">
+                  <label><span class="ja">累計%</span><span class="en">Cum %</span></label>
+                  <input type="number" id="s4Appr" value="35" step="1">
+                </div>
+              </div>
+              <div class="scenario-metric"><span><span class="ja">累計リターン</span><span class="en">Total Return</span></span><span class="val" id="s4Return">—</span></div>
+              <div class="scenario-metric"><span><span class="ja">年率 IRR</span><span class="en">IRR p.a.</span></span><span class="val" id="s4Irr">—</span></div>
+              <div class="scenario-metric"><span><span class="ja net-label-ja">香港着金ネット</span><span class="en net-label-en">Net to HK</span></span><span class="val" id="s4Net">—</span></div>
+            </div>
+          </div>
+          <div class="chart-toggle-row" style="display:flex;justify-content:flex-end;margin-bottom:8px">
+            <button type="button" id="chartToggle" class="scenario-toggle active" onclick="toggleChart()">
+              <span class="ja">📊 チャートを隠す</span><span class="en">📊 Hide chart</span>
+            </button>
+          </div>
+          <div id="chartWrap" class="chart-container small"><canvas id="scenarioChart"></canvas></div>
+        </div>
+
+        <div class="sim-card">
+          <h3><span class="count">A</span><span class="ja">初期手出し内訳</span><span class="en">Initial Outlay Breakdown</span></h3>
+          <table class="data-table">
+            <thead><tr><th><span class="ja">項目</span><span class="en">Item</span></th><th class="num">AED</th><th class="num"><span class="cur-label">HKD</span></th><th><span class="ja">備考</span><span class="en">Notes</span></th></tr></thead>
+            <tbody id="initialCashTable"></tbody>
+          </table>
+        </div>
+
+        <div class="sim-card">
+          <h3><span class="count">B</span><span class="ja">年次キャッシュフロー</span><span class="en">Annual Cash Flow</span></h3>
+          <table class="data-table">
+            <thead><tr>
+              <th><span class="ja">年</span><span class="en">Yr</span></th>
+              <th class="num"><span class="ja">賃料</span><span class="en">Rent</span></th>
+              <th class="num"><span class="ja">空室</span><span class="en">Vac</span></th>
+              <th class="num"><span class="ja">PM費</span><span class="en">PM</span></th>
+              <th class="num"><span class="ja">SC</span><span class="en">Svc</span></th>
+              <th class="num"><span class="ja">ローン</span><span class="en">Loan</span></th>
+              <th class="num"><span class="ja">ネットCF</span><span class="en">Net CF</span></th>
+            </tr></thead>
+            <tbody id="cashflowTable"></tbody>
+          </table>
+
+          <!-- Dubai 1-year lease rule toggle -->
+          <div style="margin-top:14px; padding:10px 14px; background:#fef9e7; border:1px solid #fde68a; border-radius:6px; font-size:12px; display:flex; gap:14px; align-items:center; flex-wrap:wrap;">
+            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
+              <input type="checkbox" id="dubaiRuleToggle" onchange="render()" style="cursor:pointer;">
+              <strong><span class="ja">🇦🇪 ドバイ賃貸ルール</span><span class="en">🇦🇪 Dubai Lease Rule</span></strong>
+            </label>
+            <span style="color:var(--text-muted);"><span class="ja">残期間 &lt;1年は新規賃貸契約不可</span><span class="en">Residual &lt;1y can't get new lease</span></span>
+            <span style="display:flex; gap:10px; margin-left:auto;">
+              <label style="display:flex; align-items:center; gap:4px; cursor:pointer;">
+                <input type="radio" name="dubaiMode" value="rentZero" checked onchange="render()" style="cursor:pointer;">
+                <span class="ja">賃料0、コスト継続</span><span class="en">Rent=0, costs continue</span>
+              </label>
+              <label style="display:flex; align-items:center; gap:4px; cursor:pointer;">
+                <input type="radio" name="dubaiMode" value="ignore" onchange="render()" style="cursor:pointer;">
+                <span class="ja">完全無視</span><span class="en">Ignore entirely</span>
+              </label>
+            </span>
+          </div>
+
+          <!-- Calendar timeline chart -->
+          <div id="timelineChart" class="timeline-chart" style="margin-top:14px;"></div>
+        </div>
+
+        <div class="sim-card">
+          <h3><span class="count">C</span><span class="ja">EXIT（売却時）内訳</span><span class="en">Exit (Sale) Breakdown</span></h3>
+          <table class="data-table">
+            <thead><tr><th><span class="ja">項目</span><span class="en">Item</span></th><th class="num">AED</th><th class="num"><span class="cur-label">HKD</span></th><th><span class="ja">備考</span><span class="en">Notes</span></th></tr></thead>
+            <tbody id="exitTable"></tbody>
+          </table>
+        </div>
+
+        <div class="sim-card">
+          <h3><span class="count">D</span><span class="ja">累積キャッシュフロー チャート</span><span class="en">Cumulative Cash Flow Chart</span></h3>
+          <div class="chart-container"><canvas id="cumulativeChart"></canvas></div>
+        </div>
+
+        <div class="note">
+          <div class="lang-ja">
+            <strong>前提：</strong>DLD 4%、エージェント 2%+VAT、Trustee AED 4,000、NOC AED 5,000、モーゲージ登記 0.25%、売却エージェント 2.1%、UAE CGT 0%、HK属地主義で非課税。
+            <br><strong>注意：</strong>本シミュレーターは投資判断の参考値であり、実際のリターンを保証するものではありません。市況・為替・金利変動・物件個別事情により結果は変動します。
+          </div>
+          <div class="lang-en">
+            <strong>Assumptions:</strong> DLD 4%, agent 2%+VAT, Trustee AED 4,000, NOC AED 5,000, mortgage reg 0.25%, sell-side agent 2.1%, UAE CGT 0%, HK territorial regime (non-taxable).
+            <br><strong>Disclaimer:</strong> This simulator produces indicative values only and does not guarantee actual returns.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</div>
+
+<!-- ============ BROCHURE MODAL ============ -->
+<div class="modal-overlay" id="brochureModal" onclick="if(event.target===this)closeBrochureModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <h2><span class="ja">物件資料ダウンロード</span><span class="en">Property Brochures</span></h2>
+        <div class="subtitle"><span class="ja">全8物件のブロシュアをダウンロード、またはシミュレーターで試算</span><span class="en">Download brochures or load into the simulator — 8 listings</span></div>
+      </div>
+      <button class="modal-close" onclick="closeBrochureModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-grid">
+
+        <div class="brochure-card">
+          <span class="b-tag offplan">OFF-PLAN · Q4 2027</span>
+          <h4>The Ritz-Carlton Residences<br>Dubai Creekside · 2BR Simplex</h4>
+          <div class="b-price">AED 13.0M</div>
+          <div class="b-specs"><span><strong>2,524</strong> sqft</span><span><span class="ja">利回り</span><span class="en">Yield</span> <strong>6.2-6.6%</strong></span></div>
+          <div class="b-actions">
+            <a class="b-btn primary" href="./brochures/RitzCarlton_Creekside_2BR.pdf" download><span class="ja">資料DL</span><span class="en">Download</span></a>
+            <button class="b-btn" onclick="loadPreset('ritz')"><span class="ja">試算</span><span class="en">Simulate</span></button>
+          </div>
+        </div>
+
+        <div class="brochure-card">
+          <span class="b-tag ready">READY</span>
+          <h4>One Za'abeel<br>The Residences · 2BR Duplex</h4>
+          <div class="b-price">AED 13.5M</div>
+          <div class="b-specs"><span><strong>2,008</strong> sqft</span><span><span class="ja">利回り</span><span class="en">Yield</span> <strong>5.8-6.2%</strong></span></div>
+          <div class="b-actions">
+            <a class="b-btn primary" href="./brochures/OneZaabeel_2BR.pdf" download><span class="ja">資料DL</span><span class="en">Download</span></a>
+            <button class="b-btn" onclick="loadPreset('oneZaabeel')"><span class="ja">試算</span><span class="en">Simulate</span></button>
+          </div>
+        </div>
+
+        <div class="brochure-card">
+          <span class="b-tag ready">READY</span>
+          <h4>Serenia Living<br>Palm Jumeirah · 2BR Simplex</h4>
+          <div class="b-price">AED 7.0M</div>
+          <div class="b-specs"><span><strong>2,193</strong> sqft</span><span><span class="ja">利回り</span><span class="en">Yield</span> <strong>7.1-7.5%</strong></span></div>
+          <div class="b-actions">
+            <a class="b-btn primary" href="./brochures/Serenia_Living_3BR.pdf" download><span class="ja">資料DL</span><span class="en">Download</span></a>
+            <button class="b-btn" onclick="loadPreset('serenia')"><span class="ja">試算</span><span class="en">Simulate</span></button>
+          </div>
+        </div>
+
+        <div class="brochure-card">
+          <span class="b-tag ready">READY</span>
+          <h4>Six Senses Residences<br>The Palm · 3BR Duplex G/6</h4>
+          <div class="b-price">AED 32.0M</div>
+          <div class="b-specs"><span><strong>6,151</strong> sqft</span><span><span class="ja">利回り</span><span class="en">Yield</span> <strong>7.8-8.2%</strong></span></div>
+          <div class="b-actions">
+            <a class="b-btn primary" href="./brochures/SixSenses_Palm.pdf" download><span class="ja">資料DL</span><span class="en">Download</span></a>
+            <button class="b-btn" onclick="loadPreset('sixSenses3')"><span class="ja">試算</span><span class="en">Simulate</span></button>
+          </div>
+        </div>
+
+        <div class="brochure-card">
+          <span class="b-tag ready">READY</span>
+          <h4>Six Senses Residences<br>The Palm · 3BR Duplex 1/6</h4>
+          <div class="b-price">AED 36.0M</div>
+          <div class="b-specs"><span><strong>6,478</strong> sqft</span><span><span class="ja">利回り</span><span class="en">Yield</span> <strong>7.2-7.6%</strong></span></div>
+          <div class="b-actions">
+            <a class="b-btn primary" href="./brochures/SixSenses_Palm.pdf" download><span class="ja">資料DL</span><span class="en">Download</span></a>
+            <button class="b-btn" onclick="loadPreset('sixSenses3b')"><span class="ja">試算</span><span class="en">Simulate</span></button>
+          </div>
+        </div>
+
+        <div class="brochure-card">
+          <span class="b-tag offplan">OFF-PLAN · Q1 2028</span>
+          <h4>Six Senses Residences<br>The Palm · 4BR Simplex</h4>
+          <div class="b-price">AED 32.0M</div>
+          <div class="b-specs"><span><strong>4,375</strong> sqft</span><span><span class="ja">利回り</span><span class="en">Yield</span> <strong>6.3-6.7%</strong></span></div>
+          <div class="b-actions">
+            <a class="b-btn primary" href="./brochures/SixSenses_Palm.pdf" download><span class="ja">資料DL</span><span class="en">Download</span></a>
+            <button class="b-btn" onclick="loadPreset('sixSenses4')"><span class="ja">試算</span><span class="en">Simulate</span></button>
+          </div>
+        </div>
+
+        <div class="brochure-card">
+          <span class="b-tag offplan">OFF-PLAN · Q1 2027</span>
+          <h4>ORLA Dorchester Collection<br>Dubai · 3BR Simplex</h4>
+          <div class="b-price">AED 31.0M</div>
+          <div class="b-specs"><span><strong>4,475</strong> sqft</span><span><span class="ja">利回り</span><span class="en">Yield</span> <strong>7.6-8.0%</strong></span></div>
+          <div class="b-actions">
+            <a class="b-btn primary" href="./brochures/ORLA_Dorchester_4BR.pdf" download><span class="ja">資料DL</span><span class="en">Download</span></a>
+            <button class="b-btn" onclick="loadPreset('orla')"><span class="ja">試算</span><span class="en">Simulate</span></button>
+          </div>
+        </div>
+
+        <div class="brochure-card">
+          <span class="b-tag offplan">OFF-PLAN · Q1 2029</span>
+          <h4>Palm Jebel Ali<br>by Nakheel · 6BR Villa</h4>
+          <div class="b-price">AED 18.5M</div>
+          <div class="b-specs"><span><strong>7,653</strong> sqft</span><span><span class="ja">利回り</span><span class="en">Yield</span> <strong>12-13%</strong></span></div>
+          <div class="b-actions">
+            <a class="b-btn primary" href="./brochures/PalmJebelAli_6BR.pdf" download><span class="ja">資料DL</span><span class="en">Download</span></a>
+            <button class="b-btn" onclick="loadPreset('palmJebel')"><span class="ja">試算</span><span class="en">Simulate</span></button>
+          </div>
+        </div>
+
+        <div class="brochure-card">
+          <span class="b-tag ready">ULTRA-PRIME · READY</span>
+          <h4>Emerald Hills Mansion<br>Dubai Hills · 6BR Mansion</h4>
+          <div class="b-price">AED 125.0M</div>
+          <div class="b-specs"><span><strong>25,197</strong> sqft</span><span><span class="ja">利回り</span><span class="en">Yield</span> <strong>4.4-4.8%</strong></span></div>
+          <div class="b-actions">
+            <a class="b-btn primary" href="./brochures/EmeraldHills_Mansion.pdf" download><span class="ja">資料DL</span><span class="en">Download</span></a>
+            <button class="b-btn" onclick="loadPreset('emerald')"><span class="ja">試算</span><span class="en">Simulate</span></button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="modal-footer">
+      <a href="https://docs.google.com/spreadsheets/d/1w-Y9ZwIIizcoQmh_CVpzxmkLjgCokuEQDDqClIj0LfE/edit?usp=sharing" target="_blank" rel="noopener">
+        <span class="ja">全物件リスト（Google Sheets）を開く</span><span class="en">Open Full Property Sheet (Google Sheets)</span> →
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- ============ CUSTOM PROPERTY MODAL ============ -->
+<div class="modal-overlay" id="customPropertyModal" onclick="if(event.target===this)closeCustomPropertyModal()">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-header">
+      <div>
+        <h2><span class="ja">カスタム物件を追加</span><span class="en">Add Custom Property</span></h2>
+        <div class="subtitle"><span class="ja">物件情報を入力して保存。ブロシュアもアップロード可能</span><span class="en">Enter property details and save. PDF brochure optional.</span></div>
+      </div>
+      <button class="modal-close" onclick="closeCustomPropertyModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="cp-grid">
+        <div class="field cp-full">
+          <label><span class="ja">物件名 *</span><span class="en">Property Name *</span></label>
+          <input type="text" id="cpName" placeholder="e.g. Bluewaters Edition 3BR">
+        </div>
+        <div class="field">
+          <label><span class="ja">価格 (AED) *</span><span class="en">Price (AED) *</span></label>
+          <input type="number" id="cpPrice" placeholder="13000000" step="100000">
+        </div>
+        <div class="field">
+          <label><span class="ja">面積 (sqft) *</span><span class="en">Size (sqft) *</span></label>
+          <input type="number" id="cpSqft" placeholder="2500" step="10">
+        </div>
+        <div class="field">
+          <label><span class="ja">タイプ</span><span class="en">Type</span></label>
+          <select id="cpType">
+            <option value="standard">Standard</option>
+            <option value="branded" selected>Branded</option>
+            <option value="villa">Villa</option>
+          </select>
+        </div>
+        <div class="field">
+          <label><span class="ja">購入方式</span><span class="en">Purchase Mode</span></label>
+          <select id="cpMode">
+            <option value="offplan" selected>Off-plan</option>
+            <option value="ready">Ready (Primary)</option>
+            <option value="secondary">Secondary</option>
+          </select>
+        </div>
+        <div class="field">
+          <label><span class="ja">完成予定年</span><span class="en">Completion Year</span></label>
+          <select id="cpCompletionYear">
+            <option value="2026">2026</option>
+            <option value="2027">2027</option>
+            <option value="2028" selected>2028</option>
+            <option value="2029">2029</option>
+            <option value="2030">2030</option>
+            <option value="2031">2031</option>
+            <option value="2032">2032</option>
+            <option value="2033">2033</option>
+            <option value="2034">2034</option>
+            <option value="2035">2035</option>
+          </select>
+        </div>
+        <div class="field">
+          <label><span class="ja">想定賃料利回り (%)</span><span class="en">Gross Yield (%)</span></label>
+          <input type="number" id="cpYield" value="6.5" step="0.1">
+        </div>
+        <div class="field">
+          <label><span class="ja">累計値上がり率 (%)</span><span class="en">Cumulative Appreciation (%)</span></label>
+          <input type="number" id="cpAppreciation" value="35" step="1">
+        </div>
+        <div class="field">
+          <label><span class="ja">サービスチャージ / sqft (AED)</span><span class="en">Service Charge / sqft (AED)</span></label>
+          <input type="number" id="cpServiceChargePsf" value="35" step="0.5">
+        </div>
+        <div class="field">
+          <label><span class="ja">家具設備 (AED)</span><span class="en">Furniture (AED)</span></label>
+          <input type="number" id="cpFurniture" value="0" step="10000">
+        </div>
+        <div class="field cp-full">
+          <label><span class="ja">ブロシュア PDF (任意, 4MB 以下推奨)</span><span class="en">Brochure PDF (optional, ≤4MB recommended)</span></label>
+          <input type="file" id="cpBrochure" accept="application/pdf">
+          <small id="cpBrochureStatus" style="display:block;margin-top:4px;color:var(--text-muted);font-size:11px"></small>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer" style="display:flex;justify-content:flex-end;gap:10px;padding:16px 28px">
+      <button type="button" class="b-btn" onclick="closeCustomPropertyModal()" style="background:#e5e7eb;color:var(--text)">
+        <span class="ja">キャンセル</span><span class="en">Cancel</span>
+      </button>
+      <button type="button" class="b-btn primary" onclick="saveCustomProperty()" style="background:var(--accent);color:var(--primary);font-weight:700">
+        💾 <span class="ja">保存して試算</span><span class="en">Save &amp; Simulate</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <strong>EXCEED REAL ESTATE L.L.C.</strong><br>
+  <span class="ja">担当：Shoya Hosoyama</span><span class="en">Primary Contact: Shoya Hosoyama</span> ·
+  <a href="tel:+971505931748" style="color:var(--accent);text-decoration:none;border-bottom:1px dotted var(--accent)">Mobile +971 50 593 1748</a> ·
+  <a href="mailto:s-hosoyama@exceed-re.ae" style="color:var(--accent);text-decoration:none;border-bottom:1px dotted var(--accent)">s-hosoyama@exceed-re.ae</a><br>
+  #2407 The Regal Tower, Business Bay, Dubai · TEL 04-529-9070 · info@exceed-re.ae · <a href="https://exceed.estate/" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;border-bottom:1px dotted var(--accent)">exceed.estate</a><br>
+  Commercial License No.1180254 / RERA Certificate No.35328
+</footer>
+
+<!-- Demo tour tooltip -->
+<div id="demo-tooltip" style="display:none"></div>
+
+<script>
+// =========== DEMO TOUR ===========
+const demoSteps = [
+  {
+    target: '.nav-brochure-btn',
+    title_ja: 'STEP 1 ｜ 物件を選ぶ',
+    title_en: 'STEP 1 · Browse properties',
+    text_ja: '右上の「物件資料」ボタンをクリックすると、8物件のリストがモーダルで表示されます。',
+    text_en: 'Click "Brochures" top right to see all 8 listings in a modal.',
+    action: () => { setTimeout(() => openBrochureModal(), 600); },
+    delay: 3000
+  },
+  {
+    target: '.modal .brochure-card:nth-child(4)',
+    title_ja: 'STEP 2 ｜「試算」ボタンで自動反映',
+    title_en: 'STEP 2 · Click "Simulate" — auto-loads',
+    text_ja: '気になる物件の「試算」ボタンを押すと、シミュレーターに自動的に反映されます。',
+    text_en: 'Click "Simulate" on any property — it loads into the simulator automatically.',
+    action: () => { setTimeout(() => loadPreset('sixSenses3'), 1200); },
+    delay: 3500
+  },
+  {
+    target: '.input-panel .sim-card:nth-child(2)',
+    title_ja: 'STEP 3 ｜ ローン条件を調整',
+    title_en: 'STEP 3 · Adjust loan terms',
+    text_ja: 'LTV・金利・保有期間を変更すると、結果がリアルタイム更新されます。',
+    text_en: 'Change LTV, rate, and holding period — results update live.',
+    action: () => { setTimeout(() => animateInput('ltv', 50, 65), 600); },
+    delay: 3500
+  },
+  {
+    target: '.kpi-grid',
+    title_ja: 'STEP 4 ｜ 主要KPIをチェック',
+    title_en: 'STEP 4 · Check the KPIs',
+    text_ja: '初期手出し・売却額・IRR・着金額が選択通貨（HKD/USD/JPY/EUR）で即座に算出されます。',
+    text_en: 'Initial outlay, sale price, IRR and net proceeds update instantly in the selected currency (HKD/USD/JPY/EUR).',
+    delay: 3500
+  },
+  {
+    target: '.scenario-grid',
+    title_ja: 'STEP 5 ｜ 3シナリオ比較',
+    title_en: 'STEP 5 · Compare 3 exit scenarios',
+    text_ja: 'オフプラン売却・引渡後短期・中長期保有の3つを横並びで比較できます。',
+    text_en: 'Off-plan flip, post-handover short, and long-term hold — side by side.',
+    delay: 3500
+  }
+];
+
+let demoCancelled = false;
+
+async function runDemo() {
+  demoCancelled = false;
+  document.body.classList.add('demo-running');
+  // Scroll to top first
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  await wait(500);
+
+  for (let i = 0; i < demoSteps.length; i++) {
+    if (demoCancelled) break;
+    await runDemoStep(demoSteps[i], i, demoSteps.length);
+  }
+  cleanupDemo();
+  if (!demoCancelled) {
+    // Final scroll back up
+    setTimeout(() => window.scrollTo({ top: document.getElementById('simulator').offsetTop - 80, behavior: 'smooth' }), 400);
+  }
+}
+
+async function runDemoStep(step, index, total) {
+  // Clear previous highlight
+  document.querySelectorAll('.demo-target').forEach(el => el.classList.remove('demo-target'));
+
+  // Find target
+  const target = document.querySelector(step.target);
+  if (!target) {
+    console.warn('Demo: target not found', step.target);
+    return;
+  }
+
+  // Scroll target into view (unless inside modal)
+  const inModal = target.closest('.modal-overlay');
+  if (!inModal) {
+    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    await wait(700);
+  } else {
+    await wait(300);
+  }
+
+  if (demoCancelled) return;
+
+  // Highlight
+  target.classList.add('demo-target');
+  showDemoTooltip(target, step, index, total);
+
+  // Run action
+  if (step.action) step.action();
+
+  // Wait for step duration
+  await wait(step.delay || 3000);
+}
+
+function showDemoTooltip(target, step, index, total) {
+  const tt = document.getElementById('demo-tooltip');
+  const lang = document.body.getAttribute('data-lang') || 'ja';
+  const title = step['title_' + lang];
+  const text = step['text_' + lang];
+  const skipLabel = lang === 'ja' ? 'スキップ' : 'Skip';
+  const stepLabel = lang === 'ja' ? `${index+1} / ${total}` : `${index+1} of ${total}`;
+
+  let dots = '';
+  for (let i = 0; i < total; i++) {
+    dots += `<span class="dot ${i <= index ? 'active' : ''}"></span>`;
+  }
+
+  tt.innerHTML = `
+    <div class="step-title">${title}</div>
+    <div class="step-text">${text}</div>
+    <div class="step-controls">
+      <div class="step-progress">${dots}</div>
+      <button class="step-skip" onclick="cancelDemo()">${skipLabel}</button>
+    </div>
+  `;
+  tt.style.display = 'block';
+
+  // Position tooltip near target (after measuring)
+  requestAnimationFrame(() => {
+    const targetRect = target.getBoundingClientRect();
+    const ttRect = tt.getBoundingClientRect();
+    const margin = 16;
+
+    let top = targetRect.bottom + margin;
+    let left = targetRect.left;
+
+    // If tooltip would overflow bottom, place above target
+    if (top + ttRect.height > window.innerHeight - margin) {
+      top = targetRect.top - ttRect.height - margin;
+    }
+    // If still off-screen (very tall element), place at top of viewport
+    if (top < margin) top = margin;
+
+    // Center horizontally over target if narrow target
+    if (targetRect.width < ttRect.width) {
+      left = targetRect.left + (targetRect.width - ttRect.width) / 2;
+    }
+
+    // Clamp to viewport
+    if (left + ttRect.width > window.innerWidth - margin) {
+      left = window.innerWidth - ttRect.width - margin;
+    }
+    if (left < margin) left = margin;
+
+    tt.style.top = top + 'px';
+    tt.style.left = left + 'px';
+  });
+}
+
+function cancelDemo() {
+  demoCancelled = true;
+  cleanupDemo();
+}
+
+function cleanupDemo() {
+  document.querySelectorAll('.demo-target').forEach(el => el.classList.remove('demo-target'));
+  const tt = document.getElementById('demo-tooltip');
+  if (tt) tt.style.display = 'none';
+  document.body.classList.remove('demo-running');
+  // Close modal if it was opened during demo
+  const modal = document.getElementById('brochureModal');
+  if (modal && modal.classList.contains('open')) {
+    closeBrochureModal();
+  }
+}
+
+function wait(ms) {
+  return new Promise(r => setTimeout(r, ms));
+}
+
+function animateInput(id, from, to, duration = 1400) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const start = performance.now();
+  function frame(now) {
+    const t = Math.min(1, (now - start) / duration);
+    const ease = t < 0.5 ? 2*t*t : 1 - Math.pow(-2*t + 2, 2) / 2;
+    const v = from + (to - from) * ease;
+    el.value = Math.round(v);
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    if (t < 1) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && document.body.classList.contains('demo-running')) {
+    cancelDemo();
+  }
+});
+
+// =========== ORIGINAL SCRIPT BELOW ===========
+function setLanguage(lang) {
+  document.body.setAttribute("data-lang", lang);
+  document.getElementById("btn-ja").classList.toggle("active", lang === "ja");
+  document.getElementById("btn-en").classList.toggle("active", lang === "en");
+  document.documentElement.setAttribute("lang", lang);
+  render();
+}
+
+// Resize charts when entering/leaving print preview so they fit print layout
+window.addEventListener("beforeprint", () => {
+  if (typeof scenarioChart !== "undefined" && scenarioChart) scenarioChart.resize();
+  if (typeof cumulativeChart !== "undefined" && cumulativeChart) cumulativeChart.resize();
+});
+window.addEventListener("afterprint", () => {
+  setTimeout(() => {
+    if (typeof scenarioChart !== "undefined" && scenarioChart) scenarioChart.resize();
+    if (typeof cumulativeChart !== "undefined" && cumulativeChart) cumulativeChart.resize();
+  }, 100);
+});
+
+// =========== PRINT / PDF (Simulator only — native preview, LANDSCAPE) ===========
+// Click → browser opens print preview showing only the simulator → user
+// chooses "Save as PDF" or prints. Injects a landscape @page rule at runtime.
+function downloadSimulatorPDF() {
+  // Close any open modal/demo first
+  if (typeof closeBrochureModal === "function") closeBrochureModal();
+  if (typeof cancelDemo === "function" && document.body.classList.contains("demo-running")) cancelDemo();
+
+  // Set document title so the saved PDF gets a sensible default filename
+  const originalTitle = document.title;
+  document.title = `Exceed_HK_Simulator_${new Date().toISOString().slice(0,10)}`;
+
+  // Inject landscape @page rule at runtime. Appending late = wins in source order.
+  // Using explicit dimensions (297mm × 210mm = A4 landscape) for max browser compat.
+  let pageStyle = document.getElementById("sim-page-rule");
+  if (pageStyle) pageStyle.remove();
+  pageStyle = document.createElement("style");
+  pageStyle.id = "sim-page-rule";
+  pageStyle.textContent = "@media print { @page { size: 297mm 210mm !important; margin: 8mm !important; } }";
+  document.head.appendChild(pageStyle);
+
+  // Toggle simulator-only print mode
+  document.body.classList.add("print-sim-only");
+
+  // Force chart resize before print fires
+  if (typeof scenarioChart !== "undefined" && scenarioChart) scenarioChart.resize();
+  if (typeof cumulativeChart !== "undefined" && cumulativeChart) cumulativeChart.resize();
+
+  // Trigger native print preview after style + class apply
+  setTimeout(() => {
+    window.print();
+  }, 150);
+
+  // Cleanup after dialog closes
+  const cleanup = () => {
+    document.body.classList.remove("print-sim-only");
+    document.title = originalTitle;
+    const el = document.getElementById("sim-page-rule");
+    if (el) el.remove();
+    setTimeout(() => {
+      if (typeof scenarioChart !== "undefined" && scenarioChart) scenarioChart.resize();
+      if (typeof cumulativeChart !== "undefined" && cumulativeChart) cumulativeChart.resize();
+    }, 100);
+    window.removeEventListener("afterprint", cleanup);
+  };
+  window.addEventListener("afterprint", cleanup);
+  // Safari fallback (afterprint not always reliable)
+  setTimeout(cleanup, 60000);
+}
+
+function openBrochureModal() {
+  document.getElementById("brochureModal").classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+function closeBrochureModal() {
+  document.getElementById("brochureModal").classList.remove("open");
+  document.body.style.overflow = "";
+}
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeBrochureModal(); });
+
+// Prices reflect "Updated Net Price" from latest property sheet (April 2026)
+// 'appreciation' is now CUMULATIVE % over the holding period (not annual compound)
+const presets = {
+  ritz:        { price: 13000000, sqft: 2524, yield: 6.4,  appreciation: 35, serviceChargePsf: 32.5, type: "branded", furniture: 0, mode: "offplan", completionYear: 2027 },
+  oneZaabeel:  { price: 13500000, sqft: 2008, yield: 6.0,  appreciation: 32, serviceChargePsf: 45.0, type: "branded", furniture: 0, mode: "ready",   completionYear: 2026 },
+  serenia:     { price: 7000000,  sqft: 2193, yield: 7.3,  appreciation: 35, serviceChargePsf: 35.0, type: "branded", furniture: 0, mode: "ready",   completionYear: 2026 },
+  sixSenses3:  { price: 32000000, sqft: 6151, yield: 8.0,  appreciation: 42, serviceChargePsf: 40.0, type: "branded", furniture: 0, mode: "ready",   completionYear: 2026 },
+  sixSenses3b: { price: 36000000, sqft: 6478, yield: 7.4,  appreciation: 42, serviceChargePsf: 40.0, type: "branded", furniture: 0, mode: "ready",   completionYear: 2026 },
+  sixSenses4:  { price: 32000000, sqft: 4375, yield: 6.5,  appreciation: 42, serviceChargePsf: 40.0, type: "branded", furniture: 0, mode: "offplan", completionYear: 2028 },
+  orla:        { price: 31000000, sqft: 4475, yield: 7.8,  appreciation: 42, serviceChargePsf: 45.0, type: "branded", furniture: 0, mode: "offplan", completionYear: 2027 },
+  palmJebel:   { price: 18500000, sqft: 7653, yield: 12.5, appreciation: 47, serviceChargePsf: 8.0,  type: "villa",   furniture: 0, mode: "offplan", completionYear: 2029 },
+  emerald:     { price: 125000000,sqft: 25197,yield: 4.6,  appreciation: 32, serviceChargePsf: 8.0,  type: "villa",   furniture: 0, mode: "ready",   completionYear: 2026 }
+};
+
+function loadPreset(key) {
+  document.getElementById("preset").value = key;
+  const pr = (typeof customProps !== "undefined" && customProps[key]) || presets[key];
+  if (!pr) return;
+  document.getElementById("price").value = pr.price;
+  document.getElementById("sqft").value = pr.sqft;
+  document.getElementById("serviceChargePsf").value = pr.serviceChargePsf;
+  document.getElementById("propertyType").value = pr.type;
+  document.getElementById("grossYield").value = pr.yield;
+  document.getElementById("appreciation").value = pr.appreciation;
+  document.getElementById("furniture").value = pr.furniture;
+  if (pr.mode) document.getElementById("purchaseMode").value = pr.mode;
+  if (pr.completionYear) document.getElementById("completionYear").value = pr.completionYear;
+  syncScenarioToggles();
+  updateCustomPresetActions(key);
+  render();
+  closeBrochureModal();
+  document.getElementById("simulator").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+// =========== CUSTOM PROPERTIES ===========
+const CUSTOM_PROPS_KEY = "exceedSimCustomProps";
+let customProps = {};
+
+function loadCustomProps() {
+  try {
+    customProps = JSON.parse(localStorage.getItem(CUSTOM_PROPS_KEY) || "{}");
+  } catch (e) { customProps = {}; }
+}
+function saveCustomProps() {
+  try { localStorage.setItem(CUSTOM_PROPS_KEY, JSON.stringify(customProps)); }
+  catch (e) { alert("Storage failed (likely quota exceeded). Try a smaller PDF."); }
+}
+function rebuildCustomPresetGroup() {
+  const group = document.getElementById("customPresetGroup");
+  if (!group) return;
+  group.innerHTML = "";
+  Object.entries(customProps).forEach(([id, p]) => {
+    const opt = document.createElement("option");
+    opt.value = id;
+    const priceM = (p.price / 1000000).toFixed(1);
+    opt.textContent = `★ ${p.name} (${priceM}M)`;
+    group.appendChild(opt);
+  });
+}
+function updateCustomPresetActions(key) {
+  const wrap = document.getElementById("customPresetActions");
+  const dl = document.getElementById("downloadCustomBrochure");
+  const del = document.getElementById("deleteCustomProperty");
+  if (!wrap) return;
+  const p = customProps[key];
+  if (p) {
+    wrap.style.display = "";
+    if (p.brochure) {
+      dl.style.display = "";
+      dl.onclick = (e) => {
+        e.preventDefault();
+        const a = document.createElement("a");
+        a.href = p.brochure;
+        a.download = (p.name || "brochure").replace(/[^\w\d-]+/g, "_") + ".pdf";
+        a.click();
+      };
+    } else {
+      dl.style.display = "none";
+    }
+    del.onclick = (e) => {
+      e.preventDefault();
+      if (!confirm("Delete this custom property?")) return;
+      delete customProps[key];
+      saveCustomProps();
+      rebuildCustomPresetGroup();
+      document.getElementById("preset").value = "custom";
+      wrap.style.display = "none";
+    };
+  } else {
+    wrap.style.display = "none";
+  }
+}
+
+function openCustomPropertyModal() {
+  const m = document.getElementById("customPropertyModal");
+  if (m) m.classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+function closeCustomPropertyModal() {
+  const m = document.getElementById("customPropertyModal");
+  if (m) m.classList.remove("open");
+  document.body.style.overflow = "";
+  // If user cancels with no save, revert dropdown to first non-action option
+  const sel = document.getElementById("preset");
+  if (sel.value === "addCustom") sel.value = Object.keys(customProps)[0] || "ritz";
+}
+function saveCustomProperty() {
+  const name = document.getElementById("cpName").value.trim();
+  const price = +document.getElementById("cpPrice").value;
+  const sqft = +document.getElementById("cpSqft").value;
+  if (!name || !price || !sqft) {
+    alert("Please fill in name, price, and size.");
+    return;
+  }
+  const id = "cust_" + Date.now();
+  const prop = {
+    name,
+    price,
+    sqft,
+    type: document.getElementById("cpType").value,
+    mode: document.getElementById("cpMode").value,
+    completionYear: +document.getElementById("cpCompletionYear").value,
+    yield: +document.getElementById("cpYield").value || 6.5,
+    appreciation: +document.getElementById("cpAppreciation").value || 35,
+    serviceChargePsf: +document.getElementById("cpServiceChargePsf").value || 35,
+    furniture: +document.getElementById("cpFurniture").value || 0,
+    brochure: null
+  };
+  const file = document.getElementById("cpBrochure").files[0];
+  const finish = () => {
+    customProps[id] = prop;
+    saveCustomProps();
+    rebuildCustomPresetGroup();
+    closeCustomPropertyModal();
+    document.getElementById("preset").value = id;
+    loadPreset(id);
+  };
+  if (file) {
+    if (file.size > 4 * 1024 * 1024) {
+      if (!confirm(`Brochure is ${(file.size/1024/1024).toFixed(1)}MB. Storage may fail. Continue anyway?`)) return;
+    }
+    const r = new FileReader();
+    r.onload = (e) => { prop.brochure = e.target.result; finish(); };
+    r.onerror = () => { alert("Failed to read brochure file."); finish(); };
+    r.readAsDataURL(file);
+  } else {
+    finish();
+  }
+}
+
+document.getElementById("cpBrochure")?.addEventListener("change", (e) => {
+  const f = e.target.files[0];
+  const status = document.getElementById("cpBrochureStatus");
+  if (!status) return;
+  if (!f) { status.textContent = ""; return; }
+  status.textContent = `📄 ${f.name} (${(f.size/1024/1024).toFixed(2)} MB)`;
+});
+
+// =========== SIMULATOR VERSION (changes per file: v0..v5) ===========
+const SIM_VERSION = "v1";
+const VERSION_FEATURES = {
+  v0: { holdMode: "total",     hidePurchaseDate: false, dualIRR: false, salesToggle: false },
+  v1: { holdMode: "operating", hidePurchaseDate: false, dualIRR: false, salesToggle: false },
+  v2: { holdMode: "total",     hidePurchaseDate: false, dualIRR: true,  salesToggle: false },
+  v3: { holdMode: "total",     hidePurchaseDate: false, dualIRR: false, salesToggle: true  },
+  v4: { holdMode: "total",     hidePurchaseDate: true,  dualIRR: false, salesToggle: false },
+  v5: { holdMode: "operating", hidePurchaseDate: true,  dualIRR: false, salesToggle: false },
+};
+const VF = VERSION_FEATURES[SIM_VERSION] || VERSION_FEATURES.v0;
+function navigateVersion(v) {
+  if (v === SIM_VERSION) return;
+  window.location.href = (v === "v0") ? "./" : `./${v}.html`;
+}
+document.addEventListener("DOMContentLoaded", () => {
+  const sel = document.getElementById("versionSelector");
+  if (sel) sel.value = SIM_VERSION;
+  // V4 / V5: lock purchase date inputs to today, but allow edit via unlock button
+  if (VF.hidePurchaseDate) {
+    const yEl = document.getElementById("purchaseYear");
+    const qEl = document.getElementById("purchaseQuarter");
+    const field = yEl?.closest(".field");
+    if (field && yEl && qEl) {
+      yEl.disabled = true;
+      qEl.disabled = true;
+      yEl.style.opacity = "0.6";
+      qEl.style.opacity = "0.6";
+      const lockBar = document.createElement("div");
+      lockBar.style.cssText = "display:flex;align-items:center;gap:8px;margin-top:6px;font-size:11px;";
+      lockBar.innerHTML = `
+        <span style="color:var(--text-muted)">🔒 <span class="ja">今日に固定中</span><span class="en">Locked to today</span></span>
+        <button type="button" id="unlockPurchase" style="font-size:11px;padding:3px 10px;border:1px solid var(--accent);background:#fff;border-radius:4px;cursor:pointer;color:var(--primary);font-weight:600;">
+          ✏️ <span class="ja">編集する</span><span class="en">Edit</span>
+        </button>
+      `;
+      field.appendChild(lockBar);
+      document.getElementById("unlockPurchase").onclick = () => {
+        yEl.disabled = false;
+        qEl.disabled = false;
+        yEl.style.opacity = "";
+        qEl.style.opacity = "";
+        lockBar.innerHTML = `<span style="color:var(--accent-dark);font-weight:600">🔓 <span class="ja">編集モード</span><span class="en">Editing</span></span>`;
+      };
+    }
+  }
+  // V1 / V5: update label text to "operating years post-handover"
+  if (VF.holdMode === "operating") {
+    const lbl = document.querySelector('label small[id]'); // not reliable
+    // Update via direct selector
+    const holdField = document.getElementById("holdYears")?.closest(".field");
+    if (holdField) {
+      const labelEl = holdField.querySelector("label");
+      if (labelEl) labelEl.innerHTML =
+        `<span class="ja">保有期間（年・四半期）<small>※引渡後の運用年数（建設期間は別計算）</small></span>` +
+        `<span class="en">Holding period (years &amp; quarters) <small>operating years post-handover</small></span>`;
+    }
+  }
+  // V3: add Sales/Detail mode toggle button
+  if (VF.salesToggle) {
+    const nav = document.getElementById("versionSelector")?.parentElement;
+    if (nav) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "nav-brochure-btn";
+      btn.style.cssText = "background:#fff;color:var(--primary);border:1px solid var(--primary);margin:0;";
+      btn.id = "modeToggle";
+      btn.innerHTML = '🎯 <span class="ja">セールスモード</span><span class="en">Sales Mode</span>';
+      btn.dataset.mode = "detail";
+      btn.onclick = () => {
+        const next = btn.dataset.mode === "detail" ? "sales" : "detail";
+        btn.dataset.mode = next;
+        document.body.classList.toggle("sales-mode", next === "sales");
+        btn.innerHTML = next === "sales"
+          ? '📊 <span class="ja">詳細モード</span><span class="en">Detail Mode</span>'
+          : '🎯 <span class="ja">セールスモード</span><span class="en">Sales Mode</span>';
+      };
+      nav.insertBefore(btn, document.getElementById("versionSelector"));
+    }
+  }
+});
+
+loadCustomProps();
+rebuildCustomPresetGroup();
+
+// Set smart defaults for purchase date: today's year + current quarter
+(function setPurchaseDefaults() {
+  const now = new Date();
+  const py = now.getFullYear();
+  const pq = Math.floor(now.getMonth() / 3) + 1;  // 1..4
+  const yEl = document.getElementById("purchaseYear");
+  const qEl = document.getElementById("purchaseQuarter");
+  if (yEl && [...yEl.options].some(o => +o.value === py)) yEl.value = String(py);
+  if (qEl) qEl.value = String(pq);
+})();
+
+// =========== SCENARIO TOGGLE STATE ===========
+const scenarioVisible = { s1: true, s2: true, s3: true, s4: false };
+let chartVisible = true;
+
+function toggleScenario(n) {
+  const key = "s" + n;
+  const btn = document.getElementById("toggle-" + key);
+  if (btn.disabled) return;
+  scenarioVisible[key] = !scenarioVisible[key];
+  btn.classList.toggle("active", scenarioVisible[key]);
+  render();
+}
+
+function toggleChart() {
+  chartVisible = !chartVisible;
+  const wrap = document.getElementById("chartWrap");
+  const btn = document.getElementById("chartToggle");
+  if (wrap) wrap.style.display = chartVisible ? "" : "none";
+  if (btn) {
+    btn.classList.toggle("active", chartVisible);
+    btn.querySelector(".ja").textContent = chartVisible ? "📊 チャートを隠す" : "📊 チャートを表示";
+    btn.querySelector(".en").textContent = chartVisible ? "📊 Hide chart" : "📊 Show chart";
+  }
+  if (chartVisible) render();
+}
+
+function syncScenarioToggles() {
+  // For Ready properties, scenario 1 (off-plan flip) doesn't apply
+  const isReady = document.getElementById("purchaseMode").value === "ready";
+  const btn1 = document.getElementById("toggle-s1");
+  if (isReady) {
+    scenarioVisible.s1 = false;
+    btn1.disabled = true;
+    btn1.classList.remove("active");
+  } else {
+    btn1.disabled = false;
+    if (!scenarioVisible.s1) {
+      scenarioVisible.s1 = true;
+      btn1.classList.add("active");
+    }
+  }
+}
+
+const labels = {
+  ja: {
+    downPayment: "頭金（物件価格の自己資金部分）", downPaymentNote: "ローン控除後",
+    dld: "DLD登記料（4% + AED 580）", dldNote: "物件価格×4%",
+    trustee: "Trustee / Title / Oqood", trusteeNote: "各種登記",
+    noc: "NOC手数料", nocNote: "業界平均・物件価格無関係",
+    agentFee: "エージェント手数料（2% + VAT）", agentFeeNote: "物件価格 × 2% + VAT 5%",
+    mortgageReg: "モーゲージ登記料（0.25%）", mortgageRegNote: "ローン元本×0.25% + AED 290",
+    brokerFee: "モーゲージブローカー手数料（1%）", brokerFeeNote: "ローン元本×1%",
+    furniture: "家具家電", furnitureNote: "入居準備一式",
+    initialTotal: "初期手出し合計",
+    salePrice: "売却価格（グロス）", salePriceNote: "年率値上がり複利",
+    saleAgent: "売却エージェント手数料（2.1%）", saleAgentNote: "売却価格×2.1%",
+    saleNoc: "NOC（売却時）", saleNocNote: "固定",
+    remainingLoan: "ローン残債返済",
+    uaeTax: "UAE売却益課税", uaeTaxNote: "ゼロ",
+    hkTax: "香港受取時課税", hkTaxNote: "属地主義で非課税",
+    netSale: "売却ネット手取り",
+    yearPrefix: "年"
+  },
+  en: {
+    downPayment: "Down payment (equity portion)", downPaymentNote: "After loan",
+    dld: "DLD registration (4% + AED 580)", dldNote: "4% of price",
+    trustee: "Trustee / Title / Oqood", trusteeNote: "Registrations",
+    noc: "NOC fee", nocNote: "Industry average · same regardless of price",
+    agentFee: "Agent fee (2% + VAT)", agentFeeNote: "2% + 5% VAT",
+    mortgageReg: "Mortgage registration (0.25%)", mortgageRegNote: "0.25% of loan + AED 290",
+    brokerFee: "Mortgage broker fee (1%)", brokerFeeNote: "1% of loan principal",
+    furniture: "Furniture & appliances", furnitureNote: "Move-in package",
+    initialTotal: "Total initial outlay",
+    salePrice: "Sale price (gross)", salePriceNote: "Compounded appreciation",
+    saleAgent: "Sell-side agent (2.1%)", saleAgentNote: "2.1% of sale price",
+    saleNoc: "NOC (sale-side)", saleNocNote: "Fixed",
+    remainingLoan: "Remaining loan payoff",
+    uaeTax: "UAE CGT", uaeTaxNote: "Zero",
+    hkTax: "HK tax on receipt", hkTaxNote: "Non-taxable (territorial)",
+    netSale: "Net sale proceeds",
+    yearPrefix: "Yr "
+  }
+};
+function getLabel(key) { const lang = document.body.getAttribute("data-lang") || "ja"; return labels[lang][key] || key; }
+
+const fmt = (n) => { if (!isFinite(n)) return "—"; const s = n < 0 ? "-" : ""; return s + Math.abs(Math.round(n)).toLocaleString("en-US"); };
+const fmtPct = (n) => isFinite(n) ? (n * 100).toFixed(1) + "%" : "—";
+const fmtMult = (n) => isFinite(n) ? n.toFixed(2) + "×" : "—";
+
+function irr(cf, guess = 0.1) {
+  let rate = guess;
+  for (let i = 0; i < 200; i++) {
+    let npv = 0, dnpv = 0;
+    for (let t = 0; t < cf.length; t++) {
+      const d = Math.pow(1 + rate, t);
+      npv += cf[t] / d;
+      if (t > 0) dnpv -= t * cf[t] / (d * (1 + rate));
+    }
+    if (Math.abs(dnpv) < 1e-12) break;
+    const nr = rate - npv / dnpv;
+    if (!isFinite(nr)) return NaN;
+    if (Math.abs(nr - rate) < 1e-7) return nr;
+    rate = Math.max(-0.99, nr);
+  }
+  return rate;
+}
+function monthlyPayment(principal, annualRate, years) {
+  if (principal <= 0) return 0;
+  const r = annualRate / 12; const n = years * 12;
+  if (r === 0) return principal / n;
+  return principal * r / (1 - Math.pow(1 + r, -n));
+}
+
+function calculate(inp) {
+  const p = inp.price;
+  const loanAmount = inp.useMortgage ? p * (inp.ltv / 100) : 0;
+  const cashDown = p - loanAmount;
+  const dld = p * 0.04 + 580;
+  const trustee = 4000, titleDeed = 250;
+  const oqood = inp.purchaseMode === "offplan" ? 3000 : 0;
+  const noc = 5000;
+  const agentFee = p * 0.021;
+  const mortgageReg = inp.useMortgage ? loanAmount * 0.0025 + 290 : 0;
+  const brokerFee = inp.useMortgage ? loanAmount * 0.01 : 0;
+  const initialCashAED = cashDown + dld + trustee + titleDeed + oqood + noc + agentFee + mortgageReg + brokerFee + inp.furniture;
+
+  const grossRent = p * (inp.grossYield / 100);
+  const vacancyLoss = grossRent * (inp.vacancy / 100);
+  const effRent = grossRent - vacancyLoss;
+  const pmFee = effRent * (inp.pmFee / 100);
+  const serviceCharge = inp.sqft * inp.serviceChargePsf;
+  const maintenance = p * 0.002;
+  const monthlyLoan = monthlyPayment(loanAmount, inp.mortgageRate / 100, inp.mortgageTerm);
+  const annualLoan = monthlyLoan * 12;
+  const annualNetCF = effRent - pmFee - serviceCharge - maintenance - annualLoan;
+
+  // Construction years (purchase to completion) — pure cash-out, no operating CF
+  const currentYear = new Date().getFullYear();
+  const constructionYears = Math.max(0, (inp.completionYear || currentYear) - currentYear);
+
+  // Quarter-aware. holdYears = TOTAL years from purchase (construction +
+  // operating). Sale at purchaseQ + holdYears*4 - 1.
+  // Calendar-year fractions used for partial first/last calendar years.
+  const completionYrLocal = inp.completionYear || currentYear;
+  const completionQ_local = inp.completionQuarter || 1;
+  const handoverQabs = completionYrLocal * 4 + (completionQ_local - 1);
+  const purchaseYr = inp.purchaseYear || currentYear;
+  const purchaseQ_local = inp.purchaseQuarter || 1;
+  const purchaseQabs = purchaseYr * 4 + (purchaseQ_local - 1);
+
+  function scenOperating(holdYrsTotal, apprCumulativePct, extraQuarters) {
+    const totalQuarters = Math.max(1, holdYrsTotal * 4 + (extraQuarters || 0));
+    // V1/V5: holdMode === "operating" → anchor sale to handover not purchase
+    const anchorQ = (VF.holdMode === "operating") ? handoverQabs : purchaseQabs;
+    const saleQabs = anchorQ + totalQuarters - 1;
+    const saleYrLocal = Math.floor(saleQabs / 4);
+    const numRows = Math.ceil(totalQuarters / 4);
+    // cf array buckets by YEAR-FROM-PURCHASE (rolling 4-quarter windows
+    // anchored to purchase quarter). Last row may be partial when total
+    // quarters is not a multiple of 4.
+    const cf = [-initialCashAED];
+    for (let yi = 0; yi < numRows; yi++) {
+      const yStart = anchorQ + yi * 4;
+      const yEnd = Math.min(yStart + 3, saleQabs);
+      const overlap = Math.max(0, Math.min(yEnd, saleQabs) - Math.max(yStart, handoverQabs) + 1);
+      cf.push((overlap / 4) * annualNetCF);
+    }
+    const salePrice = p * (1 + apprCumulativePct/100);
+    const saleAgentFee = salePrice * 0.021;
+    const saleNOC = 5000;
+    const opQuarters = Math.max(0, saleQabs - handoverQabs + 1);
+    let remainingLoan = loanAmount;
+    if (inp.useMortgage && loanAmount > 0) {
+      const r = inp.mortgageRate/100/12, n = inp.mortgageTerm*12, k = opQuarters * 3;
+      if (r > 0) remainingLoan = loanAmount * (Math.pow(1+r,n) - Math.pow(1+r,k)) / (Math.pow(1+r,n) - 1);
+      else remainingLoan = loanAmount * (1 - k/n);
+      if (remainingLoan < 0) remainingLoan = 0;
+    }
+    const net = salePrice - saleAgentFee - saleNOC - remainingLoan;
+    if (cf.length > 1) cf[cf.length-1] += net;
+    else cf.push(net);
+    return { cf, salePrice, saleAgentFee, saleNOC, remainingLoan, netSaleProceeds: net, operatingYears: opQuarters / 4, saleYr: saleYrLocal };
+  }
+
+  // For OFF-PLAN FLIP scenarios (s1): totalYears = total years from purchase,
+  // pre-handover assignment sale, NO operating CF.
+  function scenTotal(totalYears, apprCumulativePct) {
+    const operatingYears = Math.max(0, totalYears - constructionYears);
+    const cYears = Math.min(constructionYears, totalYears);
+    const cf = [-initialCashAED];
+    for (let y = 0; y < cYears; y++) cf.push(0);
+    for (let y = 0; y < operatingYears; y++) cf.push(annualNetCF);
+    const salePrice = p * (1 + apprCumulativePct/100);
+    const saleAgentFee = salePrice * 0.021;
+    const saleNOC = 5000;
+    let remainingLoan = loanAmount;
+    if (inp.useMortgage && loanAmount > 0) {
+      const r = inp.mortgageRate/100/12, n = inp.mortgageTerm*12, k = totalYears*12;
+      if (r > 0) remainingLoan = loanAmount * (Math.pow(1+r,n) - Math.pow(1+r,k)) / (Math.pow(1+r,n) - 1);
+      else remainingLoan = loanAmount * (1 - k/n);
+      if (remainingLoan < 0) remainingLoan = 0;
+    }
+    const net = salePrice - saleAgentFee - saleNOC - remainingLoan;
+    if (cf.length > 1) cf[cf.length-1] += net;
+    else cf.push(net);
+    return { cf, salePrice, saleAgentFee, saleNOC, remainingLoan, netSaleProceeds: net, operatingYears, cYears };
+  }
+
+  const totalYearsHeld = inp.holdYears;  // operating years post-handover
+  const effectiveCumulativePct = inp.appreciationMode === "annual"
+    ? (Math.pow(1 + inp.appreciation/100, totalYearsHeld) - 1) * 100
+    : inp.appreciation;
+  const main = scenOperating(inp.holdYears, effectiveCumulativePct, inp.holdQuarters);
+  const mainIrr = irr(main.cf);
+  const multiple = main.cf.slice(1).reduce((a,b) => a+b, 0) / initialCashAED;
+  // Fixed scenarios. s1 = off-plan flip (pre-handover assignment, totalYears
+  // semantic). s2/s3/s4 = post-handover holds (operatingYears semantic).
+  const s1 = scenOperating(2, 25);          // ① Short hold 2 yrs total, ~+25% cum
+  const s2 = scenOperating(4, 32);          // ② Mid hold 4 yrs total, ~+32%
+  const s3 = scenOperating(7, 40);          // ③ Long hold 7 yrs total, ~+40%
+  const s4 = scenOperating(inp.s4Years || 5, inp.s4Appr || 35);  // ④ Custom
+
+  return {
+    cashDown, loanAmount, dld, trustee, titleDeed, oqood, noc, agentFee, mortgageReg, brokerFee,
+    furniture: inp.furniture, initialCashAED,
+    grossRent, vacancyLoss, pmFee, serviceCharge, annualLoanPayment: annualLoan, annualNetCF,
+    salePrice: main.salePrice, saleAgentFee: main.saleAgentFee, saleNOC: main.saleNOC,
+    remainingLoan: main.remainingLoan, netSaleProceeds: main.netSaleProceeds,
+    irr: mainIrr, multiple, cashflowSeries: main.cf,
+    constructionYears, operatingYears: main.operatingYears,
+    scenarios: {
+      s1: { irr: irr(s1.cf), net: s1.netSaleProceeds, return: s1.cf.slice(1).reduce((a,b)=>a+b,0) / initialCashAED },
+      s2: { irr: irr(s2.cf), net: s2.netSaleProceeds, return: s2.cf.slice(1).reduce((a,b)=>a+b,0) / initialCashAED },
+      s3: { irr: irr(s3.cf), net: s3.netSaleProceeds, return: s3.cf.slice(1).reduce((a,b)=>a+b,0) / initialCashAED },
+      s4: { irr: irr(s4.cf), net: s4.netSaleProceeds, return: s4.cf.slice(1).reduce((a,b)=>a+b,0) / initialCashAED }
+    }
+  };
+}
+
+function getInputs() {
+  return {
+    price: +document.getElementById("price").value || 0,
+    sqft: +document.getElementById("sqft").value || 0,
+    serviceChargePsf: +document.getElementById("serviceChargePsf").value || 0,
+    propertyType: document.getElementById("propertyType").value,
+    purchaseMode: document.getElementById("purchaseMode").value,
+    useMortgage: document.getElementById("useMortgage").checked,
+    ltv: +document.getElementById("ltv").value || 0,
+    mortgageRate: +document.getElementById("mortgageRate").value || 0,
+    mortgageTerm: +document.getElementById("mortgageTerm").value || 20,
+    grossYield: +document.getElementById("grossYield").value || 0,
+    vacancy: +document.getElementById("vacancy").value || 0,
+    pmFee: +document.getElementById("pmFee").value || 0,
+    furniture: +document.getElementById("furniture").value || 0,
+    appreciation: +document.getElementById("appreciation").value || 0,
+    appreciationMode: document.getElementById("appreciationMode").value || "cumulative",
+    holdYears: +document.getElementById("holdYears").value || 1,
+    holdQuarters: +document.getElementById("holdQuarters").value || 0,
+    completionYear: +document.getElementById("completionYear").value || new Date().getFullYear(),
+    completionQuarter: +document.getElementById("completionQuarter").value || 1,
+    purchaseYear: +document.getElementById("purchaseYear").value || new Date().getFullYear(),
+    purchaseQuarter: +document.getElementById("purchaseQuarter").value || 1,
+    fxRate: +document.getElementById("fxRate").value || 2.08,
+    currency: document.getElementById("currency").value || "HKD",
+    s4Years: +document.getElementById("s4Years").value || 5,
+    s4Appr: +document.getElementById("s4Appr").value || 35
+  };
+}
+
+function setApprMode(mode) {
+  document.getElementById("appreciationMode").value = mode;
+  document.querySelectorAll(".appr-btn").forEach(b => {
+    b.classList.toggle("active", b.dataset.mode === mode);
+  });
+  // Adjust default value + label so users see something sensible after switching modes
+  const apprInput = document.getElementById("appreciation");
+  if (mode === "annual") {
+    document.getElementById("apprLabelJa").textContent = "年間値上がり率";
+    document.getElementById("apprLabelEn").textContent = "Annual appreciation";
+    document.getElementById("apprNoteJa").textContent = "※年率（複利で適用）";
+    document.getElementById("apprNoteEn").textContent = "compounded yearly";
+    if (+apprInput.value > 20) apprInput.value = 7;
+  } else {
+    document.getElementById("apprLabelJa").textContent = "累計値上がり率";
+    document.getElementById("apprLabelEn").textContent = "Cumulative appreciation";
+    document.getElementById("apprNoteJa").textContent = "※保有期間中の総値上がり";
+    document.getElementById("apprNoteEn").textContent = "over hold period";
+    if (+apprInput.value < 15) apprInput.value = 35;
+  }
+  render();
+}
+document.querySelectorAll(".appr-btn").forEach(btn => {
+  btn.addEventListener("click", () => setApprMode(btn.dataset.mode));
+});
+
+const DEFAULT_FX = { HKD: 2.13, USD: 0.27, JPY: 43.4, EUR: 0.23, CNY: 1.86, KRW: 401, INR: 25.7, RUB: 20.4 };
+const AED_USD_PEG = 3.6725; // UAE Central Bank peg since 1997
+const FX_CACHE_KEY = "exceedSimFxRates_v2";
+const FX_CACHE_HOURS = 12;
+const FX_REQUIRED = ["HKD","USD","JPY","EUR","CNY","KRW","INR","RUB"];
+
+async function fetchLiveRates() {
+  // Drop legacy cache that lacks newer currencies
+  try { localStorage.removeItem("exceedSimFxRates"); } catch(_) {}
+  try {
+    const cached = JSON.parse(localStorage.getItem(FX_CACHE_KEY) || "null");
+    const fresh = cached && (Date.now() - cached.fetchedAt) < FX_CACHE_HOURS * 3600 * 1000;
+    const complete = cached && FX_REQUIRED.every(k => typeof cached[k] === "number");
+    if (fresh && complete) return cached;
+  } catch (_) {}
+  try {
+    const res = await fetch("https://open.er-api.com/v6/latest/USD");
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    if (data.result !== "success") throw new Error("api error");
+    const out = {
+      HKD: +(data.rates.HKD / AED_USD_PEG).toFixed(4),
+      USD: +(1 / AED_USD_PEG).toFixed(4),
+      JPY: +(data.rates.JPY / AED_USD_PEG).toFixed(2),
+      EUR: +(data.rates.EUR / AED_USD_PEG).toFixed(4),
+      CNY: +(data.rates.CNY / AED_USD_PEG).toFixed(4),
+      KRW: +(data.rates.KRW / AED_USD_PEG).toFixed(2),
+      INR: +(data.rates.INR / AED_USD_PEG).toFixed(4),
+      RUB: +(data.rates.RUB / AED_USD_PEG).toFixed(4),
+      asOfDate: data.time_last_update_utc.slice(5, 16),
+      fetchedAt: Date.now()
+    };
+    localStorage.setItem(FX_CACHE_KEY, JSON.stringify(out));
+    return out;
+  } catch (e) {
+    console.warn("FX fetch failed:", e.message);
+    return null;
+  }
+}
+
+(async () => {
+  const live = await fetchLiveRates();
+  if (!live) {
+    const stamp = document.getElementById("fxAsOf");
+    if (stamp) stamp.textContent = "—";
+    return;
+  }
+  Object.assign(DEFAULT_FX, { HKD: live.HKD, USD: live.USD, JPY: live.JPY, EUR: live.EUR, CNY: live.CNY, KRW: live.KRW, INR: live.INR, RUB: live.RUB });
+  const cur = document.getElementById("currency").value || "HKD";
+  document.getElementById("fxRate").value = DEFAULT_FX[cur];
+  const stamp = document.getElementById("fxAsOf");
+  if (stamp) stamp.textContent = live.asOfDate;
+  if (typeof render === "function") render();
+})();
+const NET_LABELS = {
+  HKD: { ja: "香港着金ネット", en: "Net to HK" },
+  USD: { ja: "米国着金ネット", en: "Net to US" },
+  JPY: { ja: "日本着金ネット", en: "Net to JP" },
+  EUR: { ja: "欧州着金ネット", en: "Net to EU" },
+  CNY: { ja: "中国着金ネット", en: "Net to CN" },
+  KRW: { ja: "韓国着金ネット", en: "Net to KR" },
+  INR: { ja: "インド着金ネット", en: "Net to IN" },
+  RUB: { ja: "ロシア着金ネット", en: "Net to RU" }
+};
+function applyNetLabels(cur) {
+  const lbl = NET_LABELS[cur] || NET_LABELS.HKD;
+  document.querySelectorAll(".net-label-ja").forEach(el => { el.textContent = lbl.ja; });
+  document.querySelectorAll(".net-label-en").forEach(el => { el.textContent = lbl.en; });
+}
+
+function updateSqftEquiv() {
+  const sqft = +document.getElementById("sqft").value || 0;
+  const cur = document.getElementById("currency").value || "HKD";
+  const el = document.getElementById("sqftEquiv");
+  if (!el) return;
+  const sqm = (sqft * 0.092903).toFixed(1);
+  if (cur === "JPY") {
+    el.textContent = `≈ ${(sqft * 0.0281058).toFixed(1)} 坪 (tsubo)`;
+  } else if (cur === "KRW") {
+    el.textContent = `≈ ${(sqft * 0.0281058).toFixed(1)} 평 (pyeong)`;
+  } else if (cur === "HKD") {
+    el.textContent = `≈ ${sqm} m² (${sqft.toLocaleString()} 呎)`;
+  } else {
+    el.textContent = `≈ ${sqm} m²`;
+  }
+}
+
+function setCurrency(cur) {
+  document.getElementById("currency").value = cur;
+  const isButtonCur = ["HKD","USD","JPY","EUR"].includes(cur);
+  document.querySelectorAll(".cur-btn").forEach(b => {
+    b.classList.toggle("active", isButtonCur && b.dataset.cur === cur);
+  });
+  const extra = document.getElementById("extraCurrency");
+  if (extra) extra.value = isButtonCur ? "" : cur;
+  document.getElementById("fxRate").value = DEFAULT_FX[cur] ?? 1;
+  document.getElementById("fxRateLabel").textContent = cur;
+  document.querySelectorAll(".cur-label").forEach(el => { el.textContent = cur; });
+  applyNetLabels(cur);
+  updateSqftEquiv();
+  render();
+}
+document.getElementById("sqft").addEventListener("input", updateSqftEquiv);
+document.querySelectorAll(".cur-btn").forEach(btn => {
+  btn.addEventListener("click", () => setCurrency(btn.dataset.cur));
+});
+document.getElementById("extraCurrency")?.addEventListener("change", (e) => {
+  if (e.target.value) setCurrency(e.target.value);
+});
+
+let scenarioChart = null, cumulativeChart = null;
+
+function render() {
+  const inp = getInputs();
+  const r = calculate(inp);
+  const fx = inp.fxRate;
+  const L = (k) => getLabel(k);
+
+  const cur = inp.currency;
+  document.getElementById("kpiInitialCash").textContent = fmt(r.initialCashAED) + " AED";
+  document.getElementById("kpiInitialCashHkd").textContent = fmt(r.initialCashAED * fx) + " " + cur;
+  document.getElementById("kpiSalePrice").textContent = fmt(r.salePrice) + " AED";
+  document.getElementById("kpiSalePriceHkd").textContent = fmt(r.salePrice * fx) + " " + cur;
+  document.getElementById("kpiNetHkd").textContent = fmt(r.netSaleProceeds * fx) + " " + cur;
+  document.getElementById("kpiNetAed").textContent = fmt(r.netSaleProceeds) + " AED";
+  document.querySelectorAll(".cur-label").forEach(el => { el.textContent = cur; });
+  document.getElementById("fxRateLabel").textContent = cur;
+  applyNetLabels(cur);
+  updateSqftEquiv();
+  document.getElementById("kpiIrr").textContent = fmtPct(r.irr);
+  document.getElementById("kpiMultiple").textContent = fmtMult(r.multiple);
+
+  // V2: replace the IRR card with side-by-side dual display
+  if (VF.dualIRR && r.cashflowSeries) {
+    const purchaseQabs2 = (inp.purchaseYear || new Date().getFullYear()) * 4 + ((inp.purchaseQuarter || 1) - 1);
+    const handoverQabs2 = (inp.completionYear || new Date().getFullYear()) * 4 + ((inp.completionQuarter || 1) - 1);
+    const opStartIdx = Math.max(0, handoverQabs2 - purchaseQabs2);
+    const opStartYearIdx = Math.ceil(opStartIdx / 4);
+    // Operating cf = initial outlay + cf from opStartYearIdx onward
+    const opCf = [r.cashflowSeries[0]];
+    for (let i = opStartYearIdx + 1; i < r.cashflowSeries.length; i++) opCf.push(r.cashflowSeries[i]);
+    const opIrr = irr(opCf);
+    const card = document.getElementById("kpiIrr").parentElement;
+    if (card && !card.dataset.dualified) {
+      card.dataset.dualified = "1";
+      card.innerHTML = `
+        <div class="kpi-label" style="margin-bottom:6px"><span class="ja">年率リターン IRR</span><span class="en">Annualized IRR</span></div>
+        <div style="display:flex; gap:14px; align-items:flex-start;">
+          <div style="flex:1; border-right:1px solid rgba(255,255,255,0.25); padding-right:12px;">
+            <div style="font-size:10px; opacity:0.85; letter-spacing:0.5px; text-transform:uppercase; margin-bottom:2px;">
+              <span class="ja">総合</span><span class="en">Total</span>
+            </div>
+            <div id="kpiIrr" style="font-size:20px; font-weight:700; font-variant-numeric:tabular-nums;">—</div>
+            <div id="kpiMultiple" style="font-size:11px; opacity:0.8; margin-top:2px;">× —</div>
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:10px; opacity:0.85; letter-spacing:0.5px; text-transform:uppercase; margin-bottom:2px;">
+              <span class="ja">運用のみ</span><span class="en">Operating</span>
+            </div>
+            <div id="kpiOpIrr" style="font-size:20px; font-weight:700; font-variant-numeric:tabular-nums;">—</div>
+            <div style="font-size:11px; opacity:0.8; margin-top:2px;"><span class="ja">引渡後</span><span class="en">Post-handover</span></div>
+          </div>
+        </div>
+      `;
+    }
+    document.getElementById("kpiIrr").textContent = fmtPct(r.irr);
+    document.getElementById("kpiMultiple").textContent = fmtMult(r.multiple);
+    const opIrrEl = document.getElementById("kpiOpIrr");
+    if (opIrrEl) opIrrEl.textContent = isFinite(opIrr) ? fmtPct(opIrr) : fmtPct(r.irr);
+  }
+
+  const s = r.scenarios;
+  // Sync toggle state with current purchase mode (ready → disable scenario 1)
+  syncScenarioToggles();
+
+  // Show/hide each scenario card based on toggle state
+  ["s1","s2","s3","s4"].forEach(key => {
+    const card = document.querySelector(".scenario." + key);
+    if (card) card.style.display = scenarioVisible[key] ? "" : "none";
+  });
+  const visibleCount = ["s1","s2","s3","s4"].filter(k => scenarioVisible[k]).length;
+  const scenGrid = document.querySelector(".scenario-grid");
+  if (scenGrid) scenGrid.style.gridTemplateColumns = `repeat(${Math.max(1, visibleCount)}, 1fr)`;
+
+  if (scenarioVisible.s1) {
+    document.getElementById("s1Return").textContent = fmtPct(s.s1.return);
+    document.getElementById("s1Irr").textContent = fmtPct(s.s1.irr);
+    document.getElementById("s1Net").textContent = fmt(s.s1.net * fx) + " " + cur;
+  }
+  if (scenarioVisible.s2) {
+    document.getElementById("s2Return").textContent = fmtPct(s.s2.return);
+    document.getElementById("s2Irr").textContent = fmtPct(s.s2.irr);
+    document.getElementById("s2Net").textContent = fmt(s.s2.net * fx) + " " + cur;
+  }
+  if (scenarioVisible.s3) {
+    document.getElementById("s3Return").textContent = fmtPct(s.s3.return);
+    document.getElementById("s3Irr").textContent = fmtPct(s.s3.irr);
+    document.getElementById("s3Net").textContent = fmt(s.s3.net * fx) + " " + cur;
+  }
+  if (scenarioVisible.s4) {
+    document.getElementById("s4Return").textContent = fmtPct(s.s4.return);
+    document.getElementById("s4Irr").textContent = fmtPct(s.s4.irr);
+    document.getElementById("s4Net").textContent = fmt(s.s4.net * fx) + " " + cur;
+  }
+
+  const initRows = [
+    [L("downPayment"), r.cashDown, L("downPaymentNote")],
+    [L("dld"), r.dld, L("dldNote")],
+    [L("trustee"), r.trustee + r.titleDeed + r.oqood, L("trusteeNote")],
+    [L("noc"), r.noc, L("nocNote")],
+    [L("agentFee"), r.agentFee, L("agentFeeNote")],
+    ...(inp.useMortgage ? [[L("mortgageReg"), r.mortgageReg, L("mortgageRegNote")]] : []),
+    ...(inp.useMortgage ? [[L("brokerFee"), r.brokerFee, L("brokerFeeNote")]] : []),
+    ...(inp.furniture > 0 ? [[L("furniture"), r.furniture, L("furnitureNote")]] : [])
+  ];
+  document.getElementById("initialCashTable").innerHTML = initRows.map(([label, val, note]) =>
+    `<tr><td>${label}</td><td class="num">${fmt(val)}</td><td class="num">${fmt(val * fx)}</td><td style="font-size:11px;color:var(--text-muted)">${note}</td></tr>`
+  ).join("") + `<tr class="total"><td>${L("initialTotal")}</td><td class="num">${fmt(r.initialCashAED)}</td><td class="num">${fmt(r.initialCashAED * fx)}</td><td></td></tr>`;
+
+  // CF table: ONE row per year-from-purchase (rolling 12-month from purchase quarter).
+  // 1年目 = first 12 months from purchase (may be all construction).
+  // Status tag indicates 建設中 / Q取得 (partial) / full operating.
+  const rows = [];
+  const purchaseYear = inp.purchaseYear || new Date().getFullYear();
+  const purchaseQuarter = inp.purchaseQuarter || 1;
+  const completionYear = inp.completionYear || purchaseYear;
+  const quarter = inp.completionQuarter || 1;
+  const purchaseQ = purchaseYear * 4 + (purchaseQuarter - 1);
+  const handoverQ = completionYear * 4 + (quarter - 1);
+  const totalHoldQuarters = Math.max(1, inp.holdYears * 4 + (inp.holdQuarters || 0));
+  const anchorQRender = (VF.holdMode === "operating") ? handoverQ : purchaseQ;
+  const saleQ = anchorQRender + totalHoldQuarters - 1;
+  const numRows = Math.ceil(totalHoldQuarters / 4);
+  const qStr = (qAbs) => `${Math.floor(qAbs / 4)} Q${(qAbs % 4) + 1}`;
+  const ORDINALS_EN = ["First","Second","Third","Fourth","Fifth","Sixth","Seventh","Eighth","Ninth","Tenth"];
+  const ordEnLabel = (n) => ORDINALS_EN[n] ? `${ORDINALS_EN[n]} Year` : `Year ${n + 1}`;
+
+  // Dubai 1-year lease rule: residual partial-year at the END of holding has no rent.
+  const dubaiOn = !!document.getElementById("dubaiRuleToggle")?.checked;
+  // Mode: "rentZero" (default) — rent=0 but costs continue. Or "ignore" — skip entirely.
+  const dubaiMode = document.querySelector('input[name="dubaiMode"]:checked')?.value || "rentZero";
+
+  for (let yi = 0; yi < numRows; yi++) {
+    const yearStartQ = anchorQRender + yi * 4;
+    const yearEndQ = Math.min(yearStartQ + 3, saleQ);
+    const isLast = (yi === numRows - 1);
+    const opStart = Math.max(yearStartQ, handoverQ);
+    const opEnd = Math.min(yearEndQ, saleQ);
+    const opQuarters = Math.max(0, opEnd - opStart + 1);
+    const yearLengthQuarters = yearEndQ - yearStartQ + 1;
+    const f = opQuarters / 4;
+    const isFullConstruction = (f === 0);
+    // Dubai rule: partial last row (all operating, < 4q) is non-leasable
+    const isResidualPartial = isLast && f > 0 && f < 1 && (handoverQ <= yearStartQ);
+    const dubaiActive = dubaiOn && isResidualPartial;
+    const dubaiIgnore = dubaiActive && dubaiMode === "ignore";
+    // Effective fractions for display/CF
+    const fRent = dubaiActive ? 0 : f;
+    const fCost = dubaiIgnore ? 0 : f;
+
+    let statusJa = '', statusEn = '';
+    if (isFullConstruction) {
+      statusJa = `<small style="font-style:italic">建設中</small>`;
+      statusEn = `<small style="font-style:italic">Under Construction</small>`;
+    } else if (dubaiActive) {
+      statusJa = `<small style="color:#94a3b8;font-style:italic">空室期間 ${(f*100).toFixed(0)}% (賃貸契約外)</small>`;
+      statusEn = `<small style="color:#94a3b8;font-style:italic">Vacant ${(f*100).toFixed(0)}% (no lease)</small>`;
+    } else if (f < 1) {
+      if (handoverQ > yearStartQ && handoverQ <= yearEndQ) {
+        const handoverCalQ = (handoverQ % 4) + 1;
+        statusJa = `<small style="color:#94a3b8;font-style:italic">Q${handoverCalQ}取得 (${(f*100).toFixed(0)}%)</small>`;
+        statusEn = `<small style="color:#94a3b8;font-style:italic">Q${handoverCalQ} handover (${(f*100).toFixed(0)}%)</small>`;
+      } else {
+        statusJa = `<small style="color:#94a3b8;font-style:italic">(${(f*100).toFixed(0)}%)</small>`;
+        statusEn = `<small style="color:#94a3b8;font-style:italic">(${(f*100).toFixed(0)}%)</small>`;
+      }
+    }
+    const saleJa = isLast ? ` <small style="color:var(--accent-dark);font-weight:600">＋売却</small>` : '';
+    const saleEn = isLast ? ` <small style="color:var(--accent-dark);font-weight:600">+ Sale</small>` : '';
+    const rowStyle = isFullConstruction ? 'background:#f9fafb;color:#94a3b8'
+                  : dubaiActive ? 'background:#fef3c7;color:#78716c' : '';
+
+    let cells;
+    if (isFullConstruction) {
+      cells = `<td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td>`;
+    } else if (dubaiIgnore) {
+      cells = `<td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td>`;
+    } else {
+      const netCF = (r.grossRent * fRent) - (r.vacancyLoss * fRent) - (r.pmFee * fRent) - (r.serviceCharge * fCost) - (r.annualLoanPayment * fCost);
+      cells = `<td class="num">${fmt(r.grossRent * fRent)}</td>
+         <td class="num" style="color:var(--negative)">${fmt(-r.vacancyLoss * fRent)}</td>
+         <td class="num" style="color:var(--negative)">${fmt(-r.pmFee * fRent)}</td>
+         <td class="num" style="color:var(--negative)">${fmt(-r.serviceCharge * fCost)}</td>
+         <td class="num" style="color:var(--negative)">${fmt(-r.annualLoanPayment * fCost)}</td>
+         <td class="num" style="font-weight:600;color:${netCF>=0?'var(--positive)':'var(--negative)'}">${fmt(netCF)}</td>`;
+    }
+
+    rows.push(`<tr style="${rowStyle}">
+      <td>
+        <span class="ja"><strong>${yi + 1}年目</strong></span><span class="en"><strong>${ordEnLabel(yi)}</strong></span>
+        <small style="color:#94a3b8;font-style:italic"> ${qStr(yearStartQ)} → ${qStr(yearEndQ)}</small>
+        <span class="ja"> ${statusJa}${saleJa}</span><span class="en"> ${statusEn}${saleEn}</span>
+      </td>
+      ${cells}
+    </tr>`);
+  }
+  document.getElementById("cashflowTable").innerHTML = rows.join("");
+
+  // Calendar timeline chart (year × quarter grid)
+  drawTimelineChart({
+    purchaseQ: anchorQRender,
+    handoverQ,
+    saleQ,
+    holdYears: numRows,
+    dubaiOn, dubaiMode
+  });
+
+  // Auto breakdown: construction / operating (full leases) / vacant (residual)
+  drawHoldBreakdown({
+    purchaseQ: anchorQRender,
+    handoverQ,
+    saleQ,
+  });
+
+  const exitRows = [
+    [L("salePrice"), r.salePrice, L("salePriceNote")],
+    [L("saleAgent"), -r.saleAgentFee, L("saleAgentNote")],
+    [L("saleNoc"), -r.saleNOC, L("saleNocNote")],
+    ...(inp.useMortgage && r.remainingLoan > 0 ? [[L("remainingLoan"), -r.remainingLoan, `${inp.mortgageTerm}yr`]] : []),
+    [L("uaeTax"), 0, L("uaeTaxNote")],
+    [L("hkTax"), 0, L("hkTaxNote")]
+  ];
+  document.getElementById("exitTable").innerHTML = exitRows.map(([label, val, note]) =>
+    `<tr><td>${label}</td><td class="num">${fmt(val)}</td><td class="num">${fmt(val * fx)}</td><td style="font-size:11px;color:var(--text-muted)">${note}</td></tr>`
+  ).join("") + `<tr class="total"><td>${L("netSale")}</td><td class="num">${fmt(r.netSaleProceeds)}</td><td class="num">${fmt(r.netSaleProceeds * fx)}</td><td></td></tr>`;
+
+  drawScenarioChart(r.scenarios);
+  drawCumulativeChart(r.cashflowSeries);
+}
+
+function drawScenarioChart(s) {
+  if (!chartVisible) return; // gated by toggle
+  const lang = document.body.getAttribute("data-lang") || "ja";
+  const inp = getInputs();
+  const customYrs = inp.s4Years || 5;
+  const allLabels = lang === "ja"
+    ? ["① オフプラン・リセール (2年)", "② 引渡後・短期売却 (4年)", "③ 中長期保有 (7年)", `④ カスタム (${customYrs}年)`]
+    : ["(1) Off-plan flip (2y)", "(2) Post-handover short (4y)", "(3) Long-term hold (7y)", `(4) Custom (${customYrs}y)`];
+  const retLabel = lang === "ja" ? "累計リターン (%)" : "Total Return (%)";
+  const irrLabel = lang === "ja" ? "年率 IRR (%)" : "IRR p.a. (%)";
+
+  // Filter datasets to visible scenarios only
+  const allColors  = ["rgba(59,130,246,0.7)", "rgba(16,185,129,0.7)", "rgba(168,85,247,0.7)", "rgba(245,158,11,0.7)"];
+  const allBorders = ["#3b82f6", "#10b981", "#a855f7", "#f59e0b"];
+  const keys = ["s1","s2","s3","s4"];
+  const idx = keys.map((k,i) => scenarioVisible[k] ? i : -1).filter(i => i >= 0);
+
+  const scLabels = idx.map(i => allLabels[i]);
+  const retData  = idx.map(i => s[keys[i]].return * 100);
+  const irrData  = idx.map(i => s[keys[i]].irr * 100);
+  const colors   = idx.map(i => allColors[i]);
+  const borders  = idx.map(i => allBorders[i]);
+
+  const ctx = document.getElementById("scenarioChart").getContext("2d");
+  if (scenarioChart) scenarioChart.destroy();
+  scenarioChart = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: scLabels,
+      datasets: [
+        { label: retLabel, data: retData, backgroundColor: colors, borderColor: borders, borderWidth: 2, yAxisID: "y" },
+        { label: irrLabel, data: irrData, backgroundColor: "rgba(10,37,64,0.7)", borderColor: "#0a2540", borderWidth: 2, yAxisID: "y1", type: "line", tension: 0.3 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: "bottom" } },
+      scales: {
+        y: { position: "left", title: { display: true, text: retLabel }, beginAtZero: true },
+        y1: { position: "right", title: { display: true, text: irrLabel }, beginAtZero: true, grid: { drawOnChartArea: false } }
+      }
+    }
+  });
+}
+
+function drawCumulativeChart(cashflows) {
+  const lang = document.body.getAttribute("data-lang") || "ja";
+  const lbl = lang === "ja" ? "累積キャッシュフロー (AED)" : "Cumulative Cash Flow (AED)";
+  const p = lang === "ja" ? "購入時" : "Purchase";
+  const cum = []; let running = 0;
+  for (let i = 0; i < cashflows.length; i++) { running += cashflows[i]; cum.push(running); }
+  const purchaseYear = new Date().getFullYear();
+  const labels = cashflows.map((_, i) => i === 0 ? p : String(purchaseYear + i));
+  const ctx = document.getElementById("cumulativeChart").getContext("2d");
+  if (cumulativeChart) cumulativeChart.destroy();
+  cumulativeChart = new Chart(ctx, {
+    type: "line",
+    data: { labels, datasets: [{
+      label: lbl, data: cum, fill: true,
+      borderColor: "#c9a961", backgroundColor: "rgba(201,169,97,0.15)",
+      tension: 0.2, pointRadius: 5, pointBackgroundColor: "#0a2540", borderWidth: 3
+    }]},
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: "bottom" },
+        tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${fmt(c.parsed.y)} AED` } } },
+      scales: { y: { title: { display: true, text: lbl }, ticks: { callback: v => fmt(v) } } }
+    }
+  });
+}
+
+// =========== HOLDING PERIOD BREAKDOWN (auto: construction/operating/vacant) ===========
+function drawHoldBreakdown({ purchaseQ, handoverQ, saleQ }) {
+  const el = document.getElementById("holdBreakdown");
+  if (!el) return;
+  if (saleQ < purchaseQ) { el.innerHTML = ""; return; }
+
+  const constructionQ = Math.max(0, Math.min(handoverQ, saleQ + 1) - purchaseQ);
+  const operatingQ = Math.max(0, saleQ - Math.max(handoverQ, purchaseQ) + 1);
+  const numLeases = Math.floor(operatingQ / 4);
+  const leasedQ = numLeases * 4;
+  const vacantQ = operatingQ - leasedQ;
+
+  const fmtDur = (q) => {
+    if (q === 0) return "—";
+    if (q < 4) return `${q * 3}ヶ月`;
+    const y = Math.floor(q / 4);
+    const r = q % 4;
+    return r === 0 ? `${y}年` : `${y}年${r * 3}ヶ月`;
+  };
+  const fmtDurEn = (q) => {
+    if (q === 0) return "—";
+    if (q < 4) return `${q * 3}mo`;
+    const y = Math.floor(q / 4);
+    const r = q % 4;
+    return r === 0 ? `${y}y` : `${y}y ${r * 3}mo`;
+  };
+
+  const segs = [];
+  if (constructionQ > 0) {
+    segs.push(`<span style="display:inline-flex;align-items:center;gap:4px;">
+      <span style="display:inline-block;width:10px;height:10px;background:#94a3b8;border-radius:2px;"></span>
+      <span class="ja">建設中: <strong>${fmtDur(constructionQ)}</strong></span>
+      <span class="en">Construction: <strong>${fmtDurEn(constructionQ)}</strong></span>
+    </span>`);
+  }
+  if (leasedQ > 0) {
+    segs.push(`<span style="display:inline-flex;align-items:center;gap:4px;">
+      <span style="display:inline-block;width:10px;height:10px;background:var(--s2);border-radius:2px;"></span>
+      <span class="ja">運用中: <strong>${fmtDur(leasedQ)}</strong> <small>(${numLeases}件の1年契約)</small></span>
+      <span class="en">Operating: <strong>${fmtDurEn(leasedQ)}</strong> <small>(${numLeases} × 1-yr lease)</small></span>
+    </span>`);
+  }
+  if (vacantQ > 0) {
+    segs.push(`<span style="display:inline-flex;align-items:center;gap:4px;">
+      <span style="display:inline-block;width:10px;height:10px;background:repeating-linear-gradient(45deg,#fde68a,#fde68a 3px,#fef3c7 3px,#fef3c7 6px);border-radius:2px;"></span>
+      <span class="ja">空室期間: <strong>${vacantQ * 3}ヶ月</strong> <small>(賃貸契約外)</small></span>
+      <span class="en">Vacant: <strong>${vacantQ * 3}mo</strong> <small>(no lease possible)</small></span>
+    </span>`);
+  }
+
+  el.innerHTML = `
+    <div style="display:flex; gap:16px; flex-wrap:wrap; padding:8px 12px;
+      background:#f8fafc; border:1px solid var(--border); border-radius:6px;
+      font-size:11px; color:var(--text);">
+      ${segs.join('')}
+    </div>
+  `;
+}
+
+// =========== TIMELINE CHART (year × quarter grid) ===========
+function drawTimelineChart({ purchaseQ, handoverQ, saleQ, holdYears, dubaiOn, dubaiMode }) {
+  const el = document.getElementById("timelineChart");
+  if (!el) return;
+  if (saleQ < purchaseQ) { el.innerHTML = ""; return; }
+
+  const purchaseYear = Math.floor(purchaseQ / 4);
+  const saleYear = Math.floor(saleQ / 4);
+
+  // 1-year-lease rule applied always in the calendar (visualization).
+  // Only complete 4-quarter blocks from handoverQ count as leased.
+  // Residual quarters AFTER the last complete lease are shown vacant (yellow).
+  // The Dubai toggle controls how this is reflected in CF math, not visualization.
+  const operatingQuartersTotal = Math.max(0, saleQ - handoverQ + 1);
+  const numFullLeases = Math.floor(operatingQuartersTotal / 4);
+  const lastLeasedQ = handoverQ + numFullLeases * 4 - 1;
+  const vacantStartQ = lastLeasedQ + 1;
+  const vacantApplies = vacantStartQ <= saleQ && vacantStartQ >= handoverQ;
+
+  // Header row: Q1 Q2 Q3 Q4
+  const header = `<div class="tl-row tl-header">
+    <div class="tl-row-label"></div>
+    <div class="tl-cells">
+      <div class="tl-q-header">Q1</div>
+      <div class="tl-q-header">Q2</div>
+      <div class="tl-q-header">Q3</div>
+      <div class="tl-q-header">Q4</div>
+    </div>
+  </div>`;
+
+  // Year rows: one per calendar year
+  const rows = [];
+  for (let yr = purchaseYear, idx = 0; yr <= saleYear; yr++, idx++) {
+    const cells = [];
+    for (let q = 0; q < 4; q++) {
+      const qAbs = yr * 4 + q;
+      let cls = 'non-owned', labelJa = '', labelEn = '';
+      if (qAbs >= purchaseQ && qAbs <= saleQ) {
+        if (qAbs < handoverQ) {
+          cls = 'construction'; labelJa = '建設中'; labelEn = 'Const';
+        } else if (vacantApplies && qAbs >= vacantStartQ) {
+          cls = 'vacant'; labelJa = '空'; labelEn = 'Vac';
+        } else {
+          cls = 'operating'; labelJa = '運用'; labelEn = 'Lease';
+        }
+      }
+      cells.push(`<div class="tl-q ${cls}" title="${yr} Q${q+1}"><span class="ja">${labelJa}</span><span class="en">${labelEn}</span></div>`);
+    }
+    rows.push(`<div class="tl-row">
+      <div class="tl-row-label">
+        <strong><span class="ja">${idx + 1}年目</span><span class="en">Year ${idx + 1}</span></strong><br>
+        <small>${yr}</small>
+      </div>
+      <div class="tl-cells">${cells.join('')}</div>
+    </div>`);
+  }
+
+  el.innerHTML = header + rows.join('') + `
+    <div class="tl-legend">
+      <span><span class="tl-legend-dot" style="background:#94a3b8"></span><span class="ja">建設中</span><span class="en">Construction</span></span>
+      <span><span class="tl-legend-dot" style="background:var(--s2)"></span><span class="ja">運用中</span><span class="en">Operating</span></span>
+      <span><span class="tl-legend-dot" style="background:repeating-linear-gradient(45deg,#fde68a,#fde68a 5px,#fef3c7 5px,#fef3c7 10px)"></span><span class="ja">空室期間（賃貸契約外）</span><span class="en">Vacant (no lease)</span></span>
+    </div>
+  `;
+}
+
+document.getElementById("preset").addEventListener("change", (e) => {
+  const key = e.target.value;
+  if (key === "addCustom") {
+    openCustomPropertyModal();
+    return;
+  }
+  if (key === "custom") {
+    updateCustomPresetActions(key); // hides actions
+    return;
+  }
+  const pr = customProps[key] || presets[key];
+  if (!pr) return;
+  loadPreset(key);
+});
+
+document.querySelectorAll("input, select").forEach(el => {
+  el.addEventListener("input", render);
+  el.addEventListener("change", render);
+});
+
+// Tabs replaced with stacked sections — no listeners needed
+
+const sections = document.querySelectorAll(".qa-section, #simulator");
+const navLinks = document.querySelectorAll("nav.sticky-nav .nav-link");
+function updateActiveNav() {
+  let current = "q1";
+  const scrollY = window.scrollY + 120;
+  sections.forEach(s => { if (s.offsetTop <= scrollY) current = s.id; });
+  navLinks.forEach(link => {
+    link.classList.toggle("active", link.getAttribute("href") === "#" + current);
+  });
+}
+window.addEventListener("scroll", updateActiveNav);
+
+// =========== MINI CALCULATOR ===========
+(function initCalc() {
+  const display = document.getElementById("calcDisplay");
+  if (!display) return;
+  let expr = "";
+  let justEvaluated = false;
+  const safeEval = (s) => {
+    if (!/^[\d\s+\-*/().%]*$/.test(s)) return null;
+    const withPct = s.replace(/(\d+(?:\.\d+)?)\s*%/g, "($1/100)");
+    try {
+      const r = Function('"use strict"; return (' + (withPct || "0") + ')')();
+      return Number.isFinite(r) ? r : null;
+    } catch (e) { return null; }
+  };
+  const fmtCalc = (n) => {
+    if (n === null) return "Error";
+    return Math.abs(n) >= 1 ? n.toLocaleString(undefined, { maximumFractionDigits: 4 }) : String(n);
+  };
+  const refresh = () => { display.value = expr || "0"; };
+  document.querySelectorAll(".calc-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const k = btn.dataset.key;
+      if (k === "C") { expr = ""; justEvaluated = false; refresh(); return; }
+      if (k === "back") { expr = expr.slice(0, -1); justEvaluated = false; refresh(); return; }
+      if (k === "=") {
+        const r = safeEval(expr);
+        expr = r === null ? "" : String(r);
+        justEvaluated = true;
+        display.value = fmtCalc(r);
+        return;
+      }
+      if (justEvaluated && /[\d.]/.test(k)) { expr = ""; justEvaluated = false; }
+      else justEvaluated = false;
+      expr += k;
+      refresh();
+    });
+  });
+  refresh();
+})();
+
+render();
+</script>
+
+</body>
+</html>
