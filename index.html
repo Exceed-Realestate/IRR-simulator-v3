@@ -1362,6 +1362,22 @@
   .area-talkpoints h4 { color:#92400e; margin-bottom:10px; }
   .area-talkpoints ol { margin:0; padding-left:20px; }
   .area-talkpoints li { padding:6px 0; font-size:13px; line-height:1.55; }
+  /* Report-checklist modal */
+  .rpt-checklist { list-style:none; padding:0; margin:0 0 8px; }
+  .rpt-checklist li { padding:0; border:1px solid #eee; border-radius:6px; margin-bottom:8px; transition:background 0.15s, border-color 0.15s; }
+  .rpt-checklist li:hover:not(.locked) { border-color:var(--accent, #d4a574); background:#fafafa; }
+  .rpt-checklist li.locked { background:#f9fafb; opacity:0.7; }
+  .rpt-checklist li.rpt-cl-new { border-color:#bfdbfe; background:#eff6ff; }
+  .rpt-checklist label { display:flex; gap:12px; padding:11px 14px; cursor:pointer; align-items:flex-start; }
+  .rpt-checklist li.locked label { cursor:not-allowed; }
+  .rpt-checklist input[type="checkbox"] { margin-top:2px; flex:0 0 auto; width:16px; height:16px; cursor:pointer; }
+  .rpt-checklist .rpt-cl-label { display:block; font-weight:600; font-size:13px; color:var(--text); }
+  .rpt-checklist .rpt-cl-sub { display:block; font-size:11.5px; color:var(--text-muted); margin-top:3px; }
+  .rpt-new-badge { display:inline-block; background:#3b82f6; color:#fff; font-size:9px; padding:1px 6px; border-radius:8px; margin-left:6px; vertical-align:middle; letter-spacing:0.4px; font-weight:700; }
+  .rpt-cl-footer { padding-top:10px; border-top:1px solid #eee; margin-top:6px; }
+  .rpt-save-default { display:flex; gap:8px; align-items:center; cursor:pointer; font-size:12.5px; color:var(--text-muted); padding:6px 4px; }
+  .rpt-save-default input { width:14px; height:14px; cursor:pointer; }
+
   .area-unit-insights { background:#eff6ff; border:1px solid #bfdbfe; border-radius:6px; padding:14px 16px; }
   .area-unit-insights h4 { color:#1e40af; margin-bottom:10px; }
   .unit-insights-list { list-style:none; padding:0; margin:0; }
@@ -2077,6 +2093,85 @@
   </div>
 </div>
 
+<!-- ============ REPORT CHECKLIST MODAL ============ -->
+<div class="modal-overlay" id="reportChecklistModal" onclick="if(event.target===this)closeReportChecklist()">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-header">
+      <div>
+        <h2>📄 <span class="ja">レポートをカスタマイズ</span><span class="en">Customize Report</span></h2>
+        <div class="subtitle"><span class="ja">含めたいセクションを選んでください</span><span class="en">Select the sections to include in the PDF</span></div>
+      </div>
+      <button class="modal-close" onclick="closeReportChecklist()">✕</button>
+    </div>
+    <div class="modal-body">
+      <ul class="rpt-checklist">
+        <li class="locked">
+          <label><input type="checkbox" checked disabled>
+            <span class="rpt-cl-label"><span class="ja">表紙（必須）</span><span class="en">Cover page (always)</span></span>
+          </label>
+        </li>
+        <li>
+          <label><input type="checkbox" id="rpt-opt-terms" checked>
+            <span class="rpt-cl-label"><span class="ja">投資条件</span><span class="en">Investment Terms</span></span>
+            <span class="rpt-cl-sub"><span class="ja">価格・ローン・運用前提</span><span class="en">Price, loan, operating assumptions</span></span>
+          </label>
+        </li>
+        <li>
+          <label><input type="checkbox" id="rpt-opt-holding" checked>
+            <span class="rpt-cl-label"><span class="ja">保有期間内訳</span><span class="en">Holding Period Breakdown</span></span>
+            <span class="rpt-cl-sub"><span class="ja">建設中・運用中・空室期間</span><span class="en">Construction / operating / residual</span></span>
+          </label>
+        </li>
+        <li>
+          <label><input type="checkbox" id="rpt-opt-timeline" checked>
+            <span class="rpt-cl-label"><span class="ja">カレンダータイムライン</span><span class="en">Calendar Timeline</span></span>
+          </label>
+        </li>
+        <li>
+          <label><input type="checkbox" id="rpt-opt-outlay" checked>
+            <span class="rpt-cl-label"><span class="ja">初期手出し内訳</span><span class="en">Initial Outlay Breakdown</span></span>
+          </label>
+        </li>
+        <li>
+          <label><input type="checkbox" id="rpt-opt-cashflow" checked>
+            <span class="rpt-cl-label"><span class="ja">年次キャッシュフロー</span><span class="en">Annual Cash Flow Detail</span></span>
+          </label>
+        </li>
+        <li>
+          <label><input type="checkbox" id="rpt-opt-exit" checked>
+            <span class="rpt-cl-label"><span class="ja">EXIT（売却時）内訳</span><span class="en">Sale (Exit) Breakdown</span></span>
+          </label>
+        </li>
+        <li class="rpt-cl-new">
+          <label><input type="checkbox" id="rpt-opt-area" checked>
+            <span class="rpt-cl-label"><span class="ja">エリア分析 <span class="rpt-new-badge">NEW</span></span><span class="en">Area Analysis <span class="rpt-new-badge">NEW</span></span></span>
+            <span class="rpt-cl-sub"><span class="ja">坪単価・利回り・インフラ・類似物件・トークポイント</span><span class="en">Price/sqft, yield, infrastructure, comparables, talking points</span></span>
+          </label>
+        </li>
+        <li class="locked">
+          <label><input type="checkbox" checked disabled>
+            <span class="rpt-cl-label"><span class="ja">免責事項（必須）</span><span class="en">Disclaimer (always)</span></span>
+          </label>
+        </li>
+      </ul>
+      <div class="rpt-cl-footer">
+        <label class="rpt-save-default">
+          <input type="checkbox" id="rpt-save-default">
+          <span><span class="ja">この設定をデフォルトとして保存</span><span class="en">Save these as my default</span></span>
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer" style="display:flex;justify-content:flex-end;gap:10px;padding:16px 28px">
+      <button type="button" class="b-btn" onclick="closeReportChecklist()" style="background:#e5e7eb;color:var(--text)">
+        <span class="ja">キャンセル</span><span class="en">Cancel</span>
+      </button>
+      <button type="button" class="b-btn primary" onclick="executeReportFromChecklist()" style="background:var(--accent);color:var(--primary);font-weight:700">
+        📄 <span class="ja">PDFを生成</span><span class="en">Generate PDF</span>
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- ============ IRR BREAKDOWN MODAL ============ -->
 <div class="modal-overlay" id="irrBreakdownModal" onclick="if(event.target===this)closeIrrBreakdown()">
   <div class="modal" style="max-width:760px">
@@ -2380,9 +2475,108 @@ window.addEventListener("afterprint", () => {
 // =========== PRINT / PDF (Simulator only — native preview, LANDSCAPE) ===========
 // Click → browser opens print preview showing only the simulator → user
 // chooses "Save as PDF" or prints. Injects a landscape @page rule at runtime.
+// =========== REPORT CHECKLIST (v3) ===========
+const REPORT_OPTS_KEY = "exceedReportOptions";
+const DEFAULT_REPORT_OPTS = { terms: true, holding: true, timeline: true, outlay: true, cashflow: true, exit: true, area: true };
+function loadReportOptions() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(REPORT_OPTS_KEY) || "{}");
+    return Object.assign({}, DEFAULT_REPORT_OPTS, stored);
+  } catch (e) { return Object.assign({}, DEFAULT_REPORT_OPTS); }
+}
+function saveReportOptions(opts) {
+  try { localStorage.setItem(REPORT_OPTS_KEY, JSON.stringify(opts)); } catch (e) {}
+}
+function showReportChecklist() {
+  if (typeof closeIrrBreakdown === "function") closeIrrBreakdown();
+  if (typeof closeCustomPropertyModal === "function") closeCustomPropertyModal();
+  if (typeof closeBrochureModal === "function") closeBrochureModal();
+  const m = document.getElementById("reportChecklistModal");
+  if (!m) return;
+  const opts = loadReportOptions();
+  Object.entries(opts).forEach(([k, v]) => {
+    const cb = document.getElementById("rpt-opt-" + k);
+    if (cb) cb.checked = !!v;
+  });
+  m.classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+function closeReportChecklist() {
+  const m = document.getElementById("reportChecklistModal");
+  if (m) m.classList.remove("open");
+  document.body.style.overflow = "";
+}
+function executeReportFromChecklist() {
+  const opts = {};
+  ["terms","holding","timeline","outlay","cashflow","exit","area"].forEach(k => {
+    const cb = document.getElementById("rpt-opt-" + k);
+    if (cb) opts[k] = !!cb.checked;
+  });
+  if (document.getElementById("rpt-save-default")?.checked) saveReportOptions(opts);
+  closeReportChecklist();
+  setTimeout(() => _executeReport(opts), 80);
+}
+
+// Build the Area Analysis section HTML for the printed report (compact, A4-friendly).
+function buildAreaReportSection(T, lang) {
+  if (!areasData || !currentAreaKey) return "";
+  const a = areasData[currentAreaKey];
+  if (!a) return "";
+  const insights = (typeof generateUnitInsights === "function") ? (generateUnitInsights() || []) : [];
+  const apt = a.avgPriceSqftAed && a.avgPriceSqftAed.apartment;
+  const villa = a.avgPriceSqftAed && a.avgPriceSqftAed.villa;
+  const yieldApt = a.avgRentalYieldPct && a.avgRentalYieldPct.apartment;
+  const yieldVilla = a.avgRentalYieldPct && a.avgRentalYieldPct.villa;
+  const isNa = (v) => !v || (typeof v === "string" && v.toLowerCase().includes("n/a"));
+  let statsHTML = "";
+  if (!isNa(apt))   statsHTML += `<tr><td>AED/sqft (Apt)</td><td>${apt}</td></tr>`;
+  if (!isNa(villa)) statsHTML += `<tr><td>AED/sqft (Villa)</td><td>${villa}</td></tr>`;
+  if (a.priceSqftYoYPct) statsHTML += `<tr><td>${T("過去1年", "YoY")}</td><td>${a.priceSqftYoYPct}%</td></tr>`;
+  if (!isNa(a.priceSqft5yrPct)) statsHTML += `<tr><td>${T("過去5年", "5-yr")}</td><td>${a.priceSqft5yrPct}%</td></tr>`;
+  if (!isNa(yieldApt))   statsHTML += `<tr><td>${T("利回り (Apt)", "Yield (Apt)")}</td><td>${yieldApt}%</td></tr>`;
+  if (!isNa(yieldVilla) && !String(yieldVilla).startsWith("projected")) statsHTML += `<tr><td>${T("利回り (Villa)", "Yield (Villa)")}</td><td>${yieldVilla}%</td></tr>`;
+  if (a.transactionVolume) statsHTML += `<tr><td>${T("取引量", "Tx vol")}</td><td>${a.transactionVolume}</td></tr>`;
+  const insightItems = insights.map(i => `<li>${lang === "ja" ? (i.jp || i.en) : i.en}</li>`).join("");
+  const infraItems = (a.infrastructure || []).map(i => `<li>${lang === "ja" ? (i.jp || i.en) : i.en}</li>`).join("");
+  const compItems = (a.comparableProjects || []).map(c => `<li><strong>${c.name}</strong>${c.context ? `<br><span style="font-size:9.5px;color:#94a3b8;">${c.context}</span>` : ""}</li>`).join("");
+  const talkItems = (a.talkingPoints || []).map(t => `<li>${lang === "ja" ? (t.jp || t.en) : t.en}</li>`).join("");
+  const dxbCite = a.dxbInteractUrl ? `<a href="${a.dxbInteractUrl}" target="_blank" style="color:#94a3b8;">DXB Interact</a>` : "";
+  const dataAsOf = (areasData._meta && areasData._meta.dataAsOf) ? `· ${T("データ基準", "as of")} ${areasData._meta.dataAsOf}` : "";
+  const areaDisplayName = lang === "ja" ? (a.nameJP || a.nameEN) : a.nameEN;
+  return `
+    <section class="rpt-section rpt-page-break">
+      <h2>${T("エリア分析", "Area Analysis")}: ${areaDisplayName}</h2>
+      <div class="rpt-cols">
+        <div class="rpt-col">
+          <h4>${T("エリアデータ", "Area Snapshot")}</h4>
+          <table class="rpt-tbl">${statsHTML || `<tr><td colspan="2" style="color:#94a3b8;">${T("データなし", "no data")}</td></tr>`}</table>
+        </div>
+        <div class="rpt-col" style="flex:2">
+          <h4>${T("この物件のポジショニング", "This Unit's Position")}</h4>
+          <ul style="padding-left:18px;margin:0;font-size:10.5px;line-height:1.55;">${insightItems || `<li style="color:#94a3b8;">${T("入力に基づく分析がここに表示されます", "Insights generated from inputs will appear here.")}</li>`}</ul>
+        </div>
+      </div>
+      ${(infraItems || compItems) ? `<div class="rpt-cols" style="margin-top:12px;">
+        ${infraItems ? `<div class="rpt-col"><h4>${T("インフラ", "Infrastructure")}</h4><ul style="padding-left:18px;margin:0;font-size:10.5px;line-height:1.5;">${infraItems}</ul></div>` : ""}
+        ${compItems ? `<div class="rpt-col"><h4>${T("類似プロジェクト", "Comparable Projects")}</h4><ul style="padding-left:18px;margin:0;font-size:10.5px;line-height:1.5;">${compItems}</ul></div>` : ""}
+      </div>` : ""}
+      ${talkItems ? `<div style="margin-top:12px;background:#fffbeb;border:1px solid #fde68a;border-radius:4px;padding:8px 12px;">
+        <h4 style="color:#92400e;margin:0 0 6px;">💬 ${T("セールス・トークポイント", "Sales Talking Points")}</h4>
+        <ol style="padding-left:18px;margin:0;font-size:10.5px;line-height:1.55;">${talkItems}</ol>
+      </div>` : ""}
+      <div style="margin-top:8px;font-size:9.5px;color:#94a3b8;">
+        ${T("出典", "Sources")}: ${dxbCite}${dxbCite ? " · " : ""}DLD ${dataAsOf}
+      </div>
+    </section>
+  `;
+}
+
 // Generate a custom client-ready PDF report with a clean, designed layout
 // (NOT a screenshot of the simulator UI — that's downloadSimulatorPDF()).
-function generateReport() {
+function generateReport() { showReportChecklist(); }
+
+function _executeReport(opts) {
+  opts = opts || loadReportOptions();
   if (typeof closeIrrBreakdown === "function") closeIrrBreakdown();
   if (typeof closeCustomPropertyModal === "function") closeCustomPropertyModal();
   if (typeof closeBrochureModal === "function") closeBrochureModal();
@@ -2568,7 +2762,7 @@ function generateReport() {
       </div>
     </section>
 
-    <section class="rpt-section">
+    ${opts.terms ? `<section class="rpt-section">
       <h2>${T("投資条件", "Investment Terms")}</h2>
       <div class="rpt-cols">
         <div class="rpt-col">
@@ -2602,9 +2796,9 @@ function generateReport() {
           </table>
         </div>
       </div>
-    </section>
+    </section>` : ""}
 
-    <section class="rpt-section">
+    ${opts.holding ? `<section class="rpt-section">
       <h2>${T("保有期間内訳", "Holding Period Breakdown")}</h2>
       <div class="rpt-breakdown">
         ${constrQ > 0 ? `
@@ -2626,38 +2820,40 @@ function generateReport() {
           <div class="rpt-bd-sub">${T("1年契約に収まらない", "Cannot fit 1-yr lease")}</div>
         </div>` : ''}
       </div>
-    </section>
+    </section>` : ""}
 
-    <section class="rpt-section">
+    ${opts.timeline ? `<section class="rpt-section">
       <h2>${T("カレンダータイムライン", "Calendar Timeline")}</h2>
       ${calendarHTML}
-    </section>
+    </section>` : ""}
 
-    <section class="rpt-section rpt-page-break">
+    ${opts.outlay ? `<section class="rpt-section rpt-page-break">
       <h2>${T("初期手出し内訳", "Initial Outlay Breakdown")}</h2>
       <table class="rpt-tbl rpt-tbl-bordered">
         <thead><tr><th>${T("項目", "Item")}</th><th style="text-align:right;">AED</th><th>${T("備考", "Notes")}</th></tr></thead>
         <tbody>${outlayRows}</tbody>
         <tfoot><tr><td><strong>${T("合計", "Total")}</strong></td><td style="text-align:right;"><strong>${fmtN(r.initialCashAED)} AED</strong></td><td>${fmtN(r.initialCashAED * fx)} ${cur}</td></tr></tfoot>
       </table>
-    </section>
+    </section>` : ""}
 
-    <section class="rpt-section">
+    ${opts.cashflow ? `<section class="rpt-section">
       <h2>${T("年次キャッシュフロー", "Annual Cash Flow Detail")}</h2>
       <table class="rpt-tbl rpt-tbl-bordered">
         <thead><tr><th>${T("期間", "Period")}</th><th style="text-align:right;">${T("ネットCF", "Net Cash Flow")}</th></tr></thead>
         <tbody>${cfRows}</tbody>
       </table>
-    </section>
+    </section>` : ""}
 
-    <section class="rpt-section">
+    ${opts.exit ? `<section class="rpt-section">
       <h2>${T("EXIT（売却時）内訳", "Sale (Exit) Breakdown")}</h2>
       <table class="rpt-tbl rpt-tbl-bordered">
         <thead><tr><th>${T("項目", "Item")}</th><th style="text-align:right;">AED</th><th>${T("備考", "Notes")}</th></tr></thead>
         <tbody>${saleRows}</tbody>
         <tfoot><tr><td><strong>${T("着金ネット", "Net to client")}</strong></td><td style="text-align:right; color:#16a34a;"><strong>+${fmtN(r.netSaleProceeds)} AED</strong></td><td><strong>${fmtN(r.netSaleProceeds * fx)} ${cur}</strong></td></tr></tfoot>
       </table>
-    </section>
+    </section>` : ""}
+
+    ${opts.area ? buildAreaReportSection(T, lang) : ""}
 
     <footer class="rpt-footer">
       <div class="rpt-disclaimer">
