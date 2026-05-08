@@ -1401,6 +1401,28 @@
   .area-pipeline .pipeline-text { flex:1; }
   /* Golden Visa indicator (in unit insights) */
   .gv-tag { display:inline-block; background:#fbbf24; color:#78350f; padding:1px 6px; border-radius:8px; font-size:10px; font-weight:700; margin-right:4px; vertical-align:middle; letter-spacing:0.4px; }
+
+  /* Verify-live button (prominent) */
+  .verify-prominent { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:14px 0; padding:12px 16px; background:linear-gradient(135deg,#1e40af,#3b82f6); color:#fff; border-radius:8px; box-shadow:0 2px 6px rgba(30,64,175,0.2); }
+  .verify-prominent .vp-text { flex:1; font-size:12.5px; line-height:1.4; }
+  .verify-prominent .vp-text strong { display:block; font-size:13.5px; margin-bottom:2px; }
+  .verify-prominent .vp-text small { display:block; font-size:11px; opacity:0.85; }
+  .verify-prominent a { display:inline-flex; align-items:center; gap:6px; padding:8px 14px; background:#fff; color:#1e40af; border-radius:6px; font-weight:700; text-decoration:none; font-size:12px; white-space:nowrap; }
+  .verify-prominent a:hover { background:#eff6ff; }
+  .verify-summary { font-size:11px; color:#bbf7d0; margin-top:6px; }
+  /* Stat-tile edit affordance */
+  .area-stat { position:relative; }
+  .area-stat.is-verified { border-color:#16a34a; background:#f0fdf4; }
+  .area-stat .stat-edit-btn { position:absolute; top:4px; right:4px; background:transparent; border:none; cursor:pointer; padding:2px 5px; font-size:11px; opacity:0.35; transition:opacity 0.15s; border-radius:3px; line-height:1; }
+  .area-stat:hover .stat-edit-btn { opacity:1; }
+  .area-stat .stat-edit-btn:hover { background:rgba(0,0,0,0.06); }
+  .area-stat-input { width:100%; padding:5px 7px; border:2px solid var(--accent, #d4a574); border-radius:4px; font-size:13px; font-weight:600; box-sizing:border-box; }
+  .stat-edit-actions { display:flex; gap:4px; margin-top:5px; }
+  .stat-edit-actions button { flex:1; padding:3px 6px; border:1px solid #ddd; background:#fff; border-radius:3px; cursor:pointer; font-size:10.5px; font-weight:600; }
+  .stat-edit-actions button.save { background:#16a34a; color:#fff; border-color:#16a34a; }
+  .stat-edit-actions button.save:hover { background:#15803d; }
+  .stat-edit-actions button.clear { background:#fef2f2; color:#dc2626; border-color:#fecaca; }
+  .area-stat-verified { font-size:9.5px; color:#16a34a; margin-top:3px; font-weight:600; letter-spacing:0.3px; }
   .area-citations { display:flex; gap:14px; flex-wrap:wrap; margin-top:14px; padding-top:12px; border-top:1px solid #eee; font-size:11.5px; }
   .area-citations a { color:var(--accent, #b08850); text-decoration:none; border-bottom:1px dotted; }
   .area-citations a:hover { color:var(--text); }
@@ -2610,7 +2632,7 @@ function buildAreaReportSection(T, lang) {
         <ol style="padding-left:18px;margin:0;font-size:10.5px;line-height:1.55;">${talkItems}</ol>
       </div>` : ""}
       <div style="margin-top:8px;font-size:9.5px;color:#94a3b8;">
-        ${T("出典", "Sources")}: ${dxbCite}${dxbCite ? " · " : ""}DLD ${dataAsOf}
+        ${T("出典", "Sources")}: ${dxbCite}${dxbCite ? " · " : ""}DLD ${dataAsOf}${(a._verifiedFields && Object.keys(a._verifiedFields).length) ? ` · ✓ ${T("検証済", "Verified")}: ${Object.keys(a._verifiedFields).length} ${T("項目", "fields")}` : ""}
       </div>
     </section>
   `;
@@ -3022,15 +3044,53 @@ let areasData = null;
 let masterAreasList = null;   // Full Dubai area list (164 entries from investmentmap.ai)
 let currentAreaKey = null;
 
+// ----- Per-agent verified overrides (localStorage) -----
+const VERIFIED_KEY = "exceedVerifiedAreaData_v1";
+let verifiedAreaData = {};
+try { verifiedAreaData = JSON.parse(localStorage.getItem(VERIFIED_KEY) || "{}"); } catch (e) { verifiedAreaData = {}; }
+function persistVerified() {
+  try { localStorage.setItem(VERIFIED_KEY, JSON.stringify(verifiedAreaData)); }
+  catch (e) { console.warn("[v3] verified-data persist failed:", e); }
+}
+function setNested(obj, path, value) {
+  const parts = path.split(".");
+  let o = obj;
+  for (let i = 0; i < parts.length - 1; i++) { if (!o[parts[i]]) o[parts[i]] = {}; o = o[parts[i]]; }
+  o[parts[parts.length - 1]] = value;
+}
+function todayIso() { return new Date().toISOString().slice(0, 10); }
+
 // Resolve a curated profile from any key — direct or via master-list alias.
+// Also merges any per-agent verified overrides on top.
 function getAreaProfile(key) {
   if (!key || !areasData) return null;
-  if (areasData[key]) return areasData[key];
-  if (masterAreasList) {
+  let profile = null;
+  let canonicalKey = key;
+  if (areasData[key]) {
+    profile = areasData[key];
+  } else if (masterAreasList) {
     const m = masterAreasList.find(e => e.key === key);
-    if (m && m.curatedAs && areasData[m.curatedAs]) return areasData[m.curatedAs];
+    if (m && m.curatedAs && areasData[m.curatedAs]) {
+      profile = areasData[m.curatedAs];
+      canonicalKey = m.curatedAs;
+    }
   }
-  return null;
+  if (!profile) return null;
+  const verified = verifiedAreaData[canonicalKey] || {};
+  if (Object.keys(verified).length === 0) {
+    // Still attach metadata so UI knows the canonical key for editing
+    return Object.assign({}, profile, { _canonicalAreaKey: canonicalKey, _verifiedFields: {} });
+  }
+  // Deep clone and apply overrides
+  const merged = JSON.parse(JSON.stringify(profile));
+  const verifiedFields = {};
+  Object.entries(verified).forEach(([path, entry]) => {
+    setNested(merged, path, entry.value);
+    verifiedFields[path] = entry.verifiedAt;
+  });
+  merged._canonicalAreaKey = canonicalKey;
+  merged._verifiedFields = verifiedFields;
+  return merged;
 }
 function getMasterEntry(key) {
   if (!key || !masterAreasList) return null;
@@ -3182,21 +3242,62 @@ function renderAreaCard(areaKey) {
   }
   const meta = areasData._meta || {};
 
-  // Stats grid
+  // Stats grid — each tile is editable in-place; verified values get a green ✓ badge.
   const apt = a.avgPriceSqftAed && a.avgPriceSqftAed.apartment;
   const villa = a.avgPriceSqftAed && a.avgPriceSqftAed.villa;
   const yieldApt = a.avgRentalYieldPct && a.avgRentalYieldPct.apartment;
   const yieldVilla = a.avgRentalYieldPct && a.avgRentalYieldPct.villa;
+  const vf = a._verifiedFields || {};
+
+  function tile(labelHtml, value, fieldPath, opts) {
+    opts = opts || {};
+    if (!value || (typeof value === "string" && value.toLowerCase().includes("n/a"))) return "";
+    if (opts.skipIfStartsWith && String(value).startsWith(opts.skipIfStartsWith)) return "";
+    const isVerified = !!vf[fieldPath];
+    const verifiedDate = vf[fieldPath] || "";
+    const editBtn = '<button class="stat-edit-btn" onclick="event.stopPropagation();openStatEdit(\'' + fieldPath + '\', this)" title="Update from DXB Interact">✏️</button>';
+    const display = escapeHtml(String(value)) + (opts.suffix || "");
+    const badge = isVerified ? '<div class="area-stat-verified">✓ Verified ' + escapeHtml(verifiedDate) + '</div>' : '';
+    const span = opts.span ? ' style="grid-column:span ' + opts.span + '"' : '';
+    return '<div class="area-stat' + (isVerified ? ' is-verified' : '') + '"' + span + '>' +
+      editBtn +
+      '<div class="area-stat-label">' + labelHtml + '</div>' +
+      '<div class="area-stat-value">' + display + '</div>' +
+      badge +
+    '</div>';
+  }
 
   let stats = '';
-  if (apt && apt !== "n/a") stats += '<div class="area-stat"><div class="area-stat-label">AED / sqft (Apt)</div><div class="area-stat-value">' + escapeHtml(apt) + '</div></div>';
-  if (villa && villa !== "n/a" && !villa.startsWith("n/a")) stats += '<div class="area-stat"><div class="area-stat-label">AED / sqft (Villa)</div><div class="area-stat-value">' + escapeHtml(villa) + '</div></div>';
-  if (a.priceSqftYoYPct) stats += '<div class="area-stat"><div class="area-stat-label"><span class="ja">過去1年</span><span class="en">YoY</span></div><div class="area-stat-value">' + escapeHtml(a.priceSqftYoYPct) + '%</div></div>';
-  if (a.priceSqft5yrPct && a.priceSqft5yrPct !== "n/a") stats += '<div class="area-stat"><div class="area-stat-label"><span class="ja">過去5年</span><span class="en">5-yr</span></div><div class="area-stat-value">' + escapeHtml(a.priceSqft5yrPct) + '%</div></div>';
-  if (yieldApt) stats += '<div class="area-stat"><div class="area-stat-label"><span class="ja">利回り (Apt)</span><span class="en">Yield (Apt)</span></div><div class="area-stat-value">' + escapeHtml(yieldApt) + '%</div></div>';
-  if (yieldVilla && !String(yieldVilla).startsWith("projected") && !String(yieldVilla).startsWith("n/a")) stats += '<div class="area-stat"><div class="area-stat-label"><span class="ja">利回り (Villa)</span><span class="en">Yield (Villa)</span></div><div class="area-stat-value">' + escapeHtml(yieldVilla) + '%</div></div>';
-  if (a.txCount12mo) stats += '<div class="area-stat"><div class="area-stat-label"><span class="ja">過去12ヶ月の取引数</span><span class="en">Tx Last 12mo</span></div><div class="area-stat-value">' + escapeHtml(a.txCount12mo) + '</div></div>';
-  if (a.transactionVolume) stats += '<div class="area-stat" style="grid-column:span 2"><div class="area-stat-label"><span class="ja">取引量</span><span class="en">Tx Volume</span></div><div class="area-stat-value" style="font-size:12.5px; font-weight:500;">' + escapeHtml(a.transactionVolume) + '</div></div>';
+  stats += tile('AED / sqft (Apt)', apt, 'avgPriceSqftAed.apartment');
+  stats += tile('AED / sqft (Villa)', villa, 'avgPriceSqftAed.villa');
+  stats += tile('<span class="ja">過去1年</span><span class="en">YoY</span>', a.priceSqftYoYPct, 'priceSqftYoYPct', { suffix: '%' });
+  stats += tile('<span class="ja">過去5年</span><span class="en">5-yr</span>', a.priceSqft5yrPct, 'priceSqft5yrPct', { suffix: '%' });
+  stats += tile('<span class="ja">利回り (Apt)</span><span class="en">Yield (Apt)</span>', yieldApt, 'avgRentalYieldPct.apartment', { suffix: '%' });
+  stats += tile('<span class="ja">利回り (Villa)</span><span class="en">Yield (Villa)</span>', yieldVilla, 'avgRentalYieldPct.villa', { suffix: '%', skipIfStartsWith: 'projected' });
+  stats += tile('<span class="ja">過去12ヶ月の取引数</span><span class="en">Tx Last 12mo</span>', a.txCount12mo, 'txCount12mo');
+  if (a.transactionVolume) {
+    const isVerified = !!vf['transactionVolume'];
+    const verifiedDate = vf['transactionVolume'] || "";
+    stats += '<div class="area-stat' + (isVerified ? ' is-verified' : '') + '" style="grid-column:span 2">' +
+      '<button class="stat-edit-btn" onclick="event.stopPropagation();openStatEdit(\'transactionVolume\', this)" title="Update from DXB Interact">✏️</button>' +
+      '<div class="area-stat-label"><span class="ja">取引量</span><span class="en">Tx Volume</span></div>' +
+      '<div class="area-stat-value" style="font-size:12.5px; font-weight:500;">' + escapeHtml(a.transactionVolume) + '</div>' +
+      (isVerified ? '<div class="area-stat-verified">✓ Verified ' + escapeHtml(verifiedDate) + '</div>' : '') +
+    '</div>';
+  }
+
+  // Prominent verify-live block (always visible under stats grid)
+  const verifiedCount = Object.keys(vf).length;
+  const verifyBlock = '<div class="verify-prominent">' +
+    '<div class="vp-text">' +
+      '<strong>📊 <span class="ja">DXB Interactで最新数値を確認</span><span class="en">Verify with DXB Interact</span></strong>' +
+      '<small><span class="ja">数値はおおまかな推定値です。各タイルの ✏️ で実数値に更新できます（保存先：このブラウザ）</span><span class="en">Numbers are approximate. Click ✏️ on any tile to override with the live figure (saved in this browser).</span></small>' +
+      (verifiedCount > 0 ? '<div class="verify-summary">✓ ' + verifiedCount + ' field' + (verifiedCount !== 1 ? 's' : '') + ' verified — flow into the PDF report</div>' : '') +
+    '</div>' +
+    '<a href="' + (a.dxbInteractUrl || 'https://dxbinteract.com/') + '" target="_blank" rel="noopener">' +
+      '<span class="ja">開く</span><span class="en">Open</span> ↗' +
+    '</a>' +
+  '</div>';
 
   const tier = a.tier || "prime";
   const tierLabel = tier.replace(/-/g, " ");
@@ -3266,11 +3367,66 @@ function renderAreaCard(areaKey) {
       '</div>' +
     '</div>' +
     (stats ? '<div class="area-stats">' + stats + '</div>' : '') +
+    verifyBlock +
     rentsBlock + tenantBlock +
     '<div id="unitInsights"></div>' +
     infra + pipelineBlock + comps + talks + citations;
 
   renderUnitInsights();
+}
+
+// ----- Stat-tile inline edit (verify-and-override workflow) -----
+function openStatEdit(fieldPath, btn) {
+  const tile = btn.closest(".area-stat");
+  if (!tile) return;
+  const valueEl = tile.querySelector(".area-stat-value");
+  if (!valueEl) return;
+  const currentValue = valueEl.textContent.trim();
+  // Strip a trailing % if present (we'll re-append on display)
+  const cleanValue = currentValue.replace(/%\s*$/, "");
+  const inputId = "stat-input-" + Date.now();
+  valueEl.innerHTML = '<input id="' + inputId + '" class="area-stat-input" value="' + escapeHtml(cleanValue) + '" />';
+  btn.style.display = "none";
+  // Existing verified badge (if any) — leave; will be replaced on render
+  const oldBadge = tile.querySelector(".area-stat-verified");
+  if (oldBadge) oldBadge.style.display = "none";
+  const actions = document.createElement("div");
+  actions.className = "stat-edit-actions";
+  const profile = getAreaProfile(currentAreaKey);
+  const wasVerified = profile && profile._verifiedFields && profile._verifiedFields[fieldPath];
+  actions.innerHTML =
+    '<button class="save" onclick="saveStatEdit(\'' + fieldPath + '\', \'' + inputId + '\')">✓ Save</button>' +
+    (wasVerified ? '<button class="clear" onclick="clearStatEdit(\'' + fieldPath + '\')">Clear</button>' : '') +
+    '<button onclick="renderAreaCard(currentAreaKey)">Cancel</button>';
+  tile.appendChild(actions);
+  const inp = document.getElementById(inputId);
+  inp.focus();
+  inp.select();
+  inp.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") saveStatEdit(fieldPath, inputId);
+    if (e.key === "Escape") renderAreaCard(currentAreaKey);
+  });
+}
+function saveStatEdit(fieldPath, inputId) {
+  const inp = document.getElementById(inputId);
+  if (!inp) return;
+  const newValue = inp.value.trim();
+  if (!newValue) return;
+  const profile = getAreaProfile(currentAreaKey);
+  const canonicalKey = (profile && profile._canonicalAreaKey) || currentAreaKey;
+  if (!verifiedAreaData[canonicalKey]) verifiedAreaData[canonicalKey] = {};
+  verifiedAreaData[canonicalKey][fieldPath] = { value: newValue, verifiedAt: todayIso() };
+  persistVerified();
+  renderAreaCard(currentAreaKey);
+}
+function clearStatEdit(fieldPath) {
+  const profile = getAreaProfile(currentAreaKey);
+  const canonicalKey = (profile && profile._canonicalAreaKey) || currentAreaKey;
+  if (verifiedAreaData[canonicalKey]) {
+    delete verifiedAreaData[canonicalKey][fieldPath];
+    persistVerified();
+  }
+  renderAreaCard(currentAreaKey);
 }
 
 // ----- Helpers for parsing curated ranges -----
