@@ -5,154 +5,879 @@
     "note": "Numbers are approximate ranges. Agents must click the dxbInteractUrl and verify the live figure before quoting a precise number to a client.",
     "schemaVersion": 1
   },
-
   "palmJumeirah": {
     "nameEN": "Palm Jumeirah",
     "nameJP": "パーム・ジュメイラ",
     "tier": "ultra-prime",
-    "avgPriceSqftAed": { "apartment": "3,200–4,500", "villa": "4,000–6,500" },
+    "avgPriceSqftAed": {
+      "apartment": "3,200–4,500",
+      "villa": "4,000–6,500"
+    },
     "priceSqftYoYPct": "+8 to +12",
     "priceSqft5yrPct": "+95 to +120",
-    "avgRentalYieldPct": { "apartment": "5.5–7.0", "villa": "4.5–5.5" },
+    "avgRentalYieldPct": {
+      "apartment": "5.5–7.0",
+      "villa": "4.5–5.5"
+    },
     "transactionVolume": "Very high — among Dubai's most-transacted prime areas",
     "infrastructure": [
-      { "en": "Atlantis The Palm & Atlantis The Royal", "jp": "アトランティス・ザ・パーム／ザ・ロイヤル" },
-      { "en": "Nakheel Mall + Palm Tower observation deck (The View)", "jp": "ナキールモール／パームタワー（ザ・ビュー）" },
-      { "en": "Palm Monorail (extension to mainland metro under study)", "jp": "パーム・モノレール（メトロ接続を検討中）" },
-      { "en": "Private beach access for most residential towers", "jp": "ほぼ全レジデンスにプライベートビーチ" },
-      { "en": "FIVE Palm, W, Anantara, Waldorf, One&Only resort cluster", "jp": "FIVE／W／アナンタラ／ウォルドルフ等のラグジュアリーホテル群" }
+      {
+        "en": "Atlantis The Palm & Atlantis The Royal",
+        "jp": "アトランティス・ザ・パーム／ザ・ロイヤル"
+      },
+      {
+        "en": "Nakheel Mall + Palm Tower observation deck (The View)",
+        "jp": "ナキールモール／パームタワー（ザ・ビュー）"
+      },
+      {
+        "en": "Palm Monorail (extension to mainland metro under study)",
+        "jp": "パーム・モノレール（メトロ接続を検討中）"
+      },
+      {
+        "en": "Private beach access for most residential towers",
+        "jp": "ほぼ全レジデンスにプライベートビーチ"
+      },
+      {
+        "en": "FIVE Palm, W, Anantara, Waldorf, One&Only resort cluster",
+        "jp": "FIVE／W／アナンタラ／ウォルドルフ等のラグジュアリーホテル群"
+      }
     ],
     "comparableProjects": [
-      { "name": "Bulgari Residences (Jumeirah Bay Island)", "context": "Reference for branded ultra-prime resale" },
-      { "name": "One at Palm Jumeirah (Omniyat)", "context": "Sets the 5,000+ AED/sqft ceiling for Palm apartments" },
-      { "name": "Atlantis The Royal Residences", "context": "Recent post-handover comparable; strong rental performance" },
-      { "name": "FIVE Palm Jumeirah Residences", "context": "Hotel-branded yield play; good reference for short-let ROI" }
+      {
+        "name": "Bulgari Residences (Jumeirah Bay Island)",
+        "context": "Reference for branded ultra-prime resale"
+      },
+      {
+        "name": "One at Palm Jumeirah (Omniyat)",
+        "context": "Sets the 5,000+ AED/sqft ceiling for Palm apartments"
+      },
+      {
+        "name": "Atlantis The Royal Residences",
+        "context": "Recent post-handover comparable; strong rental performance"
+      },
+      {
+        "name": "FIVE Palm Jumeirah Residences",
+        "context": "Hotel-branded yield play; good reference for short-let ROI"
+      }
     ],
     "dxbInteractUrl": "https://dxbinteract.com/dubai/areas/palm-jumeirah",
     "dldUrl": "https://dubailand.gov.ae/en/open-data/real-estate-data/",
     "talkingPoints": [
-      { "en": "Palm Jumeirah has appreciated roughly +95–120% over the last 5 years (DLD via DXB Interact) — one of Dubai's strongest prime-area capital growth stories.", "jp": "パーム・ジュメイラは過去5年で約+95〜120%上昇（DLD／DXB Interact）し、ドバイのプライムエリアで最も高い資本増加の一つです。" },
-      { "en": "Branded residences on the Palm typically rent at a 15–25% premium over non-branded equivalents in the same area.", "jp": "パームのブランデッド・レジデンスは、同エリアの非ブランド物件と比較して15〜25%高い賃料で貸し出されます。" },
-      { "en": "Apartment rental yields on Palm range 5.5–7.0% gross — strong for an ultra-prime area where global benchmarks are 2–3%.", "jp": "アパートメントの粗利回りは5.5〜7.0%。世界のプライムエリア（通常2〜3%）と比較しても非常に高水準です。" }
+      {
+        "en": "Palm Jumeirah has appreciated roughly +95–120% over the last 5 years (DLD via DXB Interact) — one of Dubai's strongest prime-area capital growth stories.",
+        "jp": "パーム・ジュメイラは過去5年で約+95〜120%上昇（DLD／DXB Interact）し、ドバイのプライムエリアで最も高い資本増加の一つです。"
+      },
+      {
+        "en": "Branded residences on the Palm typically rent at a 15–25% premium over non-branded equivalents in the same area.",
+        "jp": "パームのブランデッド・レジデンスは、同エリアの非ブランド物件と比較して15〜25%高い賃料で貸し出されます。"
+      },
+      {
+        "en": "Apartment rental yields on Palm range 5.5–7.0% gross — strong for an ultra-prime area where global benchmarks are 2–3%.",
+        "jp": "アパートメントの粗利回りは5.5〜7.0%。世界のプライムエリア（通常2〜3%）と比較しても非常に高水準です。"
+      }
     ]
   },
-
   "dubaiCreekHarbour": {
     "nameEN": "Dubai Creek Harbour",
     "nameJP": "ドバイ・クリーク・ハーバー",
     "tier": "prime",
-    "avgPriceSqftAed": { "apartment": "2,200–3,000", "villa": "n/a" },
+    "avgPriceSqftAed": {
+      "apartment": "2,200–3,000",
+      "villa": "n/a"
+    },
     "priceSqftYoYPct": "+12 to +18",
     "priceSqft5yrPct": "+70 to +90",
-    "avgRentalYieldPct": { "apartment": "6.0–7.5" },
+    "avgRentalYieldPct": {
+      "apartment": "6.0–7.5"
+    },
     "transactionVolume": "High — Emaar's flagship master-community, consistent off-plan launch demand",
     "infrastructure": [
-      { "en": "Dubai Creek Marina + waterfront promenade", "jp": "ドバイ・クリーク・マリーナと遊歩道" },
-      { "en": "Future Dubai Creek Tower (planned tallest structure)", "jp": "将来のドバイ・クリーク・タワー（建設計画中の世界最高構造物）" },
-      { "en": "Ras Al Khor Wildlife Sanctuary (flamingos)", "jp": "ラス・アル・コール野生動物保護区（フラミンゴ）" },
-      { "en": "Creek Beach (man-made beach within the community)", "jp": "クリーク・ビーチ（コミュニティ内の人工ビーチ）" },
-      { "en": "15 min to DXB airport, 20 min to Downtown", "jp": "DXB空港まで車で15分、ダウンタウンまで20分" }
+      {
+        "en": "Dubai Creek Marina + waterfront promenade",
+        "jp": "ドバイ・クリーク・マリーナと遊歩道"
+      },
+      {
+        "en": "Future Dubai Creek Tower (planned tallest structure)",
+        "jp": "将来のドバイ・クリーク・タワー（建設計画中の世界最高構造物）"
+      },
+      {
+        "en": "Ras Al Khor Wildlife Sanctuary (flamingos)",
+        "jp": "ラス・アル・コール野生動物保護区（フラミンゴ）"
+      },
+      {
+        "en": "Creek Beach (man-made beach within the community)",
+        "jp": "クリーク・ビーチ（コミュニティ内の人工ビーチ）"
+      },
+      {
+        "en": "15 min to DXB airport, 20 min to Downtown",
+        "jp": "DXB空港まで車で15分、ダウンタウンまで20分"
+      }
     ],
     "comparableProjects": [
-      { "name": "Address Harbour Point", "context": "Branded reference, ready inventory" },
-      { "name": "The Cove / The Grand", "context": "Mid-tier apartment comparable" },
-      { "name": "Creek Beach (Surf, Bayshore)", "context": "Beach-adjacent yield benchmark" }
+      {
+        "name": "Address Harbour Point",
+        "context": "Branded reference, ready inventory"
+      },
+      {
+        "name": "The Cove / The Grand",
+        "context": "Mid-tier apartment comparable"
+      },
+      {
+        "name": "Creek Beach (Surf, Bayshore)",
+        "context": "Beach-adjacent yield benchmark"
+      }
     ],
     "dxbInteractUrl": "https://dxbinteract.com/dubai/areas/dubai-creek-harbour",
     "dldUrl": "https://dubailand.gov.ae/en/open-data/real-estate-data/",
     "talkingPoints": [
-      { "en": "Dubai Creek Harbour has been one of the fastest-appreciating Emaar communities in 2024–2025, with off-plan resale premiums commonly 20–30% above launch.", "jp": "クリーク・ハーバーは2024〜2025年に最も急成長したEmaarコミュニティの一つで、オフプラン物件の転売プレミアムは通常ローンチ価格の20〜30%上です。" },
-      { "en": "Apartment yields run 6.0–7.5% gross — higher than Downtown Dubai for a similar Emaar-branded waterfront product.", "jp": "アパートメントの粗利回りは6.0〜7.5%で、同様のEmaarブランドの水辺物件であるダウンタウンより高い水準です。" },
-      { "en": "Master-plan completion through 2030+ means infrastructure is still maturing — early buyers benefit from the appreciation as amenities come online.", "jp": "マスタープランは2030年以降まで段階的に完成するため、初期購入者はインフラが整備されるにつれて値上がり益を享受できます。" }
+      {
+        "en": "Dubai Creek Harbour has been one of the fastest-appreciating Emaar communities in 2024–2025, with off-plan resale premiums commonly 20–30% above launch.",
+        "jp": "クリーク・ハーバーは2024〜2025年に最も急成長したEmaarコミュニティの一つで、オフプラン物件の転売プレミアムは通常ローンチ価格の20〜30%上です。"
+      },
+      {
+        "en": "Apartment yields run 6.0–7.5% gross — higher than Downtown Dubai for a similar Emaar-branded waterfront product.",
+        "jp": "アパートメントの粗利回りは6.0〜7.5%で、同様のEmaarブランドの水辺物件であるダウンタウンより高い水準です。"
+      },
+      {
+        "en": "Master-plan completion through 2030+ means infrastructure is still maturing — early buyers benefit from the appreciation as amenities come online.",
+        "jp": "マスタープランは2030年以降まで段階的に完成するため、初期購入者はインフラが整備されるにつれて値上がり益を享受できます。"
+      }
     ]
   },
-
   "zaabeel": {
     "nameEN": "Za'abeel / World Trade Centre district",
     "nameJP": "ザビール／ワールドトレードセンター地区",
     "tier": "ultra-prime",
-    "avgPriceSqftAed": { "apartment": "3,800–5,500", "villa": "n/a (royal/government plots only)" },
+    "avgPriceSqftAed": {
+      "apartment": "3,800–5,500",
+      "villa": "n/a (royal/government plots only)"
+    },
     "priceSqftYoYPct": "+10 to +15",
     "priceSqft5yrPct": "+85 to +110",
-    "avgRentalYieldPct": { "apartment": "5.0–6.2" },
+    "avgRentalYieldPct": {
+      "apartment": "5.0–6.2"
+    },
     "transactionVolume": "Low — very few towers; One Za'abeel and Index Tower dominate transactions",
     "infrastructure": [
-      { "en": "DIFC adjacent (3 min drive)", "jp": "DIFCに隣接（車で3分）" },
-      { "en": "World Trade Centre Metro station + Trade Centre 1 station", "jp": "ワールドトレードセンター駅／トレードセンター1駅" },
-      { "en": "Zabeel Park (one of Dubai's largest urban parks)", "jp": "ザビール・パーク（ドバイ最大級の都市公園）" },
-      { "en": "The Link sky-bridge — world's longest cantilever connecting One Za'abeel towers", "jp": "ザ・リンク（世界最長のカンチレバー、ワン・ザビール両棟を接続）" },
-      { "en": "10 min to DXB airport, 5 min to Downtown", "jp": "DXB空港まで10分、ダウンタウンまで5分" }
+      {
+        "en": "DIFC adjacent (3 min drive)",
+        "jp": "DIFCに隣接（車で3分）"
+      },
+      {
+        "en": "World Trade Centre Metro station + Trade Centre 1 station",
+        "jp": "ワールドトレードセンター駅／トレードセンター1駅"
+      },
+      {
+        "en": "Zabeel Park (one of Dubai's largest urban parks)",
+        "jp": "ザビール・パーク（ドバイ最大級の都市公園）"
+      },
+      {
+        "en": "The Link sky-bridge — world's longest cantilever connecting One Za'abeel towers",
+        "jp": "ザ・リンク（世界最長のカンチレバー、ワン・ザビール両棟を接続）"
+      },
+      {
+        "en": "10 min to DXB airport, 5 min to Downtown",
+        "jp": "DXB空港まで10分、ダウンタウンまで5分"
+      }
     ],
     "comparableProjects": [
-      { "name": "Index Tower (DIFC)", "context": "Closest comparable for high-floor 2BR" },
-      { "name": "Burj Khalifa Residences", "context": "Ultra-prime branded resale benchmark" },
-      { "name": "Address Sky View", "context": "Downtown branded comparable" }
+      {
+        "name": "Index Tower (DIFC)",
+        "context": "Closest comparable for high-floor 2BR"
+      },
+      {
+        "name": "Burj Khalifa Residences",
+        "context": "Ultra-prime branded resale benchmark"
+      },
+      {
+        "name": "Address Sky View",
+        "context": "Downtown branded comparable"
+      }
     ],
     "dxbInteractUrl": "https://dxbinteract.com/dubai/areas/world-trade-center-residence",
     "dldUrl": "https://dubailand.gov.ae/en/open-data/real-estate-data/",
     "talkingPoints": [
-      { "en": "One Za'abeel commands a scarcity premium — under 500 residences in a building tied to the world's longest cantilever, no comparable supply pipeline.", "jp": "ワン・ザビールは希少性プレミアムを持ち、世界最長のカンチレバーを擁するこの建物には500戸未満しかなく、同等の供給予定もありません。" },
-      { "en": "The location bridges DIFC, Downtown, and DXB airport — among Dubai's most central addresses for HNW buyers.", "jp": "DIFC、ダウンタウン、DXB空港を結ぶ位置にあり、富裕層バイヤーに最も中心的な立地です。" },
-      { "en": "Capital growth tracks Downtown but with thinner supply — historically lower volatility on resale prices.", "jp": "資本成長はダウンタウンと連動しますが供給がより薄く、転売価格のボラティリティは歴史的に低く抑えられています。" }
+      {
+        "en": "One Za'abeel commands a scarcity premium — under 500 residences in a building tied to the world's longest cantilever, no comparable supply pipeline.",
+        "jp": "ワン・ザビールは希少性プレミアムを持ち、世界最長のカンチレバーを擁するこの建物には500戸未満しかなく、同等の供給予定もありません。"
+      },
+      {
+        "en": "The location bridges DIFC, Downtown, and DXB airport — among Dubai's most central addresses for HNW buyers.",
+        "jp": "DIFC、ダウンタウン、DXB空港を結ぶ位置にあり、富裕層バイヤーに最も中心的な立地です。"
+      },
+      {
+        "en": "Capital growth tracks Downtown but with thinner supply — historically lower volatility on resale prices.",
+        "jp": "資本成長はダウンタウンと連動しますが供給がより薄く、転売価格のボラティリティは歴史的に低く抑えられています。"
+      }
     ]
   },
-
   "palmJebelAli": {
     "nameEN": "Palm Jebel Ali",
     "nameJP": "パーム・ジェベル・アリ",
     "tier": "emerging-prime",
-    "avgPriceSqftAed": { "apartment": "n/a (villa-only at launch)", "villa": "2,400–3,200" },
+    "avgPriceSqftAed": {
+      "apartment": "n/a (villa-only at launch)",
+      "villa": "2,400–3,200"
+    },
     "priceSqftYoYPct": "+25 to +40 (off-plan resale premium)",
     "priceSqft5yrPct": "n/a (relaunched 2023)",
-    "avgRentalYieldPct": { "villa": "projected 8–13 (post-handover, unverified)" },
+    "avgRentalYieldPct": {
+      "villa": "projected 8–13 (post-handover, unverified)"
+    },
     "transactionVolume": "Very high (off-plan launches selling out in days)",
     "infrastructure": [
-      { "en": "Master plan: 7 islands, 80+ hotels, 110 km coastline", "jp": "マスタープラン：7つの島、80以上のホテル、海岸線110km" },
-      { "en": "Adjacent to Expo City Dubai + Al Maktoum International Airport (DWC, future main airport)", "jp": "エキスポ・シティ／アル・マクトゥーム国際空港（DWC、将来の主要空港）に隣接" },
-      { "en": "Etihad Rail Dubai station planned", "jp": "Etihad Rail のドバイ駅が計画中" },
-      { "en": "Beach club, marina, retail villages planned in Phase 1", "jp": "フェーズ1でビーチクラブ、マリーナ、リテール・ビレッジが計画中" }
+      {
+        "en": "Master plan: 7 islands, 80+ hotels, 110 km coastline",
+        "jp": "マスタープラン：7つの島、80以上のホテル、海岸線110km"
+      },
+      {
+        "en": "Adjacent to Expo City Dubai + Al Maktoum International Airport (DWC, future main airport)",
+        "jp": "エキスポ・シティ／アル・マクトゥーム国際空港（DWC、将来の主要空港）に隣接"
+      },
+      {
+        "en": "Etihad Rail Dubai station planned",
+        "jp": "Etihad Rail のドバイ駅が計画中"
+      },
+      {
+        "en": "Beach club, marina, retail villages planned in Phase 1",
+        "jp": "フェーズ1でビーチクラブ、マリーナ、リテール・ビレッジが計画中"
+      }
     ],
     "comparableProjects": [
-      { "name": "Original Palm Jumeirah villas (signature villas)", "context": "Best historical analog — early Palm buyers saw 5–8x appreciation over 15 years" },
-      { "name": "Jumeirah Bay Island villas", "context": "Comparable man-made island ultra-prime villa product" },
-      { "name": "District One Mansions (MBR City)", "context": "Comparable trophy-villa launch trajectory" }
+      {
+        "name": "Original Palm Jumeirah villas (signature villas)",
+        "context": "Best historical analog — early Palm buyers saw 5–8x appreciation over 15 years"
+      },
+      {
+        "name": "Jumeirah Bay Island villas",
+        "context": "Comparable man-made island ultra-prime villa product"
+      },
+      {
+        "name": "District One Mansions (MBR City)",
+        "context": "Comparable trophy-villa launch trajectory"
+      }
     ],
     "dxbInteractUrl": "https://dxbinteract.com/dubai/areas/palm-jebel-ali",
     "dldUrl": "https://dubailand.gov.ae/en/open-data/real-estate-data/",
     "talkingPoints": [
-      { "en": "Palm Jebel Ali is twice the size of Palm Jumeirah — investors compare 2024 launch pricing to Palm Jumeirah villa pricing in 2008–2010, which has since appreciated 5–8x.", "jp": "パーム・ジェベル・アリはパーム・ジュメイラの2倍の規模で、2024年のローンチ価格は2008〜2010年当時のパーム・ジュメイラの価格に相当し、その後5〜8倍に上昇した実績があります。" },
-      { "en": "Off-plan resale premiums of +25–40% within the first 12 months of each phase launch (verify per-phase on DXB Interact).", "jp": "各フェーズ・ローンチ後12ヶ月以内にオフプラン転売プレミアムが+25〜40%（フェーズ毎にDXB Interactで要確認）。" },
-      { "en": "Proximity to Al Maktoum airport (DWC) — slated to become Dubai's largest airport — is a structural long-term tailwind.", "jp": "アル・マクトゥーム空港（DWC、将来ドバイ最大の空港）に近接しており、長期的な構造的追い風となります。" }
+      {
+        "en": "Palm Jebel Ali is twice the size of Palm Jumeirah — investors compare 2024 launch pricing to Palm Jumeirah villa pricing in 2008–2010, which has since appreciated 5–8x.",
+        "jp": "パーム・ジェベル・アリはパーム・ジュメイラの2倍の規模で、2024年のローンチ価格は2008〜2010年当時のパーム・ジュメイラの価格に相当し、その後5〜8倍に上昇した実績があります。"
+      },
+      {
+        "en": "Off-plan resale premiums of +25–40% within the first 12 months of each phase launch (verify per-phase on DXB Interact).",
+        "jp": "各フェーズ・ローンチ後12ヶ月以内にオフプラン転売プレミアムが+25〜40%（フェーズ毎にDXB Interactで要確認）。"
+      },
+      {
+        "en": "Proximity to Al Maktoum airport (DWC) — slated to become Dubai's largest airport — is a structural long-term tailwind.",
+        "jp": "アル・マクトゥーム空港（DWC、将来ドバイ最大の空港）に近接しており、長期的な構造的追い風となります。"
+      }
     ]
   },
-
   "dubaiHills": {
     "nameEN": "Dubai Hills Estate",
     "nameJP": "ドバイ・ヒルズ・エステート",
     "tier": "prime-suburban",
-    "avgPriceSqftAed": { "apartment": "1,800–2,400", "villa": "1,900–3,200 (mansions 3,500+)" },
+    "avgPriceSqftAed": {
+      "apartment": "1,800–2,400",
+      "villa": "1,900–3,200 (mansions 3,500+)"
+    },
     "priceSqftYoYPct": "+8 to +14",
     "priceSqft5yrPct": "+80 to +110",
-    "avgRentalYieldPct": { "apartment": "5.5–6.8", "villa": "4.0–5.0" },
+    "avgRentalYieldPct": {
+      "apartment": "5.5–6.8",
+      "villa": "4.0–5.0"
+    },
     "transactionVolume": "Very high — Emaar's largest active master-community for villas",
     "infrastructure": [
-      { "en": "Dubai Hills Mall (650+ stores, 2022)", "jp": "ドバイ・ヒルズ・モール（650店舗以上、2022年開業）" },
-      { "en": "18-hole championship golf course", "jp": "18ホールのチャンピオンシップ・ゴルフコース" },
-      { "en": "King's College Hospital + multiple international schools (GEMS Wellington, Repton)", "jp": "キングス・カレッジ病院、各種インターナショナルスクール（GEMS／レプトン）" },
-      { "en": "Etihad Rail / Dubai Metro Blue Line (planned) connectivity", "jp": "Etihad Rail／ドバイメトロ・ブルーライン（計画中）の接続" },
-      { "en": "180 km of cycling tracks in Dubai Hills Park", "jp": "ドバイ・ヒルズ・パーク内に180kmのサイクリングコース" }
+      {
+        "en": "Dubai Hills Mall (650+ stores, 2022)",
+        "jp": "ドバイ・ヒルズ・モール（650店舗以上、2022年開業）"
+      },
+      {
+        "en": "18-hole championship golf course",
+        "jp": "18ホールのチャンピオンシップ・ゴルフコース"
+      },
+      {
+        "en": "King's College Hospital + multiple international schools (GEMS Wellington, Repton)",
+        "jp": "キングス・カレッジ病院、各種インターナショナルスクール（GEMS／レプトン）"
+      },
+      {
+        "en": "Etihad Rail / Dubai Metro Blue Line (planned) connectivity",
+        "jp": "Etihad Rail／ドバイメトロ・ブルーライン（計画中）の接続"
+      },
+      {
+        "en": "180 km of cycling tracks in Dubai Hills Park",
+        "jp": "ドバイ・ヒルズ・パーク内に180kmのサイクリングコース"
+      }
     ],
     "comparableProjects": [
-      { "name": "Emirates Hills (older trophy-villa benchmark)", "context": "Sets the ceiling for Dubai golf-community villa pricing" },
-      { "name": "District One (MBR City) Mansions", "context": "Comparable mansion-tier product" },
-      { "name": "Tilal Al Ghaf (Majid Al Futtaim)", "context": "Newer comparable masterplan — useful for capital-growth pacing" }
+      {
+        "name": "Emirates Hills (older trophy-villa benchmark)",
+        "context": "Sets the ceiling for Dubai golf-community villa pricing"
+      },
+      {
+        "name": "District One (MBR City) Mansions",
+        "context": "Comparable mansion-tier product"
+      },
+      {
+        "name": "Tilal Al Ghaf (Majid Al Futtaim)",
+        "context": "Newer comparable masterplan — useful for capital-growth pacing"
+      }
     ],
     "dxbInteractUrl": "https://dxbinteract.com/dubai/areas/dubai-hills-estate",
     "dldUrl": "https://dubailand.gov.ae/en/open-data/real-estate-data/",
     "talkingPoints": [
-      { "en": "Dubai Hills mansions in Emerald Hills sit alongside Emirates Hills as Dubai's two reference golf-community trophy-home pockets.", "jp": "ドバイ・ヒルズのエメラルド・ヒルズ・マンションは、エミレーツ・ヒルズと並ぶドバイ二大ゴルフコミュニティ・トロフィー邸宅エリアです。" },
-      { "en": "Family-buyer demand profile — long average hold periods, lower turnover, more stable resale pricing than apartment-driven areas.", "jp": "ファミリー層中心のため平均保有期間が長く、回転率が低く、アパート主導エリアより資産価格が安定しています。" },
-      { "en": "Emaar's largest active villa community — ~6,000+ ready/handed-over homes provide deep comparable transaction data.", "jp": "Emaar最大の稼働中ヴィラコミュニティで、約6,000戸超の完成・引渡済住戸により豊富な比較取引データがあります。" }
+      {
+        "en": "Dubai Hills mansions in Emerald Hills sit alongside Emirates Hills as Dubai's two reference golf-community trophy-home pockets.",
+        "jp": "ドバイ・ヒルズのエメラルド・ヒルズ・マンションは、エミレーツ・ヒルズと並ぶドバイ二大ゴルフコミュニティ・トロフィー邸宅エリアです。"
+      },
+      {
+        "en": "Family-buyer demand profile — long average hold periods, lower turnover, more stable resale pricing than apartment-driven areas.",
+        "jp": "ファミリー層中心のため平均保有期間が長く、回転率が低く、アパート主導エリアより資産価格が安定しています。"
+      },
+      {
+        "en": "Emaar's largest active villa community — ~6,000+ ready/handed-over homes provide deep comparable transaction data.",
+        "jp": "Emaar最大の稼働中ヴィラコミュニティで、約6,000戸超の完成・引渡済住戸により豊富な比較取引データがあります。"
+      }
+    ]
+  },
+  "businessBay": {
+    "nameEN": "Business Bay",
+    "nameJP": "ビジネス・ベイ",
+    "tier": "prime",
+    "avgPriceSqftAed": {
+      "apartment": "1,800–2,800",
+      "villa": "n/a"
+    },
+    "priceSqftYoYPct": "+10 to +15",
+    "priceSqft5yrPct": "+80 to +105",
+    "avgRentalYieldPct": {
+      "apartment": "6.5–8.0"
+    },
+    "transactionVolume": "Very high — among Dubai's top apartment markets by transaction count",
+    "infrastructure": [
+      {
+        "en": "Adjacent to Downtown Dubai / Burj Khalifa (5 min)",
+        "jp": "ダウンタウン／ブルジュ・ハリファに隣接（5分）"
+      },
+      {
+        "en": "Dubai Canal waterfront promenade",
+        "jp": "ドバイ・キャナル沿いの遊歩道"
+      },
+      {
+        "en": "Business Bay Metro station",
+        "jp": "ビジネス・ベイ駅"
+      },
+      {
+        "en": "DIFC adjacent (3 min) — strong professional rental demand",
+        "jp": "DIFCに隣接（3分）。プロフェッショナル層の賃貸需要が高い"
+      },
+      {
+        "en": "Bay Avenue retail, restaurants, riverside hotels",
+        "jp": "ベイ・アベニューの商業施設・レストラン・リバーサイドホテル"
+      }
+    ],
+    "comparableProjects": [
+      {
+        "name": "Executive Towers",
+        "context": "Established benchmark for resale pricing"
+      },
+      {
+        "name": "Vida Residences Dubai Mall",
+        "context": "Branded reference at the Downtown border"
+      },
+      {
+        "name": "DAMAC Towers by Paramount",
+        "context": "Hotel-branded yield play"
+      },
+      {
+        "name": "Bayz101",
+        "context": "Recent record-tower comparable"
+      }
+    ],
+    "dxbInteractUrl": "https://dxbinteract.com/dubai/areas/business-bay",
+    "dldUrl": "https://dubailand.gov.ae/en/open-data/real-estate-data/",
+    "talkingPoints": [
+      {
+        "en": "Business Bay is consistently in Dubai's top 3 areas by apartment transaction volume — high liquidity means easy resale and reliable rental demand.",
+        "jp": "ビジネス・ベイは取引件数でドバイのトップ3に常にランクインしており、流動性が高く、転売しやすく賃貸需要も安定しています。"
+      },
+      {
+        "en": "Apartment yields of 6.5–8.0% gross are higher than Downtown Dubai for what is essentially a 5-minute drive away.",
+        "jp": "アパートの粗利回りは6.5〜8.0%で、車で5分の距離にあるダウンタウンより高い水準です。"
+      },
+      {
+        "en": "DIFC professional renter pool drives premium for 1–2BR units — strong segment for short-to-medium-hold investors.",
+        "jp": "DIFCで働くプロフェッショナル層が1〜2BRの賃料プレミアムを牽引。短〜中期保有の投資家に好適なセグメントです。"
+      }
+    ]
+  },
+  "downtownDubai": {
+    "nameEN": "Downtown Dubai",
+    "nameJP": "ダウンタウン・ドバイ",
+    "tier": "ultra-prime",
+    "avgPriceSqftAed": {
+      "apartment": "2,500–4,200 (branded 5,000+)",
+      "villa": "n/a"
+    },
+    "priceSqftYoYPct": "+12 to +18",
+    "priceSqft5yrPct": "+90 to +115",
+    "avgRentalYieldPct": {
+      "apartment": "5.0–6.5"
+    },
+    "transactionVolume": "Very high — Dubai's tourism-driven landmark district",
+    "infrastructure": [
+      {
+        "en": "Burj Khalifa (world's tallest)",
+        "jp": "ブルジュ・ハリファ（世界最高峰）"
+      },
+      {
+        "en": "Dubai Mall (world's largest by area)",
+        "jp": "ドバイ・モール（面積で世界最大）"
+      },
+      {
+        "en": "Dubai Opera, Dubai Fountain",
+        "jp": "ドバイ・オペラ／ドバイ・ファウンテン"
+      },
+      {
+        "en": "Burj Khalifa Metro / Dubai Mall Metro stations",
+        "jp": "ブルジュ・ハリファ／ドバイ・モール駅"
+      },
+      {
+        "en": "Address Hotels, Armani Hotel — branded resort residences",
+        "jp": "アドレス・ホテル群／アルマーニ・ホテル等のブランデッド・レジデンス"
+      }
+    ],
+    "comparableProjects": [
+      {
+        "name": "Burj Khalifa Residences",
+        "context": "Iconic resale benchmark"
+      },
+      {
+        "name": "Address Sky View / The Address Residences",
+        "context": "Branded post-handover yield reference"
+      },
+      {
+        "name": "Boulevard Heights / Boulevard Point",
+        "context": "Mid-prime apartment comparable"
+      },
+      {
+        "name": "Armani Residences (Burj Khalifa)",
+        "context": "Ultra-prime branded ceiling"
+      }
+    ],
+    "dxbInteractUrl": "https://dxbinteract.com/dubai/areas/downtown-dubai",
+    "dldUrl": "https://dubailand.gov.ae/en/open-data/real-estate-data/",
+    "talkingPoints": [
+      {
+        "en": "Downtown is Dubai's #1 short-let / holiday-let market — branded units consistently achieve 8–12% gross yields when run as serviced apartments (vs 5–6% on annual lease).",
+        "jp": "ダウンタウンはドバイ最大のショートレット／ホリデーレット市場で、ブランデッド物件はサービスアパート運用時に8〜12%の粗利回りを実現できます（年契約時の5〜6%対比）。"
+      },
+      {
+        "en": "Burj Khalifa-view inventory is finite — supply ceiling drives long-term capital growth.",
+        "jp": "ブルジュ・ハリファ・ビューの供給は限定的で、構造的な希少性が長期的な資本成長を支えます。"
+      },
+      {
+        "en": "Strongest 5-year price appreciation among central Dubai districts (+90 to +115% per DLD).",
+        "jp": "ドバイ中心部で過去5年の値上がり率が最も高い（DLDで+90〜+115%）。"
+      }
+    ]
+  },
+  "dubaiMarina": {
+    "nameEN": "Dubai Marina",
+    "nameJP": "ドバイ・マリーナ",
+    "tier": "prime",
+    "avgPriceSqftAed": {
+      "apartment": "1,800–2,600",
+      "villa": "n/a"
+    },
+    "priceSqftYoYPct": "+10 to +14",
+    "priceSqft5yrPct": "+75 to +100",
+    "avgRentalYieldPct": {
+      "apartment": "6.0–7.5"
+    },
+    "transactionVolume": "Very high — among Dubai's most-traded apartment areas",
+    "infrastructure": [
+      {
+        "en": "Marina Walk (3.5 km waterfront promenade)",
+        "jp": "マリーナ・ウォーク（3.5kmの水辺遊歩道）"
+      },
+      {
+        "en": "Dubai Marina Mall + extensive dining",
+        "jp": "ドバイ・マリーナ・モールと豊富な飲食店"
+      },
+      {
+        "en": "Dubai Metro (Marina) + Dubai Tram",
+        "jp": "ドバイメトロ（マリーナ駅）／ドバイトラム"
+      },
+      {
+        "en": "Walking distance to JBR Beach",
+        "jp": "JBRビーチまで徒歩圏"
+      },
+      {
+        "en": "Yacht marina with 700+ berths",
+        "jp": "700バース以上のヨットマリーナ"
+      }
+    ],
+    "comparableProjects": [
+      {
+        "name": "Marina Gate (Select Group)",
+        "context": "Recent benchmark; mid-tier apartment resale"
+      },
+      {
+        "name": "Princess Tower / Cayan Tower",
+        "context": "Iconic Marina supertalls"
+      },
+      {
+        "name": "Stella Maris / LIV Residence",
+        "context": "Recent boutique deliveries"
+      }
+    ],
+    "dxbInteractUrl": "https://dxbinteract.com/dubai/areas/dubai-marina",
+    "dldUrl": "https://dubailand.gov.ae/en/open-data/real-estate-data/",
+    "talkingPoints": [
+      {
+        "en": "Dubai Marina has been consistently in Dubai's top 5 most-traded areas for over a decade — exceptional liquidity and price discovery.",
+        "jp": "ドバイ・マリーナは10年以上にわたりドバイで最も取引されるエリアのトップ5に位置し、流動性と価格発見性に優れています。"
+      },
+      {
+        "en": "Mature beach-adjacent rental market — 6.0–7.5% yields with strong holiday-let upside (typically +30–50% over annual lease for furnished short-lets).",
+        "jp": "成熟したビーチ隣接賃貸市場で、6.0〜7.5%の利回り。家具付きショートレットでは年契約より30〜50%高い賃料が期待できます。"
+      },
+      {
+        "en": "Direct Metro + Tram + walkable beach combination is unique in Dubai — drives consistent tenant demand.",
+        "jp": "メトロ・トラム・ビーチの徒歩アクセスはドバイで唯一の組み合わせで、テナント需要を安定的に支えます。"
+      }
+    ]
+  },
+  "jvc": {
+    "nameEN": "JVC (Jumeirah Village Circle)",
+    "nameJP": "JVC（ジュメイラ・ヴィレッジ・サークル）",
+    "tier": "affordable-prime",
+    "avgPriceSqftAed": {
+      "apartment": "950–1,400",
+      "villa": "1,400–1,900"
+    },
+    "priceSqftYoYPct": "+12 to +18",
+    "priceSqft5yrPct": "+85 to +110",
+    "avgRentalYieldPct": {
+      "apartment": "7.5–9.0",
+      "villa": "5.5–6.5"
+    },
+    "transactionVolume": "Highest in Dubai by unit count — entry-level investor magnet",
+    "infrastructure": [
+      {
+        "en": "Circle Mall + multiple community retail clusters",
+        "jp": "サークル・モールと複数のコミュニティリテール"
+      },
+      {
+        "en": "Sheikh Mohammed Bin Zayed Road direct access",
+        "jp": "シェイク・モハメド・ビン・ザーイド・ロード直結"
+      },
+      {
+        "en": "Multiple international schools (JSS, Sunmarke, Nord Anglia)",
+        "jp": "複数のインターナショナルスクール（JSS／サンマーク／ノード・アングリア）"
+      },
+      {
+        "en": "Family-friendly parks + cycle tracks",
+        "jp": "ファミリー向け公園・サイクリングコース"
+      }
+    ],
+    "comparableProjects": [
+      {
+        "name": "Bloom Towers",
+        "context": "Established mid-tier apartment benchmark"
+      },
+      {
+        "name": "Belgravia (Ellington)",
+        "context": "Boutique developer reference"
+      },
+      {
+        "name": "Binghatti developments",
+        "context": "High-yield investor-product comparable"
+      }
+    ],
+    "dxbInteractUrl": "https://dxbinteract.com/dubai/areas/jvc-jumeirah-village-circle",
+    "dldUrl": "https://dubailand.gov.ae/en/open-data/real-estate-data/",
+    "talkingPoints": [
+      {
+        "en": "JVC offers the best yield-to-entry-price ratio in Dubai apartments — gross yields of 7.5–9.0% at AED 950–1,400/sqft.",
+        "jp": "JVCはドバイのアパート市場で最高の「利回り対購入価格」比率を提供し、AED 950〜1,400/sqftで粗利回り7.5〜9.0%を実現します。"
+      },
+      {
+        "en": "Highest unit-count transaction volume in Dubai means agents and clients have abundant comparables for both buy and rent decisions.",
+        "jp": "ドバイで取引戸数が最大であり、買い・貸し両方の意思決定に豊富な比較データが利用できます。"
+      },
+      {
+        "en": "Family-tenant pool (schools + parks) provides longer average lease durations than central-Dubai apartment areas — lower vacancy.",
+        "jp": "学校・公園が揃いファミリー層が中心のため、平均賃貸期間がドバイ中心部より長く、空室率が低い傾向です。"
+      }
+    ]
+  },
+  "jbr": {
+    "nameEN": "JBR (Jumeirah Beach Residence)",
+    "nameJP": "JBR（ジュメイラ・ビーチ・レジデンス）",
+    "tier": "prime",
+    "avgPriceSqftAed": {
+      "apartment": "2,200–3,200",
+      "villa": "n/a"
+    },
+    "priceSqftYoYPct": "+10 to +14",
+    "priceSqft5yrPct": "+80 to +105",
+    "avgRentalYieldPct": {
+      "apartment": "5.5–7.0"
+    },
+    "transactionVolume": "High — limited supply (40 towers); transaction velocity strong",
+    "infrastructure": [
+      {
+        "en": "Direct beach access + The Walk promenade",
+        "jp": "ビーチ直結／ザ・ウォーク遊歩道"
+      },
+      {
+        "en": "The Beach mall + open-air retail",
+        "jp": "ザ・ビーチ・モール／オープンエア・リテール"
+      },
+      {
+        "en": "Dubai Tram (multiple stations)",
+        "jp": "ドバイ・トラム（複数駅）"
+      },
+      {
+        "en": "Dubai Marina Walk integration",
+        "jp": "ドバイ・マリーナ・ウォークと一体"
+      },
+      {
+        "en": "Bluewaters / Ain Dubai bridge connection",
+        "jp": "ブルーウォーターズ／アイン・ドバイへの橋接続"
+      }
+    ],
+    "comparableProjects": [
+      {
+        "name": "La Vie / 1/JBR (Dubai Properties)",
+        "context": "Recent premium delivery benchmark"
+      },
+      {
+        "name": "Bluewaters Residences",
+        "context": "Adjacent island branded comparable"
+      },
+      {
+        "name": "Marina Gate / Address Beach Resort",
+        "context": "Marina-side branded reference"
+      }
+    ],
+    "dxbInteractUrl": "https://dxbinteract.com/dubai/areas/jumeirah-beach-residence-jbr",
+    "dldUrl": "https://dubailand.gov.ae/en/open-data/real-estate-data/",
+    "talkingPoints": [
+      {
+        "en": "JBR is one of Dubai's only direct-beach apartment communities — supply is fixed (40 towers, no further plots) so the area trades on scarcity.",
+        "jp": "JBRはドバイで数少ないビーチ直結のアパートコミュニティで、40タワーで供給が固定されており、希少性で価格が形成されます。"
+      },
+      {
+        "en": "Holiday-let yields commonly +40–60% above annual-lease yields — especially for 1–2BR sea-view inventory.",
+        "jp": "1〜2BRの海ビュー物件はホリデーレット運用時に年契約より40〜60%高い利回りが期待できます。"
+      },
+      {
+        "en": "Walkable to Dubai Marina, Bluewaters, and the Tram — transit-rich location uncommon in the beachfront segment.",
+        "jp": "ドバイ・マリーナ、ブルーウォーターズ、トラムまで徒歩圏で、ビーチフロントとしては珍しい交通利便性の高い立地です。"
+      }
+    ]
+  },
+  "damacHills": {
+    "nameEN": "DAMAC Hills",
+    "nameJP": "ダマック・ヒルズ",
+    "tier": "prime-suburban",
+    "avgPriceSqftAed": {
+      "apartment": "1,200–1,700",
+      "villa": "1,400–2,300"
+    },
+    "priceSqftYoYPct": "+8 to +14",
+    "priceSqft5yrPct": "+70 to +95",
+    "avgRentalYieldPct": {
+      "apartment": "6.0–7.5",
+      "villa": "5.0–6.5"
+    },
+    "transactionVolume": "High — DAMAC's flagship master-community for villas",
+    "infrastructure": [
+      {
+        "en": "Trump International Golf Club Dubai",
+        "jp": "トランプ・インターナショナル・ゴルフクラブ・ドバイ"
+      },
+      {
+        "en": "DAMAC Mall + retail clusters",
+        "jp": "ダマック・モール／コミュニティリテール"
+      },
+      {
+        "en": "Multiple international schools (Jebel Ali School, Ranches Primary)",
+        "jp": "複数のインターナショナルスクール（ジェベル・アリ・スクール／ランチェズ・プライマリー）"
+      },
+      {
+        "en": "20 min to Mall of the Emirates / Dubai Marina",
+        "jp": "モール・オブ・エミレーツ／ドバイ・マリーナまで車で20分"
+      }
+    ],
+    "comparableProjects": [
+      {
+        "name": "Dubai Hills Estate",
+        "context": "Comparable Emaar golf-community villa product"
+      },
+      {
+        "name": "Tilal Al Ghaf (MAF)",
+        "context": "Newer neighbouring master-community comparable"
+      },
+      {
+        "name": "Akoya Oxygen / DAMAC Hills 2",
+        "context": "Lower-tier sister communities"
+      }
+    ],
+    "dxbInteractUrl": "https://dxbinteract.com/dubai/areas/damac-hills",
+    "dldUrl": "https://dubailand.gov.ae/en/open-data/real-estate-data/",
+    "talkingPoints": [
+      {
+        "en": "DAMAC Hills villas trade at ~25–35% discount to comparable Dubai Hills Estate inventory — value play for golf-community villa buyers.",
+        "jp": "ダマック・ヒルズのヴィラは同等のドバイ・ヒルズ・エステート物件と比べて約25〜35%安く、ゴルフコミュニティ・ヴィラのバリュー投資先として注目されています。"
+      },
+      {
+        "en": "Trump International golf course offers Dubai's only branded-golf-community proposition — strong differentiator.",
+        "jp": "トランプ・インターナショナル・ゴルフコースはドバイ唯一のブランデッド・ゴルフコミュニティで、明確な差別化要因です。"
+      },
+      {
+        "en": "Family-tenant profile yields long average leases (3–5 years) and very low vacancy.",
+        "jp": "ファミリー層中心で平均賃貸期間が長く（3〜5年）、空室率が極めて低い水準です。"
+      }
+    ]
+  },
+  "bluewatersIsland": {
+    "nameEN": "Bluewaters Island",
+    "nameJP": "ブルーウォーターズ・アイランド",
+    "tier": "ultra-prime",
+    "avgPriceSqftAed": {
+      "apartment": "3,200–4,800",
+      "villa": "n/a"
+    },
+    "priceSqftYoYPct": "+12 to +18",
+    "priceSqft5yrPct": "+95 to +125",
+    "avgRentalYieldPct": {
+      "apartment": "5.5–7.0"
+    },
+    "transactionVolume": "Moderate — limited supply (10 buildings), high demand",
+    "infrastructure": [
+      {
+        "en": "Ain Dubai (world's largest observation wheel)",
+        "jp": "アイン・ドバイ（世界最大の観覧車）"
+      },
+      {
+        "en": "Caesars Palace Dubai resort + branded residences",
+        "jp": "シーザーズ・パレス・ドバイ／ブランデッド・レジデンス"
+      },
+      {
+        "en": "Curated retail & dining (The Wharf)",
+        "jp": "キュレーションされた商業施設「ザ・ワーフ」"
+      },
+      {
+        "en": "Pedestrian bridge to JBR + tram connectivity",
+        "jp": "JBRへの歩道橋／トラム接続"
+      },
+      {
+        "en": "Private beach + marina",
+        "jp": "プライベートビーチ／マリーナ"
+      }
+    ],
+    "comparableProjects": [
+      {
+        "name": "Bluewaters Residences",
+        "context": "Master-community core inventory benchmark"
+      },
+      {
+        "name": "Caesars Palace Bluewaters",
+        "context": "Branded ultra-prime hotel residences"
+      },
+      {
+        "name": "JBR (La Vie / 1/JBR)",
+        "context": "Adjacent beachfront comparable"
+      }
+    ],
+    "dxbInteractUrl": "https://dxbinteract.com/dubai/areas/bluewaters-island",
+    "dldUrl": "https://dubailand.gov.ae/en/open-data/real-estate-data/",
+    "talkingPoints": [
+      {
+        "en": "Bluewaters is one of only three man-made island residential communities in Dubai (with Palm Jumeirah and Jumeirah Bay) — trophy-asset positioning.",
+        "jp": "ブルーウォーターズはパーム・ジュメイラ、ジュメイラ・ベイと並ぶドバイ3大の人工島レジデンス・コミュニティで、トロフィー資産としての位置づけです。"
+      },
+      {
+        "en": "Ain Dubai foot traffic + Caesars Palace branded inventory drives premium short-let yields — 8–12% commonly achieved on serviced operation.",
+        "jp": "アイン・ドバイの集客力とシーザーズ・パレス・ブランデッド物件により、サービスアパート運用で8〜12%の利回りが頻繁に達成されています。"
+      },
+      {
+        "en": "Limited supply (~10 residential buildings total) means resale comparables are tight and pricing power favors sellers.",
+        "jp": "住居用建物は約10棟と供給が限定的で、転売コンプが希少なため売主の価格交渉力が強い市場です。"
+      }
+    ]
+  },
+  "difc": {
+    "nameEN": "DIFC (Dubai International Financial Centre)",
+    "nameJP": "DIFC（ドバイ国際金融センター）",
+    "tier": "ultra-prime",
+    "avgPriceSqftAed": {
+      "apartment": "2,800–4,500",
+      "villa": "n/a"
+    },
+    "priceSqftYoYPct": "+10 to +15",
+    "priceSqft5yrPct": "+90 to +115",
+    "avgRentalYieldPct": {
+      "apartment": "5.0–6.5"
+    },
+    "transactionVolume": "Low — very few residential towers; Index Tower dominates",
+    "infrastructure": [
+      {
+        "en": "Dubai's financial-services free zone (Common Law jurisdiction)",
+        "jp": "コモンロー管轄下のドバイ金融サービス・フリーゾーン"
+      },
+      {
+        "en": "Gate Avenue + DIFC Galleria — premium dining & art galleries",
+        "jp": "ゲート・アベニュー／DIFCギャラリア（高級飲食店・アートギャラリー）"
+      },
+      {
+        "en": "Emirates Towers Metro + Financial Centre Metro",
+        "jp": "エミレーツ・タワーズ駅／フィナンシャル・センター駅"
+      },
+      {
+        "en": "5 min to Downtown Dubai + Burj Khalifa",
+        "jp": "ダウンタウン・ドバイ／ブルジュ・ハリファまで車で5分"
+      },
+      {
+        "en": "Ritz-Carlton, Four Seasons, Waldorf Astoria DIFC hotel cluster",
+        "jp": "リッツ・カールトン／フォーシーズンズ／ウォルドルフ・アストリアDIFC等のホテル群"
+      }
+    ],
+    "comparableProjects": [
+      {
+        "name": "Index Tower",
+        "context": "Dominant residential tower in DIFC"
+      },
+      {
+        "name": "Burj Daman / Central Park Tower",
+        "context": "Mixed-use residential reference"
+      },
+      {
+        "name": "DIFC Living (One Za'abeel adjacent)",
+        "context": "Recent ultra-prime delivery comparable"
+      }
+    ],
+    "dxbInteractUrl": "https://dxbinteract.com/dubai/areas/difc",
+    "dldUrl": "https://dubailand.gov.ae/en/open-data/real-estate-data/",
+    "talkingPoints": [
+      {
+        "en": "DIFC residential supply is structurally constrained — fewer than 5 towers carry meaningful residential inventory, supporting long-term price floor.",
+        "jp": "DIFCの住居用供給は構造的に限定的で、住宅在庫を持つタワーは5棟未満。長期的な価格下支えとなっています。"
+      },
+      {
+        "en": "Tenant pool is concentrated on banking / law / consulting senior executives — premium 1–2BR rents and very low vacancy.",
+        "jp": "テナント層は銀行・法務・コンサルティング業界の幹部に集中しており、1〜2BRの賃料はプレミアム水準で空室率は極めて低くなっています。"
+      },
+      {
+        "en": "Closest residential address to Burj Khalifa, DIFC, and DXB airport — unique central-Dubai positioning.",
+        "jp": "ブルジュ・ハリファ、DIFC、DXB空港すべてに最も近い住所の一つで、ドバイ中心部での唯一無二のロケーションです。"
+      }
     ]
   }
 }

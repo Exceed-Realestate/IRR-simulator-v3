@@ -3,7 +3,7 @@
     "source": "investmentmap.ai (164 Dubai areas)",
     "dataAsOf": "2026-05",
     "totalAreas": 164,
-    "curatedCount": 6
+    "curatedCount": 13
   },
   "areas": [
     {
@@ -200,7 +200,8 @@
     },
     {
       "key": "bluewatersIsland",
-      "nameEN": "Bluewaters Island"
+      "nameEN": "Bluewaters Island",
+      "curatedAs": "bluewatersIsland"
     },
     {
       "key": "bukadra",
@@ -208,7 +209,8 @@
     },
     {
       "key": "businessBay",
-      "nameEN": "Business Bay"
+      "nameEN": "Business Bay",
+      "curatedAs": "businessBay"
     },
     {
       "key": "cherrywoods",
@@ -224,7 +226,8 @@
     },
     {
       "key": "damacHills",
-      "nameEN": "Damac Hills"
+      "nameEN": "Damac Hills",
+      "curatedAs": "damacHills"
     },
     {
       "key": "damacHills2",
@@ -248,7 +251,8 @@
     },
     {
       "key": "difc",
-      "nameEN": "DIFC (Dubai International Financial Center)"
+      "nameEN": "DIFC (Dubai International Financial Center)",
+      "curatedAs": "difc"
     },
     {
       "key": "discoveryGardens",
@@ -256,7 +260,8 @@
     },
     {
       "key": "downtownDubai",
-      "nameEN": "Downtown Dubai"
+      "nameEN": "Downtown Dubai",
+      "curatedAs": "downtownDubai"
     },
     {
       "key": "dubaiAirportFreeZone",
@@ -310,7 +315,8 @@
     },
     {
       "key": "dubaiMarina",
-      "nameEN": "Dubai Marina"
+      "nameEN": "Dubai Marina",
+      "curatedAs": "dubaiMarina"
     },
     {
       "key": "dubaiMotorCity",
@@ -426,7 +432,8 @@
     },
     {
       "key": "jvc",
-      "nameEN": "JVC (Jumeirah Village Circle)"
+      "nameEN": "JVC (Jumeirah Village Circle)",
+      "curatedAs": "jvc"
     },
     {
       "key": "jvt",

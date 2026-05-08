@@ -3003,18 +3003,33 @@ function getMasterEntry(key) {
 }
 
 function fetchAreasData() {
+  console.log("[v3] fetchAreasData starting…");
   Promise.all([
-    fetch("./areas.json").then(r => r.ok ? r.json() : Promise.reject(r.status)),
+    fetch("./areas.json").then(r => r.ok ? r.json() : Promise.reject("areas.json " + r.status)),
     fetch("./dubai-areas-master.json").then(r => r.ok ? r.json() : null).catch(() => null)
   ])
     .then(([curated, master]) => {
       areasData = curated;
       if (master && Array.isArray(master.areas)) masterAreasList = master.areas;
-      populateCpAreaSelect();
-      if (currentAreaKey) renderAreaCard(currentAreaKey);
+      console.log("[v3] areas loaded:", Object.keys(curated).filter(k => !k.startsWith("_")).length, "curated,", masterAreasList ? masterAreasList.length : 0, "master. currentAreaKey =", currentAreaKey);
+      try { populateCpAreaSelect(); } catch (e) { console.warn("[v3] populateCpAreaSelect failed:", e); }
+      if (currentAreaKey) {
+        try { renderAreaCard(currentAreaKey); } catch (e) { console.error("[v3] renderAreaCard failed:", e); }
+      } else {
+        // Try to set currentAreaKey from the preset dropdown's current value
+        const k = (document.getElementById("preset") || {}).value;
+        const pr = (k && (customProps[k] || presets[k])) || null;
+        if (pr && pr.area) {
+          currentAreaKey = pr.area;
+          console.log("[v3] late-resolved currentAreaKey =", currentAreaKey);
+          try { renderAreaCard(currentAreaKey); } catch (e) { console.error("[v3] renderAreaCard failed:", e); }
+        } else {
+          console.warn("[v3] no preset.area available — area card will stay blank until a preset is selected");
+        }
+      }
     })
     .catch(err => {
-      console.warn("areas.json load failed:", err);
+      console.warn("[v3] areas.json load failed:", err);
       const el = document.getElementById("areaContent");
       if (el) el.innerHTML = '<div class="area-empty"><span class="ja">エリアデータを読み込めませんでした。</span><span class="en">Could not load area data.</span></div>';
     });
