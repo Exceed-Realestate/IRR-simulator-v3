@@ -1,0 +1,672 @@
+{
+  "_meta": {
+    "source": "investmentmap.ai (164 Dubai areas)",
+    "dataAsOf": "2026-05",
+    "totalAreas": 164,
+    "curatedCount": 6
+  },
+  "areas": [
+    {
+      "key": "academicCity",
+      "nameEN": "Academic city"
+    },
+    {
+      "key": "alAweer",
+      "nameEN": "Al Aweer"
+    },
+    {
+      "key": "alBarari",
+      "nameEN": "Al Barari"
+    },
+    {
+      "key": "alBarshaFirst",
+      "nameEN": "Al Barsha First"
+    },
+    {
+      "key": "alBarshaSecond",
+      "nameEN": "Al Barsha Second"
+    },
+    {
+      "key": "alBarshaSouth1",
+      "nameEN": "Al Barsha South 1"
+    },
+    {
+      "key": "alBarshaSouth2",
+      "nameEN": "Al Barsha South 2"
+    },
+    {
+      "key": "alBarshaThird",
+      "nameEN": "Al Barsha Third"
+    },
+    {
+      "key": "alFurjan",
+      "nameEN": "Al Furjan"
+    },
+    {
+      "key": "alGarhoud",
+      "nameEN": "Al Garhoud"
+    },
+    {
+      "key": "alHudaiba",
+      "nameEN": "Al Hudaiba"
+    },
+    {
+      "key": "alJaddaf",
+      "nameEN": "Al Jaddaf"
+    },
+    {
+      "key": "alJaffiliya",
+      "nameEN": "Al Jaffiliya"
+    },
+    {
+      "key": "alKarama",
+      "nameEN": "Al Karama"
+    },
+    {
+      "key": "alKhawaneej1",
+      "nameEN": "Al Khawaneej 1"
+    },
+    {
+      "key": "alKhawaneej2",
+      "nameEN": "Al Khawaneej 2"
+    },
+    {
+      "key": "alKifaf",
+      "nameEN": "Al Kifaf"
+    },
+    {
+      "key": "alMamzar",
+      "nameEN": "Al Mamzar"
+    },
+    {
+      "key": "alManara",
+      "nameEN": "Al Manara"
+    },
+    {
+      "key": "alMankhool",
+      "nameEN": "Al Mankhool"
+    },
+    {
+      "key": "alMizhar1",
+      "nameEN": "Al Mizhar 1"
+    },
+    {
+      "key": "alMizhar2",
+      "nameEN": "Al Mizhar 2"
+    },
+    {
+      "key": "alNahda",
+      "nameEN": "Al Nahda"
+    },
+    {
+      "key": "alQusais1",
+      "nameEN": "Al Qusais 1"
+    },
+    {
+      "key": "alQusais2",
+      "nameEN": "Al Qusais 2"
+    },
+    {
+      "key": "alQusaisIndustrialArea1",
+      "nameEN": "Al Qusais Industrial Area 1"
+    },
+    {
+      "key": "alQusaisIndustrialArea3",
+      "nameEN": "Al Qusais Industrial Area 3"
+    },
+    {
+      "key": "alQusaisIndustrialArea4",
+      "nameEN": "Al Qusais Industrial Area 4"
+    },
+    {
+      "key": "alQusaisIndustrialArea5",
+      "nameEN": "Al Qusais Industrial Area 5"
+    },
+    {
+      "key": "alRaffa",
+      "nameEN": "Al Raffa"
+    },
+    {
+      "key": "alRashidiya",
+      "nameEN": "Al Rashidiya"
+    },
+    {
+      "key": "alSafa1and2",
+      "nameEN": "AL Safa 1&2"
+    },
+    {
+      "key": "alSafouhFirst",
+      "nameEN": "Al Safouh First"
+    },
+    {
+      "key": "alSafouhSecond",
+      "nameEN": "Al Safouh Second"
+    },
+    {
+      "key": "alSatwa",
+      "nameEN": "Al Satwa"
+    },
+    {
+      "key": "alTwar1",
+      "nameEN": "Al Twar 1"
+    },
+    {
+      "key": "alTwar2",
+      "nameEN": "Al Twar 2"
+    },
+    {
+      "key": "alTwar3",
+      "nameEN": "Al Twar 3"
+    },
+    {
+      "key": "alWarqa",
+      "nameEN": "Al Warqa"
+    },
+    {
+      "key": "alWasl",
+      "nameEN": "Al Wasl"
+    },
+    {
+      "key": "alYufrah1",
+      "nameEN": "Al Yufrah 1"
+    },
+    {
+      "key": "arabianRanches1",
+      "nameEN": "Arabian Ranches 1"
+    },
+    {
+      "key": "arabianRanches2",
+      "nameEN": "Arabian Ranches 2"
+    },
+    {
+      "key": "arabianRanches3",
+      "nameEN": "Arabian Ranches 3"
+    },
+    {
+      "key": "arjan",
+      "nameEN": "Arjan"
+    },
+    {
+      "key": "athlon",
+      "nameEN": "Athlon"
+    },
+    {
+      "key": "aziziRiviera",
+      "nameEN": "Azizi Riviera"
+    },
+    {
+      "key": "barshaHeights",
+      "nameEN": "Barsha Heights (TECOM)"
+    },
+    {
+      "key": "bluewatersIsland",
+      "nameEN": "Bluewaters Island"
+    },
+    {
+      "key": "bukadra",
+      "nameEN": "Bukadra"
+    },
+    {
+      "key": "businessBay",
+      "nameEN": "Business Bay"
+    },
+    {
+      "key": "cherrywoods",
+      "nameEN": "Cherrywoods"
+    },
+    {
+      "key": "cityOfArabia",
+      "nameEN": "City of Arabia"
+    },
+    {
+      "key": "citywalk",
+      "nameEN": "CityWalk"
+    },
+    {
+      "key": "damacHills",
+      "nameEN": "Damac Hills"
+    },
+    {
+      "key": "damacHills2",
+      "nameEN": "Damac Hills 2"
+    },
+    {
+      "key": "damacIslands1",
+      "nameEN": "Damac Islands 1"
+    },
+    {
+      "key": "damacLagoons",
+      "nameEN": "Damac Lagoons"
+    },
+    {
+      "key": "damacRiverside",
+      "nameEN": "Damac Riverside"
+    },
+    {
+      "key": "deira",
+      "nameEN": "Deira"
+    },
+    {
+      "key": "difc",
+      "nameEN": "DIFC (Dubai International Financial Center)"
+    },
+    {
+      "key": "discoveryGardens",
+      "nameEN": "Discovery gardens"
+    },
+    {
+      "key": "downtownDubai",
+      "nameEN": "Downtown Dubai"
+    },
+    {
+      "key": "dubaiAirportFreeZone",
+      "nameEN": "Dubai Airport Free Zone"
+    },
+    {
+      "key": "dubaiCreekHarbour",
+      "nameEN": "Dubai Creek Harbour",
+      "curatedAs": "dubaiCreekHarbour"
+    },
+    {
+      "key": "dubaiDesignDistrict",
+      "nameEN": "Dubai Design District"
+    },
+    {
+      "key": "dubaiExpoCity",
+      "nameEN": "Dubai Expo City"
+    },
+    {
+      "key": "dubaiFestivalCity",
+      "nameEN": "Dubai Festival City"
+    },
+    {
+      "key": "dubaiHarbour",
+      "nameEN": "Dubai Harbour"
+    },
+    {
+      "key": "dubaiHills",
+      "nameEN": "Dubai Hills",
+      "curatedAs": "dubaiHills"
+    },
+    {
+      "key": "dubaiIndustrialCity",
+      "nameEN": "Dubai Industrial City"
+    },
+    {
+      "key": "dubaiInternationalCity",
+      "nameEN": "Dubai International City"
+    },
+    {
+      "key": "dubaiInvestmentPark",
+      "nameEN": "Dubai Investment Park"
+    },
+    {
+      "key": "dubaiIslands",
+      "nameEN": "Dubai Islands"
+    },
+    {
+      "key": "dubaiLifeStyleCity",
+      "nameEN": "Dubai Life style City"
+    },
+    {
+      "key": "dubaiMarina",
+      "nameEN": "Dubai Marina"
+    },
+    {
+      "key": "dubaiMotorCity",
+      "nameEN": "Dubai Motor City"
+    },
+    {
+      "key": "dubaiProductionCity",
+      "nameEN": "Dubai Production City"
+    },
+    {
+      "key": "dubaiResidenceComplex",
+      "nameEN": "Dubai Residence Complex"
+    },
+    {
+      "key": "dubaiSiliconOasis",
+      "nameEN": "Dubai Silicon Oasis"
+    },
+    {
+      "key": "dubaiSouth",
+      "nameEN": "Dubai South"
+    },
+    {
+      "key": "dubaiSportsCity",
+      "nameEN": "Dubai Sports City"
+    },
+    {
+      "key": "dubaiStudioCity",
+      "nameEN": "Dubai Studio City"
+    },
+    {
+      "key": "emaarSouth",
+      "nameEN": "EMAAR South"
+    },
+    {
+      "key": "emiratesHills",
+      "nameEN": "Emirates Hills"
+    },
+    {
+      "key": "grandPoloClubAndResort",
+      "nameEN": "Grand Polo Club & Resort"
+    },
+    {
+      "key": "haven",
+      "nameEN": "Haven"
+    },
+    {
+      "key": "hessyanSecond",
+      "nameEN": "Hessyan Second"
+    },
+    {
+      "key": "jabalAliIndustrial1",
+      "nameEN": "Jabal Ali Industrial 1"
+    },
+    {
+      "key": "jabalAliIndustrial2",
+      "nameEN": "Jabal Ali Industrial 2"
+    },
+    {
+      "key": "jabalAliIndustrial3",
+      "nameEN": "Jabal Ali Industrial 3"
+    },
+    {
+      "key": "jabalAliThird",
+      "nameEN": "Jabal Ali Third"
+    },
+    {
+      "key": "jebelAliVillage",
+      "nameEN": "Jebel Ali Village"
+    },
+    {
+      "key": "jlt",
+      "nameEN": "JLT (Jumeirah Lake Towers)"
+    },
+    {
+      "key": "jumeirahBay",
+      "nameEN": "Jumeirah Bay"
+    },
+    {
+      "key": "jumeirahBeachResidence",
+      "nameEN": "Jumeirah Beach Residence (JBR)"
+    },
+    {
+      "key": "jumeirahFirst",
+      "nameEN": "Jumeirah First"
+    },
+    {
+      "key": "jumeirahGolfEstates",
+      "nameEN": "Jumeirah Golf Estates"
+    },
+    {
+      "key": "jumeirahGolfEstatesTheNextChapter",
+      "nameEN": "Jumeirah Golf Estates – The Next Chapter"
+    },
+    {
+      "key": "jumeirahHeights",
+      "nameEN": "Jumeirah Heights"
+    },
+    {
+      "key": "jumeirahIslands",
+      "nameEN": "Jumeirah Islands"
+    },
+    {
+      "key": "jumeirahPark",
+      "nameEN": "Jumeirah Park"
+    },
+    {
+      "key": "jumeirahSecond",
+      "nameEN": "Jumeirah Second"
+    },
+    {
+      "key": "jumeirahThird",
+      "nameEN": "Jumeirah Third"
+    },
+    {
+      "key": "jvc",
+      "nameEN": "JVC (Jumeirah Village Circle)"
+    },
+    {
+      "key": "jvt",
+      "nameEN": "JVT (Jumeirah Village Triangle)"
+    },
+    {
+      "key": "layanCommunity",
+      "nameEN": "Layan Community"
+    },
+    {
+      "key": "madinatHind4",
+      "nameEN": "Madinat Hind 4"
+    },
+    {
+      "key": "majan",
+      "nameEN": "Majan"
+    },
+    {
+      "key": "maritimeCity",
+      "nameEN": "Maritime City"
+    },
+    {
+      "key": "mbrCityDistrict1",
+      "nameEN": "MBR City District 1"
+    },
+    {
+      "key": "mbrCityDistrict7",
+      "nameEN": "MBR City District 7"
+    },
+    {
+      "key": "mbrDistrict11",
+      "nameEN": "MBR District 11 (Meydan South)"
+    },
+    {
+      "key": "meaisemFirst",
+      "nameEN": "Me'aisem First"
+    },
+    {
+      "key": "meydan",
+      "nameEN": "Meydan (District One West)"
+    },
+    {
+      "key": "minaRashid",
+      "nameEN": "Mina Rashid"
+    },
+    {
+      "key": "miraOasis",
+      "nameEN": "Mira Oasis"
+    },
+    {
+      "key": "mirdif",
+      "nameEN": "Mirdif"
+    },
+    {
+      "key": "mjl",
+      "nameEN": "MJL (Madinat Jumeirah Living)"
+    },
+    {
+      "key": "mudon",
+      "nameEN": "Mudon"
+    },
+    {
+      "key": "muhaishan2",
+      "nameEN": "Muhaishan 2"
+    },
+    {
+      "key": "muhaisnah1",
+      "nameEN": "Muhaisnah 1"
+    },
+    {
+      "key": "muhaisnah3",
+      "nameEN": "Muhaisnah 3"
+    },
+    {
+      "key": "muhaisnah4",
+      "nameEN": "Muhaisnah 4"
+    },
+    {
+      "key": "mushrif",
+      "nameEN": "Mushrif"
+    },
+    {
+      "key": "nadAlHamar",
+      "nameEN": "Nad Al Hamar"
+    },
+    {
+      "key": "nadAlSheba",
+      "nameEN": "Nad Al Sheba"
+    },
+    {
+      "key": "oudAlMuteena",
+      "nameEN": "Oud Al Muteena"
+    },
+    {
+      "key": "oudMetha",
+      "nameEN": "Oud Metha"
+    },
+    {
+      "key": "palmJebelAli",
+      "nameEN": "Palm Jebel Ali",
+      "curatedAs": "palmJebelAli"
+    },
+    {
+      "key": "palmJumeirah",
+      "nameEN": "Palm Jumeirah",
+      "curatedAs": "palmJumeirah"
+    },
+    {
+      "key": "pearlJumeirah",
+      "nameEN": "Pearl Jumeirah"
+    },
+    {
+      "key": "portDeLaMer",
+      "nameEN": "Port De La Mer"
+    },
+    {
+      "key": "rasAlKhor",
+      "nameEN": "Ras Al Khor"
+    },
+    {
+      "key": "remraam",
+      "nameEN": "Remraam"
+    },
+    {
+      "key": "rukanCommunity",
+      "nameEN": "Rukan Community"
+    },
+    {
+      "key": "saihShuaib",
+      "nameEN": "Saih Shuaib"
+    },
+    {
+      "key": "serenaCommunity",
+      "nameEN": "Serena Community"
+    },
+    {
+      "key": "sobhaHartland",
+      "nameEN": "Sobha Hartland"
+    },
+    {
+      "key": "sobhaHartland2",
+      "nameEN": "Sobha Hartland 2"
+    },
+    {
+      "key": "sustainableCity",
+      "nameEN": "Sustainable City"
+    },
+    {
+      "key": "theGardens",
+      "nameEN": "The Gardens"
+    },
+    {
+      "key": "theGreens",
+      "nameEN": "The Greens"
+    },
+    {
+      "key": "theHeartOfEurope",
+      "nameEN": "The Heart of Europe"
+    },
+    {
+      "key": "theLakes",
+      "nameEN": "The Lakes"
+    },
+    {
+      "key": "theMeadows",
+      "nameEN": "The Meadows"
+    },
+    {
+      "key": "theOasisByEmaar",
+      "nameEN": "The Oasis by Emaar"
+    },
+    {
+      "key": "theSprings",
+      "nameEN": "The Springs"
+    },
+    {
+      "key": "theValleyEmaarProperties",
+      "nameEN": "The Valley Emaar Properties"
+    },
+    {
+      "key": "theVilla",
+      "nameEN": "The Villa"
+    },
+    {
+      "key": "tilalAlGhaf",
+      "nameEN": "Tilal Al Ghaf"
+    },
+    {
+      "key": "townSquare",
+      "nameEN": "Town Square"
+    },
+    {
+      "key": "tradeCenterFirst",
+      "nameEN": "Trade Center First"
+    },
+    {
+      "key": "tradeCenterSecond",
+      "nameEN": "Trade Center Second"
+    },
+    {
+      "key": "umAlSheif",
+      "nameEN": "Um Al Sheif"
+    },
+    {
+      "key": "umSuquaim",
+      "nameEN": "Um Suquaim"
+    },
+    {
+      "key": "villanova",
+      "nameEN": "Villanova"
+    },
+    {
+      "key": "wadiAlAmardi",
+      "nameEN": "Wadi Al Amardi"
+    },
+    {
+      "key": "wadiAlSafa2",
+      "nameEN": "Wadi Al Safa 2"
+    },
+    {
+      "key": "wadiAlSafa3",
+      "nameEN": "Wadi Al Safa 3"
+    },
+    {
+      "key": "wadiAlshabak",
+      "nameEN": "Wadi Alshabak"
+    },
+    {
+      "key": "waslGate",
+      "nameEN": "Wasl Gate"
+    },
+    {
+      "key": "zaabeel1",
+      "nameEN": "Za'abeel 1",
+      "curatedAs": "zaabeel"
+    },
+    {
+      "key": "zaabeel2",
+      "nameEN": "Za'abeel 2",
+      "curatedAs": "zaabeel"
+    }
+  ]
+}

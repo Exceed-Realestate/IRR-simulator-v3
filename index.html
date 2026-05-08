@@ -2520,8 +2520,18 @@ function executeReportFromChecklist() {
 // Build the Area Analysis section HTML for the printed report (compact, A4-friendly).
 function buildAreaReportSection(T, lang) {
   if (!areasData || !currentAreaKey) return "";
-  const a = areasData[currentAreaKey];
-  if (!a) return "";
+  const a = getAreaProfile(currentAreaKey);
+  if (!a) {
+    // Uncurated area — render a minimal stub so the report still acknowledges the area
+    const m = getMasterEntry(currentAreaKey);
+    const displayName = m ? m.nameEN : currentAreaKey;
+    return `
+      <section class="rpt-section">
+        <h2>${T("エリア分析", "Area Analysis")}: ${displayName}</h2>
+        <p style="font-size:11px;color:#94a3b8;margin:0;">${T("このエリアの詳細プロファイルは整備中です。最新の取引・利回りは DXB Interact でご確認ください。", "A curated profile for this area is in progress. Verify the latest transactions and yields on DXB Interact.")}</p>
+      </section>
+    `;
+  }
   const insights = (typeof generateUnitInsights === "function") ? (generateUnitInsights() || []) : [];
   const apt = a.avgPriceSqftAed && a.avgPriceSqftAed.apartment;
   const villa = a.avgPriceSqftAed && a.avgPriceSqftAed.villa;
@@ -2974,13 +2984,32 @@ const presets = {
 
 // =========== AREA ANALYSIS (v3) ===========
 let areasData = null;
+let masterAreasList = null;   // Full Dubai area list (164 entries from investmentmap.ai)
 let currentAreaKey = null;
 
+// Resolve a curated profile from any key — direct or via master-list alias.
+function getAreaProfile(key) {
+  if (!key || !areasData) return null;
+  if (areasData[key]) return areasData[key];
+  if (masterAreasList) {
+    const m = masterAreasList.find(e => e.key === key);
+    if (m && m.curatedAs && areasData[m.curatedAs]) return areasData[m.curatedAs];
+  }
+  return null;
+}
+function getMasterEntry(key) {
+  if (!key || !masterAreasList) return null;
+  return masterAreasList.find(e => e.key === key) || null;
+}
+
 function fetchAreasData() {
-  fetch("./areas.json")
-    .then(r => r.ok ? r.json() : Promise.reject(r.status))
-    .then(data => {
-      areasData = data;
+  Promise.all([
+    fetch("./areas.json").then(r => r.ok ? r.json() : Promise.reject(r.status)),
+    fetch("./dubai-areas-master.json").then(r => r.ok ? r.json() : null).catch(() => null)
+  ])
+    .then(([curated, master]) => {
+      areasData = curated;
+      if (master && Array.isArray(master.areas)) masterAreasList = master.areas;
       populateCpAreaSelect();
       if (currentAreaKey) renderAreaCard(currentAreaKey);
     })
@@ -2993,40 +3022,82 @@ function fetchAreasData() {
 
 function populateCpAreaSelect() {
   const sel = document.getElementById("cpArea");
-  if (!sel || !areasData) return;
-  // Preserve selection
+  if (!sel) return;
   const current = sel.value;
-  // Wipe non-auto options
-  [...sel.querySelectorAll('option:not([value="auto"])')].forEach(o => o.remove());
-  Object.entries(areasData).forEach(([key, area]) => {
-    if (key.startsWith("_")) return;
+  [...sel.querySelectorAll('option:not([value="auto"]), optgroup')].forEach(o => o.remove());
+
+  // Group 1: curated areas (alphabetical by display name)
+  const curatedGroup = document.createElement("optgroup");
+  curatedGroup.label = "★ Curated (full analysis available)";
+  const curatedEntries = [];
+  if (masterAreasList) {
+    masterAreasList.forEach(e => { if (e.curatedAs) curatedEntries.push(e); });
+  } else if (areasData) {
+    Object.entries(areasData).forEach(([k, a]) => {
+      if (!k.startsWith("_")) curatedEntries.push({ key: k, nameEN: a.nameEN });
+    });
+  }
+  curatedEntries.sort((a, b) => a.nameEN.localeCompare(b.nameEN));
+  curatedEntries.forEach(e => {
     const opt = document.createElement("option");
-    opt.value = key;
-    opt.textContent = area.nameEN + (area.nameJP ? " / " + area.nameJP : "");
-    sel.appendChild(opt);
+    opt.value = e.key;
+    opt.textContent = "★ " + e.nameEN;
+    curatedGroup.appendChild(opt);
   });
-  // Add "Other / not listed" sentinel
+  if (curatedGroup.children.length) sel.appendChild(curatedGroup);
+
+  // Group 2: all other Dubai areas (alphabetical)
+  if (masterAreasList) {
+    const otherGroup = document.createElement("optgroup");
+    otherGroup.label = "All Dubai areas (DLD)";
+    masterAreasList.filter(e => !e.curatedAs).forEach(e => {
+      const opt = document.createElement("option");
+      opt.value = e.key;
+      opt.textContent = e.nameEN;
+      otherGroup.appendChild(opt);
+    });
+    if (otherGroup.children.length) sel.appendChild(otherGroup);
+  }
+
+  // Sentinel for areas not in our master list
   const other = document.createElement("option");
   other.value = "_other";
   other.textContent = "— Other / not listed —";
   sel.appendChild(other);
+
   if (current) sel.value = current;
 }
 
-// Keyword matcher for project-name → area inference. Order matters: more specific first.
+// Project-name → area inference. Two-pass: hand-tuned high-precision rules first,
+// then a generic fallback against the 164-entry master list.
 function detectAreaFromName(name) {
   if (!name || typeof name !== "string") return null;
   const n = name.toLowerCase();
+
+  // Pass 1: high-precision hand-tuned rules (handle aliases and colloquialisms).
+  // Order matters — more specific first (e.g. "palm jebel" before "palm jumeirah").
   const rules = [
     [["palm jebel", "jebel ali"], "palmJebelAli"],
     [["creek harbour", "creek beach", "creek marina", "the lagoons", "dubai creek"], "dubaiCreekHarbour"],
-    [["za'abeel", "zaabeel", "one za", "world trade", "wtc"], "zaabeel"],
+    [["za'abeel", "zaabeel", "one za", "world trade", "wtc"], "zaabeel1"],
     [["dubai hills", "emerald hills", "hills estate", "park heights", "park ridge", "park field"], "dubaiHills"],
     [["palm jumeirah", "the palm", "atlantis", "serenia", "six senses palm", "armani palm", "one at palm", "bulgari palm", "fairmont palm", "orla"], "palmJumeirah"]
   ];
   for (const [keywords, areaKey] of rules) {
     for (const kw of keywords) {
       if (n.includes(kw)) return areaKey;
+    }
+  }
+
+  // Pass 2: master-list fallback. Match longest area name first to favour "Dubai
+  // Marina" over "Dubai" etc. Skip very short / generic names to avoid false hits.
+  if (masterAreasList) {
+    const candidates = masterAreasList
+      .filter(e => e.nameEN.length >= 5)
+      .map(e => ({ key: e.key, lc: e.nameEN.toLowerCase().replace(/[''&]/g, "").replace(/–/g, "-") }))
+      .sort((a, b) => b.lc.length - a.lc.length);
+    for (const c of candidates) {
+      if (n.includes(c.lc)) return c.key;
     }
   }
   return null;
@@ -3061,9 +3132,17 @@ function renderAreaCard(areaKey) {
     return;
   }
   if (!areasData) return; // still loading; will re-render on fetch complete
-  const a = areasData[areaKey];
+  const a = getAreaProfile(areaKey);
   if (!a) {
-    el.innerHTML = '<div class="area-empty"><span class="ja">エリアデータが見つかりません: ' + escapeHtml(areaKey) + '</span><span class="en">Area data not found: ' + escapeHtml(areaKey) + '</span></div>';
+    // Uncurated area — show display name + a verify-on-DXB-Interact CTA
+    const m = getMasterEntry(areaKey);
+    const displayName = m ? m.nameEN : areaKey;
+    el.innerHTML = '<div class="area-empty" style="text-align:left; padding:18px 20px;">' +
+      '<div style="font-size:15px; font-weight:700; color:var(--text); margin-bottom:6px;">' + escapeHtml(displayName) + '</div>' +
+      '<div style="font-size:12.5px; line-height:1.55;">' +
+        '<span class="ja">このエリアの詳細プロファイルはまだ整備されていません。坪単価・利回り・取引履歴は <a href="https://dxbinteract.com/dubai/areas/" target="_blank" rel="noopener" style="color:var(--accent, #b08850);">DXB Interact</a> でご確認ください。</span>' +
+        '<span class="en">A curated profile for this area isn\'t available yet. Verify price/sqft, yield, and transactions on <a href="https://dxbinteract.com/dubai/areas/" target="_blank" rel="noopener" style="color:var(--accent, #b08850);">DXB Interact</a>.</span>' +
+      '</div></div>';
     return;
   }
   const meta = areasData._meta || {};
@@ -3151,7 +3230,7 @@ function parsePctRange(s) {
 
 function generateUnitInsights() {
   if (!areasData || !currentAreaKey) return [];
-  const a = areasData[currentAreaKey];
+  const a = getAreaProfile(currentAreaKey);
   if (!a) return [];
 
   const price = parseFloat((document.getElementById("price") || {}).value) || 0;
