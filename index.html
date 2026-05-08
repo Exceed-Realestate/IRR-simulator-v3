@@ -1384,6 +1384,23 @@
   .unit-insights-list li { padding:8px 0 8px 22px; font-size:13px; line-height:1.55; position:relative; border-bottom:1px dashed #dbeafe; }
   .unit-insights-list li:last-child { border-bottom:none; }
   .unit-insights-list li::before { content:"■"; position:absolute; left:4px; color:#3b82f6; font-size:9px; top:11px; }
+  /* Typical rents block */
+  .area-rents .rent-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:8px; }
+  .area-rents .rent-cell { padding:10px 12px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:6px; }
+  .area-rents .rent-label { font-size:10.5px; text-transform:uppercase; letter-spacing:0.4px; color:#166534; margin-bottom:3px; font-weight:600; }
+  .area-rents .rent-value { font-size:13px; font-weight:600; color:var(--text); }
+  /* Tenant-profile inline block */
+  .area-tenant { background:#fef9e7; border:1px solid #fde68a; border-radius:6px; padding:12px 14px; }
+  .area-tenant h4 { color:#92400e; margin-bottom:6px; }
+  .area-tenant .tenant-text { font-size:13px; line-height:1.5; }
+  /* Pipeline list */
+  .area-pipeline .pipeline-list { list-style:none; padding:0; margin:0; }
+  .area-pipeline .pipeline-list li { display:flex; gap:12px; padding:8px 0; border-bottom:1px dashed #e5e7eb; font-size:13px; line-height:1.5; align-items:flex-start; }
+  .area-pipeline .pipeline-list li:last-child { border-bottom:none; }
+  .area-pipeline .pipeline-when { flex:0 0 auto; min-width:78px; padding:2px 8px; background:#dbeafe; color:#1e40af; border-radius:4px; font-size:11px; font-weight:600; text-align:center; }
+  .area-pipeline .pipeline-text { flex:1; }
+  /* Golden Visa indicator (in unit insights) */
+  .gv-tag { display:inline-block; background:#fbbf24; color:#78350f; padding:1px 6px; border-radius:8px; font-size:10px; font-weight:700; margin-right:4px; vertical-align:middle; letter-spacing:0.4px; }
   .area-citations { display:flex; gap:14px; flex-wrap:wrap; margin-top:14px; padding-top:12px; border-top:1px solid #eee; font-size:11.5px; }
   .area-citations a { color:var(--accent, #b08850); text-decoration:none; border-bottom:1px dotted; }
   .area-citations a:hover { color:var(--text); }
@@ -2545,9 +2562,20 @@ function buildAreaReportSection(T, lang) {
   if (!isNa(a.priceSqft5yrPct)) statsHTML += `<tr><td>${T("過去5年", "5-yr")}</td><td>${a.priceSqft5yrPct}%</td></tr>`;
   if (!isNa(yieldApt))   statsHTML += `<tr><td>${T("利回り (Apt)", "Yield (Apt)")}</td><td>${yieldApt}%</td></tr>`;
   if (!isNa(yieldVilla) && !String(yieldVilla).startsWith("projected")) statsHTML += `<tr><td>${T("利回り (Villa)", "Yield (Villa)")}</td><td>${yieldVilla}%</td></tr>`;
+  if (a.txCount12mo) statsHTML += `<tr><td>${T("12ヶ月取引", "Tx 12mo")}</td><td>${a.txCount12mo}</td></tr>`;
   if (a.transactionVolume) statsHTML += `<tr><td>${T("取引量", "Tx vol")}</td><td>${a.transactionVolume}</td></tr>`;
+  // Typical rents
+  let rentsHTML = "";
+  if (a.typicalRentAed) {
+    const r = a.typicalRentAed;
+    const row = (label, v) => v ? `<tr><td>${label}</td><td>AED ${v}</td></tr>` : "";
+    rentsHTML = row("1BR", r["1br"]) + row("2BR", r["2br"]) + row("3BR / Villa", r["3br"]);
+  }
+  const tenantHTML = (a.tenantProfile && (a.tenantProfile.en || a.tenantProfile.jp))
+    ? `<p style="font-size:10.5px;line-height:1.5;margin:4px 0 0;color:#475569;">${lang === "ja" ? (a.tenantProfile.jp || a.tenantProfile.en) : a.tenantProfile.en}</p>` : "";
   const insightItems = insights.map(i => `<li>${lang === "ja" ? (i.jp || i.en) : i.en}</li>`).join("");
   const infraItems = (a.infrastructure || []).map(i => `<li>${lang === "ja" ? (i.jp || i.en) : i.en}</li>`).join("");
+  const pipelineItems = (a.infrastructurePipeline || []).map(p => `<li><strong style="color:#1e40af;">${p.when || ""}</strong> — ${lang === "ja" ? (p.jp || p.en) : p.en}</li>`).join("");
   const compItems = (a.comparableProjects || []).map(c => `<li><strong>${c.name}</strong>${c.context ? `<br><span style="font-size:9.5px;color:#94a3b8;">${c.context}</span>` : ""}</li>`).join("");
   const talkItems = (a.talkingPoints || []).map(t => `<li>${lang === "ja" ? (t.jp || t.en) : t.en}</li>`).join("");
   const dxbCite = a.dxbInteractUrl ? `<a href="${a.dxbInteractUrl}" target="_blank" style="color:#94a3b8;">DXB Interact</a>` : "";
@@ -2566,9 +2594,16 @@ function buildAreaReportSection(T, lang) {
           <ul style="padding-left:18px;margin:0;font-size:10.5px;line-height:1.55;">${insightItems || `<li style="color:#94a3b8;">${T("入力に基づく分析がここに表示されます", "Insights generated from inputs will appear here.")}</li>`}</ul>
         </div>
       </div>
-      ${(infraItems || compItems) ? `<div class="rpt-cols" style="margin-top:12px;">
+      ${(rentsHTML || tenantHTML) ? `<div class="rpt-cols" style="margin-top:12px;">
+        ${rentsHTML ? `<div class="rpt-col"><h4>${T("エリア標準賃料 / 年額", "Typical Rents (AED/year)")}</h4><table class="rpt-tbl">${rentsHTML}</table></div>` : ""}
+        ${tenantHTML ? `<div class="rpt-col" style="flex:2"><h4>${T("想定テナント層", "Typical Tenant Profile")}</h4>${tenantHTML}</div>` : ""}
+      </div>` : ""}
+      ${(infraItems || pipelineItems) ? `<div class="rpt-cols" style="margin-top:12px;">
         ${infraItems ? `<div class="rpt-col"><h4>${T("インフラ", "Infrastructure")}</h4><ul style="padding-left:18px;margin:0;font-size:10.5px;line-height:1.5;">${infraItems}</ul></div>` : ""}
-        ${compItems ? `<div class="rpt-col"><h4>${T("類似プロジェクト", "Comparable Projects")}</h4><ul style="padding-left:18px;margin:0;font-size:10.5px;line-height:1.5;">${compItems}</ul></div>` : ""}
+        ${pipelineItems ? `<div class="rpt-col"><h4>${T("今後の開発", "Upcoming Pipeline")}</h4><ul style="padding-left:18px;margin:0;font-size:10.5px;line-height:1.5;">${pipelineItems}</ul></div>` : ""}
+      </div>` : ""}
+      ${compItems ? `<div class="rpt-cols" style="margin-top:12px;">
+        <div class="rpt-col"><h4>${T("類似プロジェクト", "Comparable Projects")}</h4><ul style="padding-left:18px;margin:0;font-size:10.5px;line-height:1.5;">${compItems}</ul></div>
       </div>` : ""}
       ${talkItems ? `<div style="margin-top:12px;background:#fffbeb;border:1px solid #fde68a;border-radius:4px;padding:8px 12px;">
         <h4 style="color:#92400e;margin:0 0 6px;">💬 ${T("セールス・トークポイント", "Sales Talking Points")}</h4>
@@ -3159,16 +3194,44 @@ function renderAreaCard(areaKey) {
   if (a.priceSqft5yrPct && a.priceSqft5yrPct !== "n/a") stats += '<div class="area-stat"><div class="area-stat-label"><span class="ja">過去5年</span><span class="en">5-yr</span></div><div class="area-stat-value">' + escapeHtml(a.priceSqft5yrPct) + '%</div></div>';
   if (yieldApt) stats += '<div class="area-stat"><div class="area-stat-label"><span class="ja">利回り (Apt)</span><span class="en">Yield (Apt)</span></div><div class="area-stat-value">' + escapeHtml(yieldApt) + '%</div></div>';
   if (yieldVilla && !String(yieldVilla).startsWith("projected") && !String(yieldVilla).startsWith("n/a")) stats += '<div class="area-stat"><div class="area-stat-label"><span class="ja">利回り (Villa)</span><span class="en">Yield (Villa)</span></div><div class="area-stat-value">' + escapeHtml(yieldVilla) + '%</div></div>';
+  if (a.txCount12mo) stats += '<div class="area-stat"><div class="area-stat-label"><span class="ja">過去12ヶ月の取引数</span><span class="en">Tx Last 12mo</span></div><div class="area-stat-value">' + escapeHtml(a.txCount12mo) + '</div></div>';
   if (a.transactionVolume) stats += '<div class="area-stat" style="grid-column:span 2"><div class="area-stat-label"><span class="ja">取引量</span><span class="en">Tx Volume</span></div><div class="area-stat-value" style="font-size:12.5px; font-weight:500;">' + escapeHtml(a.transactionVolume) + '</div></div>';
 
   const tier = a.tier || "prime";
   const tierLabel = tier.replace(/-/g, " ");
+
+  // Typical rents (compact table)
+  let rentsBlock = '';
+  if (a.typicalRentAed && (a.typicalRentAed["1br"] || a.typicalRentAed["2br"] || a.typicalRentAed["3br"])) {
+    const rentRow = (key, labelJp, labelEn) => {
+      const v = a.typicalRentAed[key];
+      if (!v) return '';
+      return '<div class="rent-cell"><div class="rent-label"><span class="ja">' + labelJp + '</span><span class="en">' + labelEn + '</span></div><div class="rent-value">AED ' + escapeHtml(v) + '</div></div>';
+    };
+    rentsBlock = '<div class="area-block area-rents"><h4><span class="ja">エリア標準賃料 (年額)</span><span class="en">Typical Rents (AED / year)</span></h4><div class="rent-grid">' +
+      rentRow("1br", "1BR", "1BR") + rentRow("2br", "2BR", "2BR") + rentRow("3br", "3BR / Villa", "3BR / Villa") +
+      '</div></div>';
+  }
+
+  // Tenant profile (1-liner)
+  let tenantBlock = '';
+  if (a.tenantProfile && (a.tenantProfile.en || a.tenantProfile.jp)) {
+    tenantBlock = '<div class="area-block area-tenant"><h4>👥 <span class="ja">想定テナント層</span><span class="en">Typical Tenant Profile</span></h4><div class="tenant-text"><span class="ja">' + escapeHtml(a.tenantProfile.jp || a.tenantProfile.en) + '</span><span class="en">' + escapeHtml(a.tenantProfile.en) + '</span></div></div>';
+  }
 
   // Infrastructure
   let infra = '';
   if (Array.isArray(a.infrastructure) && a.infrastructure.length) {
     infra = '<div class="area-block"><h4><span class="ja">エリアの強み</span><span class="en">Infrastructure & Amenities</span></h4><ul class="area-list">' +
       a.infrastructure.map(i => '<li><span class="ja">' + escapeHtml(i.jp || i.en) + '</span><span class="en">' + escapeHtml(i.en) + '</span></li>').join('') +
+      '</ul></div>';
+  }
+
+  // Infrastructure pipeline (upcoming, dated)
+  let pipelineBlock = '';
+  if (Array.isArray(a.infrastructurePipeline) && a.infrastructurePipeline.length) {
+    pipelineBlock = '<div class="area-block area-pipeline"><h4>🚧 <span class="ja">今後の開発・インフラ</span><span class="en">Upcoming Pipeline</span></h4><ul class="pipeline-list">' +
+      a.infrastructurePipeline.map(p => '<li><span class="pipeline-when">' + escapeHtml(p.when || "") + '</span><span class="pipeline-text"><span class="ja">' + escapeHtml(p.jp || p.en) + '</span><span class="en">' + escapeHtml(p.en) + '</span></span></li>').join('') +
       '</ul></div>';
   }
 
@@ -3202,8 +3265,9 @@ function renderAreaCard(areaKey) {
       '</div>' +
     '</div>' +
     (stats ? '<div class="area-stats">' + stats + '</div>' : '') +
+    rentsBlock + tenantBlock +
     '<div id="unitInsights"></div>' +
-    infra + comps + talks + citations;
+    infra + pipelineBlock + comps + talks + citations;
 
   renderUnitInsights();
 }
@@ -3328,6 +3392,20 @@ function generateUnitInsights() {
     });
   }
 
+  // 5) UAE Golden Visa eligibility (purely a price-threshold check)
+  const fmtPriceM = (price / 1000000).toFixed(1);
+  if (price >= 2000000) {
+    insights.push({
+      en: `<span class="gv-tag">GOLDEN VISA</span>At AED ${fmtPriceM}M, this purchase qualifies the buyer for the UAE 10-year Golden Visa under the property-investor route (≥AED 2M threshold; freehold property; mortgage allowed).`,
+      jp: `<span class="gv-tag">ゴールデンビザ</span>購入価格AED ${fmtPriceM}Mは、UAE 10年ゴールデンビザの不動産投資家枠（AED 2M以上、フリーホールド物件、住宅ローン可）の要件を満たします。`
+    });
+  } else if (price >= 750000) {
+    insights.push({
+      en: `<span class="gv-tag">RESIDENCE VISA</span>At AED ${fmtPriceM}M, this purchase qualifies the buyer for a UAE 2-year property-investor residence visa (≥AED 750K threshold).`,
+      jp: `<span class="gv-tag">居住ビザ</span>購入価格AED ${fmtPriceM}Mは、UAE 2年不動産投資家居住ビザ（AED 750K以上）の要件を満たします。`
+    });
+  }
+
   return insights;
 }
 
@@ -3337,8 +3415,11 @@ function renderUnitInsights() {
   if (!areasData || !currentAreaKey) { slot.innerHTML = ""; return; }
   const insights = generateUnitInsights();
   if (!insights.length) { slot.innerHTML = ""; return; }
+  // Insight strings are generated by trusted internal code (no user input), so we
+  // intentionally pass them through unescaped to allow inline tags like the
+  // Golden Visa <span class="gv-tag">.
   slot.innerHTML = '<div class="area-block area-unit-insights"><h4>📊 <span class="ja">この物件のポジショニング</span><span class="en">This Unit\'s Position</span></h4><ul class="unit-insights-list">' +
-    insights.map(t => '<li><span class="ja">' + escapeHtml(t.jp) + '</span><span class="en">' + escapeHtml(t.en) + '</span></li>').join('') +
+    insights.map(t => '<li><span class="ja">' + (t.jp || "") + '</span><span class="en">' + (t.en || "") + '</span></li>').join('') +
     '</ul></div>';
 }
 

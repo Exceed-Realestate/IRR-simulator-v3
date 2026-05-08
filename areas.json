@@ -2,7 +2,7 @@
   "_meta": {
     "dataAsOf": "2026-05",
     "primarySource": "DXB Interact (DLD-derived) + Bayut/Property Finder market reports",
-    "note": "Numbers are approximate ranges. Agents must click the dxbInteractUrl and verify the live figure before quoting a precise number to a client.",
+    "note": "Numbers are approximate ranges. Agents must click the dxbInteractUrl and verify the live figure on DXB Interact / Property Finder before quoting a precise number to a client.",
     "schemaVersion": 1
   },
   "palmJumeirah": {
@@ -75,6 +75,33 @@
         "en": "Apartment rental yields on Palm range 5.5–7.0% gross — strong for an ultra-prime area where global benchmarks are 2–3%.",
         "jp": "アパートメントの粗利回りは5.5〜7.0%。世界のプライムエリア（通常2〜3%）と比較しても非常に高水準です。"
       }
+    ],
+    "txCount12mo": "~1,800",
+    "typicalRentAed": {
+      "1br": "130–180k",
+      "2br": "200–300k",
+      "3br": "350–500k"
+    },
+    "tenantProfile": {
+      "en": "HNW expats, branded-residence renters, holiday-let guests",
+      "jp": "富裕層エクスパット、ブランデッド・レジデンス賃借人、ホリデーレット利用者"
+    },
+    "infrastructurePipeline": [
+      {
+        "when": "2026",
+        "en": "Six Senses Residences delivery",
+        "jp": "シックスセンシズ・レジデンス引渡し"
+      },
+      {
+        "when": "2026–27",
+        "en": "Atlantis The Royal expansion",
+        "jp": "アトランティス・ザ・ロイヤルの拡張"
+      },
+      {
+        "when": "TBD",
+        "en": "Palm Monorail metro link feasibility study",
+        "jp": "パーム・モノレールのメトロ接続検討"
+      }
     ]
   },
   "dubaiCreekHarbour": {
@@ -141,6 +168,33 @@
       {
         "en": "Master-plan completion through 2030+ means infrastructure is still maturing — early buyers benefit from the appreciation as amenities come online.",
         "jp": "マスタープランは2030年以降まで段階的に完成するため、初期購入者はインフラが整備されるにつれて値上がり益を享受できます。"
+      }
+    ],
+    "txCount12mo": "~3,800",
+    "typicalRentAed": {
+      "1br": "70–95k",
+      "2br": "110–160k",
+      "3br": "180–240k"
+    },
+    "tenantProfile": {
+      "en": "Young professionals, DIFC/Downtown commuters, expat families",
+      "jp": "若手プロフェッショナル、DIFC／ダウンタウン通勤者、エクスパット・ファミリー"
+    },
+    "infrastructurePipeline": [
+      {
+        "when": "2027–28",
+        "en": "Address Grand Creek Harbour delivery",
+        "jp": "アドレス・グランド・クリーク・ハーバー引渡し"
+      },
+      {
+        "when": "2029+",
+        "en": "Metro Blue Line extension",
+        "jp": "メトロ・ブルーラインの延伸"
+      },
+      {
+        "when": "TBD",
+        "en": "Dubai Creek Tower (project status under review)",
+        "jp": "ドバイ・クリーク・タワー（計画見直し中）"
       }
     ]
   },
@@ -209,6 +263,28 @@
         "en": "Capital growth tracks Downtown but with thinner supply — historically lower volatility on resale prices.",
         "jp": "資本成長はダウンタウンと連動しますが供給がより薄く、転売価格のボラティリティは歴史的に低く抑えられています。"
       }
+    ],
+    "txCount12mo": "~180",
+    "typicalRentAed": {
+      "1br": "130–180k",
+      "2br": "220–300k",
+      "3br": "350–500k"
+    },
+    "tenantProfile": {
+      "en": "Banking & legal senior executives, government-affiliated tenants",
+      "jp": "銀行・法務分野のシニアエグゼクティブ、政府関係者"
+    },
+    "infrastructurePipeline": [
+      {
+        "when": "2026",
+        "en": "One Za'abeel Phase 2 fit-out completion",
+        "jp": "ワン・ザビール・フェーズ2の内装完成"
+      },
+      {
+        "when": "Ongoing",
+        "en": "DIFC 2.0 connectivity upgrades",
+        "jp": "DIFC 2.0 接続性向上"
+      }
     ]
   },
   "palmJebelAli": {
@@ -271,6 +347,33 @@
       {
         "en": "Proximity to Al Maktoum airport (DWC) — slated to become Dubai's largest airport — is a structural long-term tailwind.",
         "jp": "アル・マクトゥーム空港（DWC、将来ドバイ最大の空港）に近接しており、長期的な構造的追い風となります。"
+      }
+    ],
+    "txCount12mo": "~2,200 (off-plan launches)",
+    "typicalRentAed": {
+      "1br": "n/a (off-plan)",
+      "2br": "n/a (off-plan)",
+      "3br": "n/a (off-plan)"
+    },
+    "tenantProfile": {
+      "en": "Currently off-plan only — buyer profile is HNW investors anticipating 2027+ handovers",
+      "jp": "現在オフプランのみ。買い手は2027年以降の引渡しを見込む富裕層投資家"
+    },
+    "infrastructurePipeline": [
+      {
+        "when": "2027–28",
+        "en": "First-phase villa handovers",
+        "jp": "第1フェーズ・ヴィラの引渡し開始"
+      },
+      {
+        "when": "2030",
+        "en": "Etihad Rail Dubai station (passenger service)",
+        "jp": "Etihad Rail ドバイ駅（旅客サービス開始）"
+      },
+      {
+        "when": "2027",
+        "en": "Al Maktoum Airport (DWC) Phase 1 expansion",
+        "jp": "アル・マクトゥーム空港（DWC）フェーズ1拡張"
       }
     ]
   },
@@ -339,6 +442,33 @@
       {
         "en": "Emaar's largest active villa community — ~6,000+ ready/handed-over homes provide deep comparable transaction data.",
         "jp": "Emaar最大の稼働中ヴィラコミュニティで、約6,000戸超の完成・引渡済住戸により豊富な比較取引データがあります。"
+      }
+    ],
+    "txCount12mo": "~5,200",
+    "typicalRentAed": {
+      "1br": "70–100k (apt)",
+      "2br": "110–160k (apt)",
+      "3br": "180–260k apt / 300–500k villa"
+    },
+    "tenantProfile": {
+      "en": "Families, executive home-buyers, school-tied tenants (Repton, GEMS Wellington)",
+      "jp": "ファミリー層、エグゼクティブ家庭、学校（レプトン／GEMSウェリントン）通学世帯"
+    },
+    "infrastructurePipeline": [
+      {
+        "when": "2030",
+        "en": "Etihad Rail Dubai station",
+        "jp": "Etihad Rail ドバイ駅"
+      },
+      {
+        "when": "TBD",
+        "en": "Metro Blue Line connectivity",
+        "jp": "メトロ・ブルーライン接続"
+      },
+      {
+        "when": "Ongoing",
+        "en": "Additional retail clusters & community schools",
+        "jp": "リテール・クラスター／学校の継続増設"
       }
     ]
   },
@@ -411,6 +541,33 @@
         "en": "DIFC professional renter pool drives premium for 1–2BR units — strong segment for short-to-medium-hold investors.",
         "jp": "DIFCで働くプロフェッショナル層が1〜2BRの賃料プレミアムを牽引。短〜中期保有の投資家に好適なセグメントです。"
       }
+    ],
+    "txCount12mo": "~5,800",
+    "typicalRentAed": {
+      "1br": "75–110k",
+      "2br": "130–180k",
+      "3br": "200–280k"
+    },
+    "tenantProfile": {
+      "en": "DIFC/Downtown professionals, hotel-residence guests, young couples",
+      "jp": "DIFC／ダウンタウンのプロフェッショナル、ホテルレジデンス利用者、若手カップル"
+    },
+    "infrastructurePipeline": [
+      {
+        "when": "2027",
+        "en": "Bayz101 supertall delivery",
+        "jp": "Bayz101 超高層タワー引渡し"
+      },
+      {
+        "when": "Ongoing",
+        "en": "Canal-front retail & dining expansion",
+        "jp": "キャナル沿いのリテール／ダイニング拡張"
+      },
+      {
+        "when": "TBD",
+        "en": "Bay Avenue redevelopment",
+        "jp": "ベイ・アベニュー再開発"
+      }
     ]
   },
   "downtownDubai": {
@@ -482,6 +639,33 @@
         "en": "Strongest 5-year price appreciation among central Dubai districts (+90 to +115% per DLD).",
         "jp": "ドバイ中心部で過去5年の値上がり率が最も高い（DLDで+90〜+115%）。"
       }
+    ],
+    "txCount12mo": "~4,200",
+    "typicalRentAed": {
+      "1br": "110–160k",
+      "2br": "175–250k",
+      "3br": "280–400k"
+    },
+    "tenantProfile": {
+      "en": "International executives, holiday-let guests, branded-residence tenants",
+      "jp": "国際エグゼクティブ、ホリデーレット利用者、ブランデッド・レジデンス入居者"
+    },
+    "infrastructurePipeline": [
+      {
+        "when": "2026–28",
+        "en": "Mercedes-Benz Places Dubai delivery",
+        "jp": "メルセデス・ベンツ・プレイス・ドバイ引渡し"
+      },
+      {
+        "when": "2027+",
+        "en": "Bugatti Residences by Binghatti delivery",
+        "jp": "Bugatti レジデンス（Binghatti）引渡し"
+      },
+      {
+        "when": "Ongoing",
+        "en": "Boulevard branded-tower densification",
+        "jp": "ブールバード沿いのブランデッド・タワー集積"
+      }
     ]
   },
   "dubaiMarina": {
@@ -549,6 +733,28 @@
         "en": "Direct Metro + Tram + walkable beach combination is unique in Dubai — drives consistent tenant demand.",
         "jp": "メトロ・トラム・ビーチの徒歩アクセスはドバイで唯一の組み合わせで、テナント需要を安定的に支えます。"
       }
+    ],
+    "txCount12mo": "~6,500",
+    "typicalRentAed": {
+      "1br": "75–115k",
+      "2br": "130–185k",
+      "3br": "200–280k"
+    },
+    "tenantProfile": {
+      "en": "Young professionals, expat singles & couples, short-stay tourists, sailors",
+      "jp": "若手プロフェッショナル、独身・カップルのエクスパット、短期滞在観光客、ヨット愛好家"
+    },
+    "infrastructurePipeline": [
+      {
+        "when": "2027",
+        "en": "Marina Star super-tall completion",
+        "jp": "Marina Star 超高層タワー完成"
+      },
+      {
+        "when": "Ongoing",
+        "en": "Marina Walk retail & dining refresh",
+        "jp": "マリーナ・ウォークのリテール／飲食リフレッシュ"
+      }
     ]
   },
   "jvc": {
@@ -612,6 +818,33 @@
       {
         "en": "Family-tenant pool (schools + parks) provides longer average lease durations than central-Dubai apartment areas — lower vacancy.",
         "jp": "学校・公園が揃いファミリー層が中心のため、平均賃貸期間がドバイ中心部より長く、空室率が低い傾向です。"
+      }
+    ],
+    "txCount12mo": "~11,500",
+    "typicalRentAed": {
+      "1br": "50–75k",
+      "2br": "75–110k",
+      "3br": "110–160k apt / 200–300k villa"
+    },
+    "tenantProfile": {
+      "en": "Mid-income families, mid-managers, school-tied tenants (JSS, Sunmarke)",
+      "jp": "中所得層ファミリー、中堅マネージャー、学校（JSS／サンマーク）通学世帯"
+    },
+    "infrastructurePipeline": [
+      {
+        "when": "2026",
+        "en": "Circle Mall Phase 2 expansion",
+        "jp": "サークル・モール・フェーズ2 拡張"
+      },
+      {
+        "when": "2030+",
+        "en": "Etihad Rail / Metro extension corridor",
+        "jp": "Etihad Rail／メトロ延伸ルート"
+      },
+      {
+        "when": "Ongoing",
+        "en": "Densification — 100+ new towers in pipeline",
+        "jp": "供給増加 — 100棟超のタワーが計画中"
       }
     ]
   },
@@ -680,6 +913,28 @@
         "en": "Walkable to Dubai Marina, Bluewaters, and the Tram — transit-rich location uncommon in the beachfront segment.",
         "jp": "ドバイ・マリーナ、ブルーウォーターズ、トラムまで徒歩圏で、ビーチフロントとしては珍しい交通利便性の高い立地です。"
       }
+    ],
+    "txCount12mo": "~1,800",
+    "typicalRentAed": {
+      "1br": "110–160k",
+      "2br": "180–260k",
+      "3br": "280–400k"
+    },
+    "tenantProfile": {
+      "en": "Short-stay tourists (high holiday-let demand), expat singles, beach-lifestyle renters",
+      "jp": "短期滞在観光客（ホリデーレット需要が高い）、独身エクスパット、ビーチライフ層"
+    },
+    "infrastructurePipeline": [
+      {
+        "when": "Completed 2024",
+        "en": "La Vie + 1/JBR final phases",
+        "jp": "La Vie ／ 1/JBR 最終フェーズ完成"
+      },
+      {
+        "when": "Ongoing",
+        "en": "The Beach mall renovation & Tram station upgrades",
+        "jp": "ザ・ビーチ・モール改装／トラム駅改修"
+      }
     ]
   },
   "damacHills": {
@@ -743,6 +998,28 @@
       {
         "en": "Family-tenant profile yields long average leases (3–5 years) and very low vacancy.",
         "jp": "ファミリー層中心で平均賃貸期間が長く（3〜5年）、空室率が極めて低い水準です。"
+      }
+    ],
+    "txCount12mo": "~2,800",
+    "typicalRentAed": {
+      "1br": "65–90k (apt)",
+      "2br": "100–140k (apt)",
+      "3br": "180–260k apt / 250–400k villa"
+    },
+    "tenantProfile": {
+      "en": "Golf-community families, executive home-buyers, school-tied tenants (Jebel Ali School)",
+      "jp": "ゴルフコミュニティ志向ファミリー、エグゼクティブ家庭、学校（ジェベル・アリ・スクール）通学世帯"
+    },
+    "infrastructurePipeline": [
+      {
+        "when": "Ongoing",
+        "en": "Trump Estates Phase 3 villa launches",
+        "jp": "トランプ・エステーツ・フェーズ3 ヴィラのローンチ"
+      },
+      {
+        "when": "TBD",
+        "en": "Additional retail & community-school expansion",
+        "jp": "リテール／コミュニティスクールの増設"
       }
     ]
   },
@@ -811,6 +1088,28 @@
         "en": "Limited supply (~10 residential buildings total) means resale comparables are tight and pricing power favors sellers.",
         "jp": "住居用建物は約10棟と供給が限定的で、転売コンプが希少なため売主の価格交渉力が強い市場です。"
       }
+    ],
+    "txCount12mo": "~380",
+    "typicalRentAed": {
+      "1br": "130–180k",
+      "2br": "200–300k",
+      "3br": "350–500k"
+    },
+    "tenantProfile": {
+      "en": "Holiday-let guests (Ain Dubai foot traffic), premium expats, Caesars Palace residents",
+      "jp": "ホリデーレット利用者（アイン・ドバイ集客）、プレミアム・エクスパット、シーザーズ・パレス居住者"
+    },
+    "infrastructurePipeline": [
+      {
+        "when": "2026+",
+        "en": "Caesars Palace Bluewaters Phase 2",
+        "jp": "シーザーズ・パレス・ブルーウォーターズ・フェーズ2"
+      },
+      {
+        "when": "Ongoing",
+        "en": "The Wharf retail expansion",
+        "jp": "ザ・ワーフ・リテール拡張"
+      }
     ]
   },
   "difc": {
@@ -877,6 +1176,28 @@
       {
         "en": "Closest residential address to Burj Khalifa, DIFC, and DXB airport — unique central-Dubai positioning.",
         "jp": "ブルジュ・ハリファ、DIFC、DXB空港すべてに最も近い住所の一つで、ドバイ中心部での唯一無二のロケーションです。"
+      }
+    ],
+    "txCount12mo": "~200",
+    "typicalRentAed": {
+      "1br": "130–180k",
+      "2br": "200–280k",
+      "3br": "350–500k"
+    },
+    "tenantProfile": {
+      "en": "Banking, law, and consulting senior executives — premium short-to-medium-let demand",
+      "jp": "銀行・法務・コンサルティングのシニアエグゼクティブ。プレミアム短〜中期賃貸需要"
+    },
+    "infrastructurePipeline": [
+      {
+        "when": "2026–28",
+        "en": "DIFC 2.0 master-plan expansion (offices + residential)",
+        "jp": "DIFC 2.0 マスタープラン拡張（オフィス＋住居）"
+      },
+      {
+        "when": "Ongoing",
+        "en": "Gate Avenue retail extensions",
+        "jp": "ゲート・アベニュー・リテール拡張"
       }
     ]
   }
