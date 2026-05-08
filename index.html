@@ -4503,6 +4503,17 @@ window.addEventListener("scroll", updateActiveNav);
 
 if (typeof syncReadyMode === "function") syncReadyMode();
 render();
+
+// Initialize area card for whichever preset the dropdown is currently on
+(function initAreaCard() {
+  const presetKey = (document.getElementById("preset") || {}).value;
+  const pr = (presetKey && (customProps[presetKey] || presets[presetKey])) || null;
+  if (pr && pr.area) {
+    currentAreaKey = pr.area;
+    if (areasData) renderAreaCard(currentAreaKey);
+    // else: fetchAreasData success branch will render once data arrives
+  }
+})();
 </script>
 
 </body>
