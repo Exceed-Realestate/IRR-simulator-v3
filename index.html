@@ -2006,6 +2006,13 @@
           </select>
         </div>
         <div class="field">
+          <label><span class="ja">エリア</span><span class="en">Area</span></label>
+          <select id="cpArea">
+            <option value="auto" selected>— <span class="ja">物件名から自動判定</span><span class="en">Auto-detect from name</span> —</option>
+          </select>
+          <small id="cpAreaHint" style="display:block;margin-top:4px;color:var(--text-muted);font-size:11px;min-height:14px"></small>
+        </div>
+        <div class="field">
           <label><span class="ja">購入方式</span><span class="en">Purchase Mode</span></label>
           <select id="cpMode">
             <option value="offplan" selected>Off-plan</option>
@@ -2778,6 +2785,7 @@ function fetchAreasData() {
     .then(r => r.ok ? r.json() : Promise.reject(r.status))
     .then(data => {
       areasData = data;
+      populateCpAreaSelect();
       if (currentAreaKey) renderAreaCard(currentAreaKey);
     })
     .catch(err => {
@@ -2785,6 +2793,65 @@ function fetchAreasData() {
       const el = document.getElementById("areaContent");
       if (el) el.innerHTML = '<div class="area-empty"><span class="ja">エリアデータを読み込めませんでした。</span><span class="en">Could not load area data.</span></div>';
     });
+}
+
+function populateCpAreaSelect() {
+  const sel = document.getElementById("cpArea");
+  if (!sel || !areasData) return;
+  // Preserve selection
+  const current = sel.value;
+  // Wipe non-auto options
+  [...sel.querySelectorAll('option:not([value="auto"])')].forEach(o => o.remove());
+  Object.entries(areasData).forEach(([key, area]) => {
+    if (key.startsWith("_")) return;
+    const opt = document.createElement("option");
+    opt.value = key;
+    opt.textContent = area.nameEN + (area.nameJP ? " / " + area.nameJP : "");
+    sel.appendChild(opt);
+  });
+  // Add "Other / not listed" sentinel
+  const other = document.createElement("option");
+  other.value = "_other";
+  other.textContent = "— Other / not listed —";
+  sel.appendChild(other);
+  if (current) sel.value = current;
+}
+
+// Keyword matcher for project-name → area inference. Order matters: more specific first.
+function detectAreaFromName(name) {
+  if (!name || typeof name !== "string") return null;
+  const n = name.toLowerCase();
+  const rules = [
+    [["palm jebel", "jebel ali"], "palmJebelAli"],
+    [["creek harbour", "creek beach", "creek marina", "the lagoons", "dubai creek"], "dubaiCreekHarbour"],
+    [["za'abeel", "zaabeel", "one za", "world trade", "wtc"], "zaabeel"],
+    [["dubai hills", "emerald hills", "hills estate", "park heights", "park ridge", "park field"], "dubaiHills"],
+    [["palm jumeirah", "the palm", "atlantis", "serenia", "six senses palm", "armani palm", "one at palm", "bulgari palm", "fairmont palm", "orla"], "palmJumeirah"]
+  ];
+  for (const [keywords, areaKey] of rules) {
+    for (const kw of keywords) {
+      if (n.includes(kw)) return areaKey;
+    }
+  }
+  return null;
+}
+
+function updateCpAreaHint() {
+  const hint = document.getElementById("cpAreaHint");
+  const sel = document.getElementById("cpArea");
+  const nameEl = document.getElementById("cpName");
+  if (!hint || !sel || !nameEl) return;
+  if (sel.value !== "auto") { hint.textContent = ""; return; }
+  const detected = detectAreaFromName(nameEl.value);
+  if (!detected) {
+    hint.innerHTML = '<span class="ja">⚠ 物件名から自動判定できません — エリアを手動選択してください</span><span class="en">⚠ Couldn\'t detect — please pick an area manually</span>';
+    hint.style.color = "#b45309";
+    return;
+  }
+  const a = areasData && areasData[detected];
+  const label = a ? (a.nameEN + " / " + (a.nameJP || "")) : detected;
+  hint.innerHTML = '<span class="ja">✓ 自動判定: ' + escapeHtml(label) + '</span><span class="en">✓ Detected: ' + escapeHtml(label) + '</span>';
+  hint.style.color = "#15803d";
 }
 
 function escapeHtml(s) { return String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
@@ -3229,7 +3296,11 @@ function openCustomPropertyModal() {
   const m = document.getElementById("customPropertyModal");
   if (m) m.classList.add("open");
   document.body.style.overflow = "hidden";
+  populateCpAreaSelect();
+  updateCpAreaHint();
 }
+document.getElementById("cpName")?.addEventListener("input", updateCpAreaHint);
+document.getElementById("cpArea")?.addEventListener("change", updateCpAreaHint);
 function closeCustomPropertyModal() {
   const m = document.getElementById("customPropertyModal");
   if (m) m.classList.remove("open");
@@ -3247,6 +3318,14 @@ function saveCustomProperty() {
     return;
   }
   const id = "cust_" + Date.now();
+  // Resolve area: explicit selection, _other (no area), or auto-detect from name
+  const cpAreaVal = (document.getElementById("cpArea") || {}).value || "auto";
+  let resolvedArea = null;
+  if (cpAreaVal === "auto") {
+    resolvedArea = detectAreaFromName(name);
+  } else if (cpAreaVal !== "_other") {
+    resolvedArea = cpAreaVal;
+  }
   const prop = {
     name,
     price,
@@ -3259,6 +3338,7 @@ function saveCustomProperty() {
     appreciation: +document.getElementById("cpAppreciation").value || 35,
     serviceChargePsf: +document.getElementById("cpServiceChargePsf").value || 35,
     furniture: +document.getElementById("cpFurniture").value || 0,
+    area: resolvedArea,
     brochure: null
   };
   const file = document.getElementById("cpBrochure").files[0];
