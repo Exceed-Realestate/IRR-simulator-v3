@@ -1423,6 +1423,8 @@
   .stat-edit-actions button.save:hover { background:#15803d; }
   .stat-edit-actions button.clear { background:#fef2f2; color:#dc2626; border-color:#fecaca; }
   .area-stat-verified { font-size:9.5px; color:#16a34a; margin-top:3px; font-weight:600; letter-spacing:0.3px; }
+  .area-stat.is-live { border-color:#3b82f6; background:#eff6ff; }
+  .area-stat-live { font-size:9.5px; color:#1e40af; margin-top:3px; font-weight:600; letter-spacing:0.3px; }
   .area-citations { display:flex; gap:14px; flex-wrap:wrap; margin-top:14px; padding-top:12px; border-top:1px solid #eee; font-size:11.5px; }
   .area-citations a { color:var(--accent, #b08850); text-decoration:none; border-bottom:1px dotted; }
   .area-citations a:hover { color:var(--text); }
@@ -3041,6 +3043,7 @@ const presets = {
 
 // =========== AREA ANALYSIS (v3) ===========
 let areasData = null;
+let liveAreasData = null;     // Daily DLD scrape (mock for now, real once API keys land)
 let masterAreasList = null;   // Full Dubai area list (164 entries from investmentmap.ai)
 let currentAreaKey = null;
 
@@ -3061,7 +3064,8 @@ function setNested(obj, path, value) {
 function todayIso() { return new Date().toISOString().slice(0, 10); }
 
 // Resolve a curated profile from any key — direct or via master-list alias.
-// Also merges any per-agent verified overrides on top.
+// Merges in priority order: curated estimate → DLD live → agent-verified.
+// Verified > live > curated.
 function getAreaProfile(key) {
   if (!key || !areasData) return null;
   let profile = null;
@@ -3076,20 +3080,41 @@ function getAreaProfile(key) {
     }
   }
   if (!profile) return null;
-  const verified = verifiedAreaData[canonicalKey] || {};
-  if (Object.keys(verified).length === 0) {
-    // Still attach metadata so UI knows the canonical key for editing
-    return Object.assign({}, profile, { _canonicalAreaKey: canonicalKey, _verifiedFields: {} });
-  }
-  // Deep clone and apply overrides
+
+  // Deep clone curated baseline
   const merged = JSON.parse(JSON.stringify(profile));
+  const liveFields = {};
   const verifiedFields = {};
+
+  // Merge DLD live data on top
+  const live = liveAreasData && liveAreasData[canonicalKey];
+  if (live) {
+    function walk(obj, path) {
+      Object.entries(obj).forEach(([k, v]) => {
+        if (k === "lastComputed") return;
+        const fullPath = path ? path + "." + k : k;
+        if (v && typeof v === "object" && !Array.isArray(v)) {
+          walk(v, fullPath);
+        } else {
+          setNested(merged, fullPath, v);
+          liveFields[fullPath] = live.lastComputed || (liveAreasData._meta && liveAreasData._meta.lastUpdated) || "";
+        }
+      });
+    }
+    walk(live, "");
+  }
+
+  // Merge agent-verified overrides on top of live
+  const verified = verifiedAreaData[canonicalKey] || {};
   Object.entries(verified).forEach(([path, entry]) => {
     setNested(merged, path, entry.value);
     verifiedFields[path] = entry.verifiedAt;
+    delete liveFields[path]; // verified wins, drop the live badge
   });
+
   merged._canonicalAreaKey = canonicalKey;
   merged._verifiedFields = verifiedFields;
+  merged._liveFields = liveFields;
   return merged;
 }
 function getMasterEntry(key) {
@@ -3101,12 +3126,16 @@ function fetchAreasData() {
   console.log("[v3] fetchAreasData starting…");
   Promise.all([
     fetch("./areas.json").then(r => r.ok ? r.json() : Promise.reject("areas.json " + r.status)),
-    fetch("./dubai-areas-master.json").then(r => r.ok ? r.json() : null).catch(() => null)
+    fetch("./dubai-areas-master.json").then(r => r.ok ? r.json() : null).catch(() => null),
+    fetch("./live-areas.json").then(r => r.ok ? r.json() : null).catch(() => null)
   ])
-    .then(([curated, master]) => {
+    .then(([curated, master, live]) => {
       areasData = curated;
       if (master && Array.isArray(master.areas)) masterAreasList = master.areas;
-      console.log("[v3] areas loaded:", Object.keys(curated).filter(k => !k.startsWith("_")).length, "curated,", masterAreasList ? masterAreasList.length : 0, "master. currentAreaKey =", currentAreaKey);
+      if (live && typeof live === "object") liveAreasData = live;
+      const liveCount = liveAreasData ? Object.keys(liveAreasData).filter(k => !k.startsWith("_")).length : 0;
+      const liveMode = liveAreasData && liveAreasData._meta ? liveAreasData._meta.mode : "n/a";
+      console.log("[v3] areas loaded:", Object.keys(curated).filter(k => !k.startsWith("_")).length, "curated,", masterAreasList ? masterAreasList.length : 0, "master,", liveCount, "live (" + liveMode + "). currentAreaKey =", currentAreaKey);
       try { populateCpAreaSelect(); } catch (e) { console.warn("[v3] populateCpAreaSelect failed:", e); }
       if (currentAreaKey) {
         try { renderAreaCard(currentAreaKey); } catch (e) { console.error("[v3] renderAreaCard failed:", e); }
@@ -3248,18 +3277,31 @@ function renderAreaCard(areaKey) {
   const yieldApt = a.avgRentalYieldPct && a.avgRentalYieldPct.apartment;
   const yieldVilla = a.avgRentalYieldPct && a.avgRentalYieldPct.villa;
   const vf = a._verifiedFields || {};
+  const lf = a._liveFields || {};
+
+  function fmtValue(v) {
+    if (typeof v === "number") {
+      // Numbers come from live data — format with thousands separators
+      return v % 1 === 0 ? v.toLocaleString() : v.toFixed(1).replace(/\.0$/, "");
+    }
+    return String(v);
+  }
 
   function tile(labelHtml, value, fieldPath, opts) {
     opts = opts || {};
-    if (!value || (typeof value === "string" && value.toLowerCase().includes("n/a"))) return "";
+    if (value === null || value === undefined || value === "") return "";
+    if (typeof value === "string" && value.toLowerCase().includes("n/a")) return "";
     if (opts.skipIfStartsWith && String(value).startsWith(opts.skipIfStartsWith)) return "";
     const isVerified = !!vf[fieldPath];
-    const verifiedDate = vf[fieldPath] || "";
-    const editBtn = '<button class="stat-edit-btn" onclick="event.stopPropagation();openStatEdit(\'' + fieldPath + '\', this)" title="Update from DXB Interact">✏️</button>';
-    const display = escapeHtml(String(value)) + (opts.suffix || "");
-    const badge = isVerified ? '<div class="area-stat-verified">✓ Verified ' + escapeHtml(verifiedDate) + '</div>' : '';
+    const isLive = !isVerified && !!lf[fieldPath];
+    const editBtn = '<button class="stat-edit-btn" onclick="event.stopPropagation();openStatEdit(\'' + fieldPath + '\', this)" title="Override / verify this value">✏️</button>';
+    const display = escapeHtml(fmtValue(value)) + (opts.suffix || "");
+    let badge = '';
+    if (isVerified) badge = '<div class="area-stat-verified">✓ Verified ' + escapeHtml(vf[fieldPath]) + '</div>';
+    else if (isLive) badge = '<div class="area-stat-live">🔄 DLD live ' + escapeHtml(String(lf[fieldPath]).slice(0, 10)) + '</div>';
     const span = opts.span ? ' style="grid-column:span ' + opts.span + '"' : '';
-    return '<div class="area-stat' + (isVerified ? ' is-verified' : '') + '"' + span + '>' +
+    const cls = 'area-stat' + (isVerified ? ' is-verified' : (isLive ? ' is-live' : ''));
+    return '<div class="' + cls + '"' + span + '>' +
       editBtn +
       '<div class="area-stat-label">' + labelHtml + '</div>' +
       '<div class="area-stat-value">' + display + '</div>' +

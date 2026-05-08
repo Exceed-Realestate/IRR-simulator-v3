@@ -1,0 +1,168 @@
+{
+  "_meta": {
+    "lastUpdated": "2026-05-08T12:02:39+00:00",
+    "mode": "mock",
+    "source": "mock data — replace with real DLD scrape once credentials are set as DLD_API_KEY / DLD_API_SECRET in repo Secrets",
+    "schemaVersion": 1
+  },
+  "palmJumeirah": {
+    "avgPriceSqftAed": {
+      "apartment": 3812,
+      "villa": 5240
+    },
+    "priceSqftYoYPct": 9.4,
+    "priceSqft5yrPct": 108.2,
+    "avgRentalYieldPct": {
+      "apartment": 6.2,
+      "villa": 4.7
+    },
+    "txCount12mo": 1742,
+    "lastComputed": "2026-05-08T12:02:39+00:00"
+  },
+  "dubaiCreekHarbour": {
+    "avgPriceSqftAed": {
+      "apartment": 2680
+    },
+    "priceSqftYoYPct": 14.6,
+    "priceSqft5yrPct": 78.4,
+    "avgRentalYieldPct": {
+      "apartment": 6.8
+    },
+    "txCount12mo": 3924,
+    "lastComputed": "2026-05-08T12:02:39+00:00"
+  },
+  "zaabeel": {
+    "avgPriceSqftAed": {
+      "apartment": 4350
+    },
+    "priceSqftYoYPct": 11.8,
+    "priceSqft5yrPct": 95.7,
+    "avgRentalYieldPct": {
+      "apartment": 5.6
+    },
+    "txCount12mo": 187,
+    "lastComputed": "2026-05-08T12:02:39+00:00"
+  },
+  "palmJebelAli": {
+    "avgPriceSqftAed": {
+      "villa": 2780
+    },
+    "priceSqftYoYPct": 32.5,
+    "txCount12mo": 2105,
+    "lastComputed": "2026-05-08T12:02:39+00:00"
+  },
+  "dubaiHills": {
+    "avgPriceSqftAed": {
+      "apartment": 2095,
+      "villa": 2480
+    },
+    "priceSqftYoYPct": 11.3,
+    "priceSqft5yrPct": 92.8,
+    "avgRentalYieldPct": {
+      "apartment": 6.1,
+      "villa": 4.5
+    },
+    "txCount12mo": 5320,
+    "lastComputed": "2026-05-08T12:02:39+00:00"
+  },
+  "businessBay": {
+    "avgPriceSqftAed": {
+      "apartment": 2280
+    },
+    "priceSqftYoYPct": 12.4,
+    "priceSqft5yrPct": 88.6,
+    "avgRentalYieldPct": {
+      "apartment": 7.2
+    },
+    "txCount12mo": 5687,
+    "lastComputed": "2026-05-08T12:02:39+00:00"
+  },
+  "downtownDubai": {
+    "avgPriceSqftAed": {
+      "apartment": 3275
+    },
+    "priceSqftYoYPct": 14.7,
+    "priceSqft5yrPct": 102.3,
+    "avgRentalYieldPct": {
+      "apartment": 5.7
+    },
+    "txCount12mo": 4108,
+    "lastComputed": "2026-05-08T12:02:39+00:00"
+  },
+  "dubaiMarina": {
+    "avgPriceSqftAed": {
+      "apartment": 2185
+    },
+    "priceSqftYoYPct": 11.5,
+    "priceSqft5yrPct": 86.2,
+    "avgRentalYieldPct": {
+      "apartment": 6.6
+    },
+    "txCount12mo": 6320,
+    "lastComputed": "2026-05-08T12:02:39+00:00"
+  },
+  "jvc": {
+    "avgPriceSqftAed": {
+      "apartment": 1180,
+      "villa": 1620
+    },
+    "priceSqftYoYPct": 14.8,
+    "priceSqft5yrPct": 96.8,
+    "avgRentalYieldPct": {
+      "apartment": 8.1,
+      "villa": 5.9
+    },
+    "txCount12mo": 11240,
+    "lastComputed": "2026-05-08T12:02:39+00:00"
+  },
+  "jbr": {
+    "avgPriceSqftAed": {
+      "apartment": 2640
+    },
+    "priceSqftYoYPct": 11.9,
+    "priceSqft5yrPct": 88.7,
+    "avgRentalYieldPct": {
+      "apartment": 6.0
+    },
+    "txCount12mo": 1685,
+    "lastComputed": "2026-05-08T12:02:39+00:00"
+  },
+  "damacHills": {
+    "avgPriceSqftAed": {
+      "apartment": 1450,
+      "villa": 1820
+    },
+    "priceSqftYoYPct": 10.8,
+    "priceSqft5yrPct": 81.4,
+    "avgRentalYieldPct": {
+      "apartment": 6.7,
+      "villa": 5.4
+    },
+    "txCount12mo": 2780,
+    "lastComputed": "2026-05-08T12:02:39+00:00"
+  },
+  "bluewatersIsland": {
+    "avgPriceSqftAed": {
+      "apartment": 4020
+    },
+    "priceSqftYoYPct": 14.2,
+    "priceSqft5yrPct": 108.5,
+    "avgRentalYieldPct": {
+      "apartment": 6.1
+    },
+    "txCount12mo": 372,
+    "lastComputed": "2026-05-08T12:02:39+00:00"
+  },
+  "difc": {
+    "avgPriceSqftAed": {
+      "apartment": 3580
+    },
+    "priceSqftYoYPct": 12.5,
+    "priceSqft5yrPct": 99.4,
+    "avgRentalYieldPct": {
+      "apartment": 5.7
+    },
+    "txCount12mo": 218,
+    "lastComputed": "2026-05-08T12:02:39+00:00"
+  }
+}
