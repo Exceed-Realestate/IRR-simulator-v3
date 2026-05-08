@@ -2710,15 +2710,15 @@ document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeBroch
 // Prices reflect "Updated Net Price" from latest property sheet (April 2026)
 // 'appreciation' is now CUMULATIVE % over the holding period (not annual compound)
 const presets = {
-  ritz:        { price: 13000000, sqft: 2524, yield: 6.4,  appreciation: 25, serviceChargePsf: 32.5, type: "branded", furniture: 0, mode: "offplan", completionYear: 2027, completionQuarter: 4, holdYears: 2, holdMonths: 0 },
-  oneZaabeel:  { price: 13500000, sqft: 2008, yield: 6.0,  appreciation: 32, serviceChargePsf: 45.0, type: "branded", furniture: 0, mode: "ready",   completionYear: 2026, completionQuarter: 1 },
-  serenia:     { price: 7000000,  sqft: 2193, yield: 7.3,  appreciation: 35, serviceChargePsf: 35.0, type: "branded", furniture: 0, mode: "ready",   completionYear: 2026, completionQuarter: 1 },
-  sixSenses3:  { price: 32000000, sqft: 6151, yield: 8.0,  appreciation: 20, serviceChargePsf: 40.0, type: "branded", furniture: 0, mode: "ready",   completionYear: 2026, completionQuarter: 1, holdYears: 1, holdMonths: 6 },
-  sixSenses3b: { price: 34500000, sqft: 6478, yield: 7.4,  appreciation: 20, serviceChargePsf: 40.0, type: "branded", furniture: 0, mode: "ready",   completionYear: 2026, completionQuarter: 1, holdYears: 1, holdMonths: 6 },
-  sixSenses4:  { price: 32000000, sqft: 4375, yield: 6.5,  appreciation: 20, serviceChargePsf: 40.0, type: "branded", furniture: 0, mode: "ready",   completionYear: 2026, completionQuarter: 1, holdYears: 2, holdMonths: 0 },
-  orla:        { price: 31000000, sqft: 4475, yield: 7.8,  appreciation: 42, serviceChargePsf: 45.0, type: "branded", furniture: 0, mode: "offplan", completionYear: 2027, completionQuarter: 1 },
-  palmJebel:   { price: 18500000, sqft: 7653, yield: 12.5, appreciation: 47, serviceChargePsf: 8.0,  type: "villa",   furniture: 0, mode: "offplan", completionYear: 2029, completionQuarter: 1 },
-  emerald:     { price: 125000000,sqft: 25197,yield: 4.6,  appreciation: 32, serviceChargePsf: 8.0,  type: "villa",   furniture: 0, mode: "ready",   completionYear: 2026, completionQuarter: 1 }
+  ritz:        { price: 13000000, sqft: 2524, yield: 6.4,  appreciation: 25, serviceChargePsf: 32.5, type: "branded", furniture: 0, mode: "offplan", completionYear: 2027, completionQuarter: 4, holdYears: 2, holdMonths: 0, area: "dubaiCreekHarbour" },
+  oneZaabeel:  { price: 13500000, sqft: 2008, yield: 6.0,  appreciation: 32, serviceChargePsf: 45.0, type: "branded", furniture: 0, mode: "ready",   completionYear: 2026, completionQuarter: 1, area: "zaabeel" },
+  serenia:     { price: 7000000,  sqft: 2193, yield: 7.3,  appreciation: 35, serviceChargePsf: 35.0, type: "branded", furniture: 0, mode: "ready",   completionYear: 2026, completionQuarter: 1, area: "palmJumeirah" },
+  sixSenses3:  { price: 32000000, sqft: 6151, yield: 8.0,  appreciation: 20, serviceChargePsf: 40.0, type: "branded", furniture: 0, mode: "ready",   completionYear: 2026, completionQuarter: 1, holdYears: 1, holdMonths: 6, area: "palmJumeirah" },
+  sixSenses3b: { price: 34500000, sqft: 6478, yield: 7.4,  appreciation: 20, serviceChargePsf: 40.0, type: "branded", furniture: 0, mode: "ready",   completionYear: 2026, completionQuarter: 1, holdYears: 1, holdMonths: 6, area: "palmJumeirah" },
+  sixSenses4:  { price: 32000000, sqft: 4375, yield: 6.5,  appreciation: 20, serviceChargePsf: 40.0, type: "branded", furniture: 0, mode: "ready",   completionYear: 2026, completionQuarter: 1, holdYears: 2, holdMonths: 0, area: "palmJumeirah" },
+  orla:        { price: 31000000, sqft: 4475, yield: 7.8,  appreciation: 42, serviceChargePsf: 45.0, type: "branded", furniture: 0, mode: "offplan", completionYear: 2027, completionQuarter: 1, area: "palmJumeirah" },
+  palmJebel:   { price: 18500000, sqft: 7653, yield: 12.5, appreciation: 47, serviceChargePsf: 8.0,  type: "villa",   furniture: 0, mode: "offplan", completionYear: 2029, completionQuarter: 1, area: "palmJebelAli" },
+  emerald:     { price: 125000000,sqft: 25197,yield: 4.6,  appreciation: 32, serviceChargePsf: 8.0,  type: "villa",   furniture: 0, mode: "ready",   completionYear: 2026, completionQuarter: 1, area: "dubaiHills" }
 };
 
 function loadPreset(key) {
