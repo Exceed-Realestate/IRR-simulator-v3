@@ -1334,6 +1334,39 @@
     .section-header h2 { font-size: 17px; }
     .scenario-grid, .kpi-grid { gap: 10px; }
   }
+
+  /* ============ AREA ANALYSIS CARD (v3) ============ */
+  .area-header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:14px; }
+  .area-name { font-size:18px; font-weight:700; color:var(--text); margin:0 0 4px; }
+  .area-tier { display:inline-block; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.4px; background:#fef3c7; color:#92400e; }
+  .area-tier.ultra-prime { background:#fce7f3; color:#9d174d; }
+  .area-tier.prime { background:#dbeafe; color:#1e40af; }
+  .area-tier.prime-suburban { background:#dcfce7; color:#166534; }
+  .area-tier.emerging-prime { background:#fef3c7; color:#92400e; }
+  .area-stats { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:10px; margin:14px 0; }
+  .area-stat { padding:10px 12px; background:#fafafa; border:1px solid #eee; border-radius:6px; }
+  .area-stat-label { font-size:10.5px; text-transform:uppercase; letter-spacing:0.4px; color:var(--text-muted); margin-bottom:4px; }
+  .area-stat-value { font-size:14px; font-weight:600; color:var(--text); line-height:1.3; }
+  .area-stat-sub { font-size:11px; color:var(--text-muted); margin-top:2px; }
+  .area-block { margin-top:18px; }
+  .area-block h4 { font-size:13px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted); margin:0 0 10px; }
+  .area-list { list-style:none; padding:0; margin:0; }
+  .area-list li { padding:8px 0 8px 22px; border-bottom:1px dashed #eee; font-size:13px; line-height:1.5; position:relative; }
+  .area-list li:last-child { border-bottom:none; }
+  .area-list li::before { content:"▸"; position:absolute; left:4px; color:var(--accent, #d4a574); font-weight:600; }
+  .area-comparables { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:8px; }
+  .area-comparable { padding:10px 12px; background:#fafafa; border-left:3px solid var(--accent, #d4a574); border-radius:4px; }
+  .area-comparable-name { font-weight:600; font-size:12.5px; color:var(--text); }
+  .area-comparable-context { font-size:11.5px; color:var(--text-muted); margin-top:3px; }
+  .area-talkpoints { background:#fffbeb; border:1px solid #fde68a; border-radius:6px; padding:14px 16px; }
+  .area-talkpoints h4 { color:#92400e; margin-bottom:10px; }
+  .area-talkpoints ol { margin:0; padding-left:20px; }
+  .area-talkpoints li { padding:6px 0; font-size:13px; line-height:1.55; }
+  .area-citations { display:flex; gap:14px; flex-wrap:wrap; margin-top:14px; padding-top:12px; border-top:1px solid #eee; font-size:11.5px; }
+  .area-citations a { color:var(--accent, #b08850); text-decoration:none; border-bottom:1px dotted; }
+  .area-citations a:hover { color:var(--text); }
+  .area-citations .data-as-of { color:var(--text-muted); margin-left:auto; }
+  .area-empty { padding:24px; text-align:center; color:var(--text-muted); font-style:italic; font-size:13px; background:#fafafa; border-radius:6px; }
 </style>
 </head>
 <body data-lang="ja">
@@ -1783,6 +1816,15 @@
             <thead><tr><th><span class="ja">項目</span><span class="en">Item</span></th><th class="num">AED</th><th class="num"><span class="cur-label">HKD</span></th><th><span class="ja">備考</span><span class="en">Notes</span></th></tr></thead>
             <tbody id="exitTable"></tbody>
           </table>
+        </div>
+
+        <div class="sim-card" id="card-area">
+          <h3><span class="count">D</span><span class="ja">エリア分析</span><span class="en">Area Analysis</span></h3>
+          <div id="areaContent">
+            <div class="area-empty">
+              <span class="ja">エリアデータを読み込み中…</span><span class="en">Loading area data…</span>
+            </div>
+          </div>
         </div>
 
         <div class="note">
@@ -2721,6 +2763,101 @@ const presets = {
   emerald:     { price: 125000000,sqft: 25197,yield: 4.6,  appreciation: 32, serviceChargePsf: 8.0,  type: "villa",   furniture: 0, mode: "ready",   completionYear: 2026, completionQuarter: 1, area: "dubaiHills" }
 };
 
+// =========== AREA ANALYSIS (v3) ===========
+let areasData = null;
+let currentAreaKey = null;
+
+function fetchAreasData() {
+  fetch("./areas.json")
+    .then(r => r.ok ? r.json() : Promise.reject(r.status))
+    .then(data => {
+      areasData = data;
+      if (currentAreaKey) renderAreaCard(currentAreaKey);
+    })
+    .catch(err => {
+      console.warn("areas.json load failed:", err);
+      const el = document.getElementById("areaContent");
+      if (el) el.innerHTML = '<div class="area-empty"><span class="ja">エリアデータを読み込めませんでした。</span><span class="en">Could not load area data.</span></div>';
+    });
+}
+
+function escapeHtml(s) { return String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+function renderAreaCard(areaKey) {
+  currentAreaKey = areaKey;
+  const el = document.getElementById("areaContent");
+  if (!el) return;
+  if (!areaKey) {
+    el.innerHTML = '<div class="area-empty"><span class="ja">この物件にはエリア情報が設定されていません。</span><span class="en">No area set for this property.</span></div>';
+    return;
+  }
+  if (!areasData) return; // still loading; will re-render on fetch complete
+  const a = areasData[areaKey];
+  if (!a) {
+    el.innerHTML = '<div class="area-empty"><span class="ja">エリアデータが見つかりません: ' + escapeHtml(areaKey) + '</span><span class="en">Area data not found: ' + escapeHtml(areaKey) + '</span></div>';
+    return;
+  }
+  const meta = areasData._meta || {};
+
+  // Stats grid
+  const apt = a.avgPriceSqftAed && a.avgPriceSqftAed.apartment;
+  const villa = a.avgPriceSqftAed && a.avgPriceSqftAed.villa;
+  const yieldApt = a.avgRentalYieldPct && a.avgRentalYieldPct.apartment;
+  const yieldVilla = a.avgRentalYieldPct && a.avgRentalYieldPct.villa;
+
+  let stats = '';
+  if (apt && apt !== "n/a") stats += '<div class="area-stat"><div class="area-stat-label">AED / sqft (Apt)</div><div class="area-stat-value">' + escapeHtml(apt) + '</div></div>';
+  if (villa && villa !== "n/a" && !villa.startsWith("n/a")) stats += '<div class="area-stat"><div class="area-stat-label">AED / sqft (Villa)</div><div class="area-stat-value">' + escapeHtml(villa) + '</div></div>';
+  if (a.priceSqftYoYPct) stats += '<div class="area-stat"><div class="area-stat-label"><span class="ja">過去1年</span><span class="en">YoY</span></div><div class="area-stat-value">' + escapeHtml(a.priceSqftYoYPct) + '%</div></div>';
+  if (a.priceSqft5yrPct && a.priceSqft5yrPct !== "n/a") stats += '<div class="area-stat"><div class="area-stat-label"><span class="ja">過去5年</span><span class="en">5-yr</span></div><div class="area-stat-value">' + escapeHtml(a.priceSqft5yrPct) + '%</div></div>';
+  if (yieldApt) stats += '<div class="area-stat"><div class="area-stat-label"><span class="ja">利回り (Apt)</span><span class="en">Yield (Apt)</span></div><div class="area-stat-value">' + escapeHtml(yieldApt) + '%</div></div>';
+  if (yieldVilla && !String(yieldVilla).startsWith("projected") && !String(yieldVilla).startsWith("n/a")) stats += '<div class="area-stat"><div class="area-stat-label"><span class="ja">利回り (Villa)</span><span class="en">Yield (Villa)</span></div><div class="area-stat-value">' + escapeHtml(yieldVilla) + '%</div></div>';
+  if (a.transactionVolume) stats += '<div class="area-stat" style="grid-column:span 2"><div class="area-stat-label"><span class="ja">取引量</span><span class="en">Tx Volume</span></div><div class="area-stat-value" style="font-size:12.5px; font-weight:500;">' + escapeHtml(a.transactionVolume) + '</div></div>';
+
+  const tier = a.tier || "prime";
+  const tierLabel = tier.replace(/-/g, " ");
+
+  // Infrastructure
+  let infra = '';
+  if (Array.isArray(a.infrastructure) && a.infrastructure.length) {
+    infra = '<div class="area-block"><h4><span class="ja">エリアの強み</span><span class="en">Infrastructure & Amenities</span></h4><ul class="area-list">' +
+      a.infrastructure.map(i => '<li><span class="ja">' + escapeHtml(i.jp || i.en) + '</span><span class="en">' + escapeHtml(i.en) + '</span></li>').join('') +
+      '</ul></div>';
+  }
+
+  // Comparables
+  let comps = '';
+  if (Array.isArray(a.comparableProjects) && a.comparableProjects.length) {
+    comps = '<div class="area-block"><h4><span class="ja">類似プロジェクト</span><span class="en">Comparable Projects</span></h4><div class="area-comparables">' +
+      a.comparableProjects.map(c => '<div class="area-comparable"><div class="area-comparable-name">' + escapeHtml(c.name) + '</div><div class="area-comparable-context">' + escapeHtml(c.context || "") + '</div></div>').join('') +
+      '</div></div>';
+  }
+
+  // Talking points
+  let talks = '';
+  if (Array.isArray(a.talkingPoints) && a.talkingPoints.length) {
+    talks = '<div class="area-block area-talkpoints"><h4>💬 <span class="ja">セールス・トークポイント</span><span class="en">Sales Talking Points</span></h4><ol>' +
+      a.talkingPoints.map(t => '<li><span class="ja">' + escapeHtml(t.jp || t.en) + '</span><span class="en">' + escapeHtml(t.en) + '</span></li>').join('') +
+      '</ol></div>';
+  }
+
+  // Citations
+  const dxbUrl = a.dxbInteractUrl ? '<a href="' + escapeHtml(a.dxbInteractUrl) + '" target="_blank" rel="noopener">DXB Interact ↗</a>' : '';
+  const dldUrl = a.dldUrl ? '<a href="' + escapeHtml(a.dldUrl) + '" target="_blank" rel="noopener">DLD Open Data ↗</a>' : '';
+  const asOf = meta.dataAsOf ? '<span class="data-as-of"><span class="ja">データ基準</span><span class="en">Data as of</span>: ' + escapeHtml(meta.dataAsOf) + '</span>' : '';
+  const citations = (dxbUrl || dldUrl || asOf) ? '<div class="area-citations">' + dxbUrl + dldUrl + asOf + '</div>' : '';
+
+  el.innerHTML =
+    '<div class="area-header">' +
+      '<div>' +
+        '<div class="area-name"><span class="ja">' + escapeHtml(a.nameJP || a.nameEN) + '</span><span class="en">' + escapeHtml(a.nameEN) + '</span></div>' +
+        '<span class="area-tier ' + escapeHtml(tier) + '">' + escapeHtml(tierLabel) + '</span>' +
+      '</div>' +
+    '</div>' +
+    (stats ? '<div class="area-stats">' + stats + '</div>' : '') +
+    infra + comps + talks + citations;
+}
+
 function loadPreset(key) {
   document.getElementById("preset").value = key;
   const pr = (typeof customProps !== "undefined" && customProps[key]) || presets[key];
@@ -2741,6 +2878,7 @@ function loadPreset(key) {
   syncScenarioToggles();
   syncReadyMode();   // hide/show completion field based on mode
   updateCustomPresetActions(key);
+  renderAreaCard(pr.area || null);
   render();
   closeBrochureModal();
   document.getElementById("simulator").scrollIntoView({ behavior: "smooth", block: "start" });
@@ -3094,6 +3232,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 loadCustomProps();
 rebuildCustomPresetGroup();
+fetchAreasData();
 
 // Set smart defaults for purchase date: today's year + current quarter
 (function setPurchaseDefaults() {
