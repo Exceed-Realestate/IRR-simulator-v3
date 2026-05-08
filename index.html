@@ -4575,7 +4575,9 @@ function drawCumulativeChart(cashflows) {
   for (let i = 0; i < cashflows.length; i++) { running += cashflows[i]; cum.push(running); }
   const purchaseYear = new Date().getFullYear();
   const labels = cashflows.map((_, i) => i === 0 ? p : String(purchaseYear + i));
-  const ctx = document.getElementById("cumulativeChart").getContext("2d");
+  const cumCanvas = document.getElementById("cumulativeChart");
+  if (!cumCanvas) return; // canvas not in DOM (inherited gap from v1) — skip silently
+  const ctx = cumCanvas.getContext("2d");
   if (cumulativeChart) cumulativeChart.destroy();
   cumulativeChart = new Chart(ctx, {
     type: "line",
