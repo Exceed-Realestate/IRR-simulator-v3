@@ -3041,40 +3041,24 @@ function populateCpAreaSelect() {
   const current = sel.value;
   [...sel.querySelectorAll('option:not([value="auto"]), optgroup')].forEach(o => o.remove());
 
-  // Group 1: curated areas (alphabetical by display name)
-  const curatedGroup = document.createElement("optgroup");
-  curatedGroup.label = "★ Curated (full analysis available)";
-  const curatedEntries = [];
+  // Build single flat alphabetical list. Curated entries get a ★ prefix.
+  const entries = [];
   if (masterAreasList) {
-    masterAreasList.forEach(e => { if (e.curatedAs) curatedEntries.push(e); });
+    masterAreasList.forEach(e => entries.push({ key: e.key, nameEN: e.nameEN, curated: !!e.curatedAs }));
   } else if (areasData) {
     Object.entries(areasData).forEach(([k, a]) => {
-      if (!k.startsWith("_")) curatedEntries.push({ key: k, nameEN: a.nameEN });
+      if (!k.startsWith("_")) entries.push({ key: k, nameEN: a.nameEN, curated: true });
     });
   }
-  curatedEntries.sort((a, b) => a.nameEN.localeCompare(b.nameEN));
-  curatedEntries.forEach(e => {
+  entries.sort((a, b) => a.nameEN.localeCompare(b.nameEN));
+  entries.forEach(e => {
     const opt = document.createElement("option");
     opt.value = e.key;
-    opt.textContent = "★ " + e.nameEN;
-    curatedGroup.appendChild(opt);
+    opt.textContent = (e.curated ? "★ " : "") + e.nameEN;
+    sel.appendChild(opt);
   });
-  if (curatedGroup.children.length) sel.appendChild(curatedGroup);
 
-  // Group 2: all other Dubai areas (alphabetical)
-  if (masterAreasList) {
-    const otherGroup = document.createElement("optgroup");
-    otherGroup.label = "All Dubai areas (DLD)";
-    masterAreasList.filter(e => !e.curatedAs).forEach(e => {
-      const opt = document.createElement("option");
-      opt.value = e.key;
-      opt.textContent = e.nameEN;
-      otherGroup.appendChild(opt);
-    });
-    if (otherGroup.children.length) sel.appendChild(otherGroup);
-  }
-
-  // Sentinel for areas not in our master list
+  // Sentinel for areas not in the master list
   const other = document.createElement("option");
   other.value = "_other";
   other.textContent = "— Other / not listed —";
