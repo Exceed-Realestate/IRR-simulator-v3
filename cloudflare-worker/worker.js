@@ -109,6 +109,26 @@ If a number isn't supplied, say "we'd need to verify that on DXB Interact / DLD"
 If the question is outside Dubai real estate, briefly redirect.
 Match the response language to the agent's input language (Japanese if they wrote in JP, English otherwise).`;
 
+const COMPARABLES_SYSTEM = `You are a Dubai real estate analyst. Given the property + area context, return 3–5 comparable Dubai projects MOST RELEVANT to this specific property based on:
+- Tier match (ultra-prime / prime / prime-suburban / emerging-prime)
+- Product type match (apartment / villa / mansion / branded / standalone)
+- Price-per-sqft band match
+- Developer / brand tier (Emaar, Damac, Sobha, Nakheel, Omniyat, Aldar, MAF, Select Group, etc.)
+- Recency / post-handover transaction relevance
+
+For each comparable, include:
+- name: full project name as known in the Dubai market (e.g. "Bulgari Residences", "One at Palm Jumeirah", "Six Senses Residences The Palm")
+- context: ONE short sentence (max 90 chars) on why it's a useful reference for THIS property
+
+Return ONLY valid JSON, no markdown, no preamble, no commentary:
+{ "comparables": [ { "name": "...", "context": "..." }, ... ] }
+
+Rules:
+- 3 to 5 entries, sorted by relevance (most relevant first)
+- Real, named Dubai projects only — no invented names, no generic "branded apartment tower"
+- If you cannot confidently identify any comparable, return { "comparables": [] }
+- Match comparables to the property TIER first, area second — a Palm Jumeirah branded apartment should be compared to other branded apartments in similar tiers, not random Palm villas.`;
+
 async function handleThesis(request, env, origin) {
   const payload = await request.json().catch(() => ({}));
   const ctx = buildContext(payload);
@@ -116,6 +136,33 @@ async function handleThesis(request, env, origin) {
     { role: "user", content: `Property + area context:\n${ctx}\n\nWrite the investment thesis now.` }
   ]);
   return new Response(JSON.stringify({ thesis: text, model: MODEL }), {
+    headers: { ...corsHeaders(origin), "Content-Type": "application/json" }
+  });
+}
+
+async function handleComparables(request, env, origin) {
+  const payload = await request.json().catch(() => ({}));
+  const ctx = buildContext(payload);
+  const text = await callClaude(env, COMPARABLES_SYSTEM, [
+    { role: "user", content: `Property + area context:\n${ctx}\n\nReturn the JSON now.` }
+  ]);
+  // Be lenient: strip optional code-fence wrappers
+  const cleaned = String(text || "").trim()
+    .replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/i, "").trim();
+  let parsed = null;
+  try { parsed = JSON.parse(cleaned); } catch (e) {}
+  if (!parsed || !Array.isArray(parsed.comparables)) {
+    return new Response(JSON.stringify({ error: "Invalid AI response", raw: text }), {
+      status: 502,
+      headers: { ...corsHeaders(origin), "Content-Type": "application/json" }
+    });
+  }
+  // Sanitize to expected shape
+  const comparables = parsed.comparables
+    .filter(c => c && typeof c.name === "string" && c.name.trim())
+    .slice(0, 5)
+    .map(c => ({ name: String(c.name).trim(), context: String(c.context || "").trim() }));
+  return new Response(JSON.stringify({ comparables, model: MODEL }), {
     headers: { ...corsHeaders(origin), "Content-Type": "application/json" }
   });
 }
@@ -161,6 +208,9 @@ export default {
       }
       if (request.method === "POST" && url.pathname === "/chat") {
         return await handleChat(request, env, origin);
+      }
+      if (request.method === "POST" && url.pathname === "/comparables") {
+        return await handleComparables(request, env, origin);
       }
       if (request.method === "GET" && url.pathname === "/") {
         return new Response("Exceed IRR Simulator AI Worker. POST /thesis or /chat.", {

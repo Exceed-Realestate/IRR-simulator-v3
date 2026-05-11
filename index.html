@@ -1360,6 +1360,11 @@
   .area-comparable { padding:10px 12px; background:#fafafa; border-left:3px solid var(--accent, #d4a574); border-radius:4px; }
   .area-comparable-name { font-weight:600; font-size:12.5px; color:var(--text); }
   .area-comparable-context { font-size:11.5px; color:var(--text-muted); margin-top:3px; }
+  .ai-comp-badge { display:inline-block; background:linear-gradient(135deg,#6366f1,#8b5cf6); color:#fff; font-size:9px; padding:2px 7px; border-radius:8px; font-weight:700; letter-spacing:0.4px; }
+  .ai-comp-find-btn { margin-left:auto; padding:5px 11px; background:#fff; border:1px solid #c7d2fe; color:#4338ca; border-radius:5px; cursor:pointer; font-size:11.5px; font-weight:600; transition:all 0.15s; }
+  .ai-comp-find-btn:hover { background:linear-gradient(135deg,#eef2ff,#ede9fe); border-color:#6366f1; }
+  .ai-comp-revert-btn { padding:5px 10px; background:transparent; border:1px solid #e5e7eb; color:var(--text-muted); border-radius:5px; cursor:pointer; font-size:11px; font-weight:600; }
+  .ai-comp-revert-btn:hover { background:#f5f5f5; color:var(--text); }
   .area-talkpoints { background:#fffbeb; border:1px solid #fde68a; border-radius:6px; padding:14px 16px; }
   .area-talkpoints h4 { color:#92400e; margin-bottom:10px; }
   .area-talkpoints ol { margin:0; padding-left:20px; }
@@ -3999,11 +4004,25 @@ function renderAreaCard(areaKey) {
       '</ul></div>';
   }
 
-  // Comparables
+  // Comparables — prefer AI-generated (property-specific) over area-level curated
+  const aiCompKey = aiCompCacheKey();
+  const aiComps = aiCompKey ? aiLoadComparables(aiCompKey) : null;
+  const compList = (aiComps && aiComps.length) ? aiComps : (a.comparableProjects || []);
+  const isAi = !!(aiComps && aiComps.length);
   let comps = '';
-  if (Array.isArray(a.comparableProjects) && a.comparableProjects.length) {
-    comps = '<div class="area-block"><h4><span class="ja">類似プロジェクト</span><span class="en">Comparable Projects</span></h4><div class="area-comparables">' +
-      a.comparableProjects.map(c => '<div class="area-comparable"><div class="area-comparable-name">' + escapeHtml(c.name) + '</div><div class="area-comparable-context">' + escapeHtml(c.context || "") + '</div></div>').join('') +
+  if (compList.length || true) {
+    comps = '<div class="area-block"><h4 style="display:flex;align-items:center;gap:8px;">' +
+      '<span><span class="ja">類似プロジェクト</span><span class="en">Comparable Projects</span></span>' +
+      (isAi ? '<span class="ai-comp-badge">✨ AI</span>' : '') +
+      '<button class="ai-comp-find-btn" onclick="findAiComparables()" title="Property-specific comparables via AI">' +
+        '✨ ' + (isAi ? '<span class="ja">再生成</span><span class="en">Regenerate</span>' : '<span class="ja">AIで検索</span><span class="en">Find with AI</span>') +
+      '</button>' +
+      (isAi ? '<button class="ai-comp-revert-btn" onclick="revertAiComparables()" title="Revert to area-curated list"><span class="ja">エリア標準に戻す</span><span class="en">Use area defaults</span></button>' : '') +
+    '</h4><div class="area-comparables" id="areaComparables">' +
+      (compList.length
+        ? compList.map(c => '<div class="area-comparable"><div class="area-comparable-name">' + escapeHtml(c.name) + '</div><div class="area-comparable-context">' + escapeHtml(c.context || "") + '</div></div>').join('')
+        : '<div style="font-size:12px;color:var(--text-muted);font-style:italic;padding:8px 0;">' + (currentLang() === "ja" ? "比較対象なし — AIで検索してください" : "No comparables — click 'Find with AI'") + '</div>'
+      ) +
       '</div></div>';
   }
 
@@ -4090,6 +4109,72 @@ document.addEventListener("click", (e) => {
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") closeNavTools();
 });
+
+// ----- AI Comparables (property-specific via Worker) -----
+// Cached in localStorage keyed by preset+area. Falls back to area-level curated
+// list when no AI list has been generated for this combination yet.
+function currentLang() { return document.body.getAttribute("data-lang") || "ja"; }
+
+function aiCompCacheKey() {
+  const presetKey = (document.getElementById("preset") || {}).value || "";
+  if (!presetKey || !currentAreaKey) return null;
+  return "aiComparables_v1__" + presetKey + "__" + currentAreaKey;
+}
+function aiLoadComparables(key) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    const arr = JSON.parse(raw);
+    return Array.isArray(arr) ? arr : null;
+  } catch (e) { return null; }
+}
+function aiSaveComparables(key, list) {
+  try { localStorage.setItem(key, JSON.stringify(list)); } catch (e) {}
+}
+function aiClearComparables(key) {
+  try { localStorage.removeItem(key); } catch (e) {}
+}
+
+async function findAiComparables() {
+  const key = aiCompCacheKey();
+  if (!key) return;
+  const url = aiGetWorkerUrl();
+  const slot = document.getElementById("areaComparables");
+  const T = (ja, en) => currentLang() === "ja" ? ja : en;
+  if (!url) {
+    showToast(T("⚠ AI Worker が未設定 — ✨ AI ボタンから設定してください", "⚠ AI Worker not configured — set it via the ✨ AI button"));
+    return;
+  }
+  if (slot) slot.innerHTML = '<div style="padding:12px;color:var(--text-muted);font-size:12px;font-style:italic;">✨ ' + T("AIが類似プロジェクトを生成中…", "AI is finding property-specific comparables…") + '</div>';
+  try {
+    const payload = aiBuildPayload();
+    const resp = await fetch(url.replace(/\/$/, "") + "/comparables", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    if (!resp.ok) throw new Error("HTTP " + resp.status);
+    const data = await resp.json();
+    if (!Array.isArray(data.comparables) || data.comparables.length === 0) {
+      showToast("⚠ " + T("AIが類似プロジェクトを返せませんでした", "AI returned no comparables"));
+      return;
+    }
+    aiSaveComparables(key, data.comparables);
+    renderAreaCard(currentAreaKey);
+    showToast("✓ " + T("AIで類似プロジェクトを更新", "Comparables updated by AI"));
+  } catch (e) {
+    showToast("✗ " + e.message);
+    if (slot && currentAreaKey) renderAreaCard(currentAreaKey);
+  }
+}
+
+function revertAiComparables() {
+  const key = aiCompCacheKey();
+  if (!key) return;
+  aiClearComparables(key);
+  renderAreaCard(currentAreaKey);
+  showToast("✓ " + (currentLang() === "ja" ? "エリア標準に戻しました" : "Reverted to area defaults"));
+}
 
 // ============ AI ASSISTANT ============
 const AI_WORKER_KEY = "exceedAiWorkerUrl_v1";
