@@ -4645,7 +4645,7 @@ function openCompareModal() {
     const sel = document.getElementById(id);
     if (!sel) return;
     sel.innerHTML = "";
-    const allOpts = Object.entries(window.presets || {}).map(([k, p]) => {
+    const allOpts = Object.entries(presets || {}).map(([k, p]) => {
       const labelEn = (k === "ritz" ? "Ritz-Carlton Creekside 2BR"
                     : k === "oneZaabeel" ? "One Za'abeel 2BR"
                     : k === "serenia" ? "Serenia Living 2BR"
@@ -4671,7 +4671,7 @@ function openCompareModal() {
   const current = (document.getElementById("preset") || {}).value;
   document.getElementById("compareA").value = current;
   // Pick a sensible B — anything that's not A
-  const allKeys = [...Object.keys(window.presets || {}), ...Object.keys(customProps || {})];
+  const allKeys = [...Object.keys(presets || {}), ...Object.keys(customProps || {})];
   const otherKey = allKeys.find(k => k !== current) || allKeys[1] || allKeys[0];
   document.getElementById("compareB").value = otherKey;
   m.classList.add("open");
@@ -4686,7 +4686,7 @@ function closeCompareModal() {
 
 function computeForPreset(presetKey) {
   const baseInp = getInputs();
-  const pr = (customProps && customProps[presetKey]) || (window.presets && window.presets[presetKey]);
+  const pr = (customProps && customProps[presetKey]) || (presets && presets[presetKey]);
   if (!pr) return null;
   // Override the property-specific fields; keep the agent's financial assumptions.
   const inp = Object.assign({}, baseInp, {
@@ -4805,7 +4805,7 @@ function applyShareState(qs) {
   });
   // If a preset was set, call loadPreset to wire up the full property context
   const preset = params.get("p");
-  if (preset && typeof loadPreset === "function" && (window.presets?.[preset] || customProps?.[preset])) {
+  if (preset && typeof loadPreset === "function" && (presets?.[preset] || customProps?.[preset])) {
     loadPreset(preset);
     // After loadPreset overwrites with preset defaults, re-apply any per-field overrides
     SHARE_FIELDS.forEach(([id, short]) => {
