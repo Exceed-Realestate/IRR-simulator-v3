@@ -1519,22 +1519,41 @@
   .mq-rules-body { padding:12px; background:#fafafa; border-radius:6px; margin-top:8px; font-size:12px; line-height:1.6; }
   .mq-rules-body ul { margin:6px 0; padding-left:20px; }
 
-  /* Payment plan (off-plan) */
+  /* Payment plan (off-plan) — responsive row layout */
   #card-payment-plan .pp-presets { display:flex; gap:6px; flex-wrap:wrap; align-items:center; margin-bottom:14px; padding-bottom:12px; border-bottom:1px dashed #eee; }
   #card-payment-plan .pp-preset-btn { padding:5px 11px; background:#fff; border:1px solid #cbd5e1; border-radius:5px; cursor:pointer; font-size:11.5px; font-weight:600; color:var(--text); transition:all 0.15s; }
   #card-payment-plan .pp-preset-btn:hover { background:#eff6ff; border-color:#3b82f6; color:#1e40af; }
-  #card-payment-plan .pp-rows { display:flex; flex-direction:column; gap:6px; margin-bottom:12px; }
-  #card-payment-plan .pp-row { display:grid; grid-template-columns:1.5fr 1.2fr 90px 80px 32px; gap:8px; align-items:center; padding:6px 0; }
-  #card-payment-plan .pp-row input, #card-payment-plan .pp-row select { padding:7px 9px; border:1px solid #cbd5e1; border-radius:5px; font-size:12.5px; }
+  #card-payment-plan .pp-rows { display:flex; flex-direction:column; gap:8px; margin-bottom:12px; }
+  #card-payment-plan .pp-row { display:grid; grid-template-columns:1fr 130px 70px 30px; gap:8px; align-items:center; padding:6px 0; }
+  #card-payment-plan .pp-row input, #card-payment-plan .pp-row select { padding:7px 9px; border:1px solid #cbd5e1; border-radius:5px; font-size:12.5px; min-width:0; box-sizing:border-box; width:100%; }
   #card-payment-plan .pp-row .pp-pct { text-align:right; font-family:monospace; font-weight:600; }
-  #card-payment-plan .pp-row .pp-del { padding:0 8px; background:transparent; border:none; cursor:pointer; color:#94a3b8; font-size:14px; }
+  #card-payment-plan .pp-row .pp-del { padding:0 4px; background:transparent; border:none; cursor:pointer; color:#94a3b8; font-size:14px; justify-self:center; }
   #card-payment-plan .pp-row .pp-del:hover { color:#dc2626; }
-  #card-payment-plan .pp-rows-header { display:grid; grid-template-columns:1.5fr 1.2fr 90px 80px 32px; gap:8px; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; color:var(--text-muted); padding-bottom:4px; border-bottom:1px solid #eee; margin-bottom:4px; }
-  #card-payment-plan .pp-footer { display:flex; justify-content:space-between; align-items:center; gap:14px; padding-top:12px; border-top:1px dashed #eee; }
+  #card-payment-plan .pp-rows-header { display:grid; grid-template-columns:1fr 130px 70px 30px; gap:8px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; color:var(--text-muted); padding-bottom:6px; border-bottom:1px solid #eee; margin-bottom:6px; }
+  #card-payment-plan .pp-rows-header > div:last-child { display:none; }
+  #card-payment-plan .pp-footer { display:flex; justify-content:space-between; align-items:center; gap:14px; padding-top:12px; border-top:1px dashed #eee; flex-wrap:wrap; }
   #card-payment-plan .pp-add-btn { font-size:12px; padding:7px 14px; background:var(--accent); color:var(--primary); border:none; border-radius:6px; font-weight:700; cursor:pointer; }
   #card-payment-plan .pp-total { font-size:13.5px; font-weight:700; padding:6px 14px; border-radius:6px; }
   #card-payment-plan .pp-total.ok { background:#f0fdf4; color:#166534; }
   #card-payment-plan .pp-total.warn { background:#fef2f2; color:#991b1b; }
+  /* When the card container is narrow (left-column sim-card), stack the row */
+  @media (max-width: 720px) {
+    #card-payment-plan .pp-row { grid-template-columns:1fr 1fr 70px 30px; }
+  }
+  @container (max-width: 460px) {
+    #card-payment-plan .pp-row, #card-payment-plan .pp-rows-header { grid-template-columns:1fr 1fr; }
+    #card-payment-plan .pp-row > select { grid-column:span 1; }
+    #card-payment-plan .pp-rows-header { display:none; }
+  }
+  /* Removed unused "%" suffix column slot */
+
+  /* Header Tools dropdown */
+  .nav-tools-wrap { position:relative; display:inline-block; }
+  .nav-tools-btn { display:inline-flex; align-items:center; gap:6px; }
+  .nav-tools-menu { display:none; position:absolute; top:calc(100% + 6px); right:0; min-width:240px; background:#fff; border:1px solid #e5e7eb; border-radius:8px; box-shadow:0 6px 24px rgba(0,0,0,0.12); padding:6px; z-index:1000; }
+  .nav-tools-menu.open { display:flex; flex-direction:column; gap:2px; }
+  .nav-tools-menu button { display:flex; align-items:center; gap:10px; padding:9px 12px; background:transparent; border:none; cursor:pointer; font-size:13px; font-weight:600; color:var(--text); text-align:left; border-radius:6px; width:100%; }
+  .nav-tools-menu button:hover { background:#f5f5f5; }
 
   /* Area map (Leaflet container) */
   .area-map-block { margin-top:18px; }
@@ -1684,25 +1703,22 @@
           <option value="v5">V5 — A+D 組み合わせ</option>
         </select>
         <button class="nav-brochure-btn" style="background:var(--accent);color:var(--primary);margin:0;" onclick="openBrochureModal()">
-          <span class="ja">物件資料を開く</span><span class="en">Open Brochures</span>
+          📋 <span class="ja">物件資料</span><span class="en">Brochures</span>
         </button>
-        <button class="nav-brochure-btn" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;margin:0;" onclick="openAiAssistant()">
-          ✨ <span class="ja">AI</span><span class="en">AI</span>
-        </button>
-        <button class="nav-brochure-btn" style="background:#0891b2;color:#fff;margin:0;" onclick="openPortfolioModal()">
-          📂 <span class="ja">ポートフォリオ</span><span class="en">Portfolio</span>
-        </button>
-        <button class="nav-brochure-btn" style="background:#059669;color:#fff;margin:0;" onclick="openMortgageQualifier()">
-          💰 <span class="ja">ローン適格</span><span class="en">Mortgage Check</span>
-        </button>
-        <button class="nav-brochure-btn" style="background:#7c3aed;color:#fff;margin:0;" onclick="openCompareModal()">
-          ⚖️ <span class="ja">比較</span><span class="en">Compare</span>
-        </button>
-        <button class="nav-brochure-btn" style="background:#3b82f6;color:#fff;margin:0;" onclick="shareCurrentState()">
-          🔗 <span class="ja">クライアントに共有</span><span class="en">Share with Client</span>
-        </button>
+        <div class="nav-tools-wrap">
+          <button class="nav-brochure-btn nav-tools-btn" style="background:#475569;color:#fff;margin:0;" onclick="toggleNavTools(event)">
+            🧰 <span class="ja">ツール</span><span class="en">Tools</span> <span style="font-size:10px;opacity:0.8;">▾</span>
+          </button>
+          <div class="nav-tools-menu" id="navToolsMenu" onclick="event.stopPropagation()">
+            <button onclick="closeNavTools();openAiAssistant()">✨ <span class="ja">AI アシスタント</span><span class="en">AI Assistant</span></button>
+            <button onclick="closeNavTools();openCompareModal()">⚖️ <span class="ja">2物件を比較</span><span class="en">Compare Two Properties</span></button>
+            <button onclick="closeNavTools();openMortgageQualifier()">💰 <span class="ja">モーゲージ適格性</span><span class="en">Mortgage Eligibility</span></button>
+            <button onclick="closeNavTools();openPortfolioModal()">📂 <span class="ja">クライアント・ポートフォリオ</span><span class="en">Client Portfolio</span></button>
+            <button onclick="closeNavTools();shareCurrentState()">🔗 <span class="ja">URLを共有</span><span class="en">Share Link</span></button>
+          </div>
+        </div>
         <button class="nav-brochure-btn" style="background:var(--primary);color:#fff;margin:0;" onclick="generateReport()">
-          📄 <span class="ja">レポート生成</span><span class="en">Generate Report</span>
+          📄 <span class="ja">レポート</span><span class="en">Report</span>
         </button>
       </div>
     </div>
@@ -4060,6 +4076,27 @@ function initAreaMap() {
   setTimeout(() => { try { map.invalidateSize(); } catch (e) {} }, 100);
 }
 
+// ----- Header Tools dropdown -----
+function toggleNavTools(e) {
+  if (e) e.stopPropagation();
+  const m = document.getElementById("navToolsMenu");
+  if (!m) return;
+  m.classList.toggle("open");
+}
+function closeNavTools() {
+  const m = document.getElementById("navToolsMenu");
+  if (m) m.classList.remove("open");
+}
+document.addEventListener("click", (e) => {
+  const menu = document.getElementById("navToolsMenu");
+  if (menu && menu.classList.contains("open") && !e.target.closest(".nav-tools-wrap")) {
+    closeNavTools();
+  }
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") closeNavTools();
+});
+
 // ============ AI ASSISTANT ============
 const AI_WORKER_KEY = "exceedAiWorkerUrl_v1";
 const AI_CHAT_HISTORY_KEY = "exceedAiChatHistory_v1";
@@ -5570,7 +5607,6 @@ function renderPpRows() {
       '<div>' + T("タイミング", "Timing") + '</div>' +
       '<div style="text-align:right;">%</div>' +
       '<div></div>' +
-      '<div></div>' +
     '</div>' +
     paymentPlan.map((m, i) => {
       const opts = atOptions.map(o => {
@@ -5581,7 +5617,6 @@ function renderPpRows() {
         '<input type="text" value="' + escapeHtml(m.label || "") + '" oninput="updatePpRow(' + i + ', \'label\', this.value)">' +
         '<select onchange="updatePpRow(' + i + ', \'at\', this.value)">' + opts + '</select>' +
         '<input type="number" class="pp-pct" min="0" max="100" step="0.5" value="' + (m.pct || 0) + '" oninput="updatePpRow(' + i + ', \'pct\', this.value)">' +
-        '<div style="text-align:right;font-size:11px;color:var(--text-muted);font-weight:600;">%</div>' +
         '<button type="button" class="pp-del" onclick="deletePpRow(' + i + ')" title="Remove">✕</button>' +
       '</div>';
     }).join("");
