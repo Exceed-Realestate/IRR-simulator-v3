@@ -1433,6 +1433,24 @@
   #card-quick-metrics .qm-value { font-size:22px; font-weight:700; color:#0a2540; line-height:1.1; font-feature-settings:"tnum"; }
   #card-quick-metrics .qm-value.muted { color:#94a3b8; font-size:16px; font-style:italic; }
   #card-quick-metrics .qm-sub { font-size:10.5px; color:var(--text-muted); margin-top:6px; line-height:1.4; }
+
+  /* Tax comparison */
+  #card-tax .tax-table tbody tr.uae-row { background:#f0fdf4; font-weight:600; }
+  #card-tax .tax-table tbody tr.uae-row td { color:#166534; }
+  #card-tax .tax-table .tax-owed { color:#b91c1c; font-feature-settings:"tnum"; }
+  #card-tax .tax-table .tax-saved { color:#16a34a; font-feature-settings:"tnum"; }
+  #card-tax .tax-table .tax-rate { font-feature-settings:"tnum"; }
+  #card-tax .tax-table .country-flag { display:inline-block; width:18px; margin-right:6px; font-size:14px; }
+
+  /* Objection accordion */
+  #card-objections .obj-accordion { display:flex; flex-direction:column; gap:8px; }
+  #card-objections .obj-item { border:1px solid #e5e7eb; border-radius:8px; background:#fafafa; transition:border-color 0.15s; }
+  #card-objections .obj-item[open] { border-color:var(--accent, #c9a961); background:#fffbeb; }
+  #card-objections .obj-item summary { padding:11px 16px; cursor:pointer; font-size:13px; font-weight:600; color:var(--text); list-style:none; display:flex; align-items:center; gap:8px; user-select:none; }
+  #card-objections .obj-item summary::-webkit-details-marker { display:none; }
+  #card-objections .obj-item summary::after { content:"▾"; margin-left:auto; opacity:0.4; transition:transform 0.2s; }
+  #card-objections .obj-item[open] summary::after { transform:rotate(180deg); opacity:0.7; }
+  #card-objections .obj-answer { padding:0 16px 14px 16px; font-size:12.5px; line-height:1.65; color:var(--text); }
   .area-citations { display:flex; gap:14px; flex-wrap:wrap; margin-top:14px; padding-top:12px; border-top:1px solid #eee; font-size:11.5px; }
   .area-citations a { color:var(--accent, #b08850); text-decoration:none; border-bottom:1px dotted; }
   .area-citations a:hover { color:var(--text); }
@@ -1910,12 +1928,99 @@
           </table>
         </div>
 
+        <div class="sim-card" id="card-tax">
+          <h3>🌍 <span class="ja">税制比較（UAE vs 主要市場）</span><span class="en">Tax Comparison (UAE vs Major Markets)</span></h3>
+          <p style="font-size:11.5px;color:var(--text-muted);margin:0 0 12px;"><span class="ja">同じキャピタルゲインに対し、各国でいくら税金として持っていかれるか — UAE では持っていかれません。</span><span class="en">Same capital gain, what each jurisdiction would take in tax — UAE takes nothing.</span></p>
+          <table class="data-table tax-table">
+            <thead><tr>
+              <th><span class="ja">居住地</span><span class="en">Residency</span></th>
+              <th class="num"><span class="ja">CGT率</span><span class="en">CGT Rate</span></th>
+              <th class="num"><span class="ja">税額</span><span class="en">Tax Owed</span></th>
+              <th class="num"><span class="ja">手取り</span><span class="en">Kept by Investor</span></th>
+            </tr></thead>
+            <tbody id="taxCompareTable"></tbody>
+          </table>
+          <p style="font-size:10.5px;color:var(--text-muted);margin:10px 0 0;line-height:1.5;"><span class="ja">※ CGT率は2026年の最高税率（個人・住宅資産の長期保有）。実際は所得・保有期間・控除により異なります。参考値として使用してください。</span><span class="en">⚠ CGT rates shown are 2026 top marginal rates for individuals on long-held residential property. Actual liability varies by income, holding period, and reliefs. Indicative only.</span></p>
+        </div>
+
         <div class="sim-card" id="card-area">
           <h3><span class="count">D</span><span class="ja">エリア分析</span><span class="en">Area Analysis</span></h3>
           <div id="areaContent">
             <div class="area-empty">
               <span class="ja">エリアデータを読み込み中…</span><span class="en">Loading area data…</span>
             </div>
+          </div>
+        </div>
+
+        <div class="sim-card" id="card-objections">
+          <h3>💬 <span class="ja">よくある質問・反対意見への回答</span><span class="en">Common Objections — Sales Responses</span></h3>
+          <p style="font-size:11.5px;color:var(--text-muted);margin:0 0 14px;"><span class="ja">面談でよく聞かれる質問への準備された回答。クリックで展開。</span><span class="en">Pre-written responses for the most-asked client objections. Click to expand.</span></p>
+          <div class="obj-accordion">
+
+            <details class="obj-item">
+              <summary>🏗 <span class="ja">「ドバイは供給過剰では？値崩れする」</span><span class="en">"Isn't Dubai overbuilding? Prices will crash"</span></summary>
+              <div class="obj-answer">
+                <span class="ja">2009年は供給過剰でしたが、今はインベントリー対需要のバランスが構造的に異なります。①金融危機後、開発者は事前完売主義に切り替えました（投機建設は激減）②Golden Visa・リモートワーク・地政学的退避により、移住人口が年5〜7%増加 ③RERA(不動産規制庁)が事業ライセンス・エスクローを管理し、ゾンビプロジェクトを排除しています。需要が供給を吸収しているため、過去5年で価格は+95〜120%上昇しています（DLD実績）。</span>
+                <span class="en">2009 was overbuilt, but today's inventory-vs-demand balance is structurally different. ① Post-crisis developers shifted to pre-sale-funded models (speculative building has collapsed). ② Population is growing 5–7% annually from Golden Visa, remote work, and geopolitical relocation. ③ RERA controls developer licensing and escrow, killing zombie projects. Demand has absorbed supply — DLD records show +95–120% price growth over the last 5 years.</span>
+              </div>
+            </details>
+
+            <details class="obj-item">
+              <summary>📈 <span class="ja">「金利が上がったらどうなる？」</span><span class="en">"What if interest rates go up?"</span></summary>
+              <div class="obj-answer">
+                <span class="ja">UAEはAEDをUSDにペッグしているため、UAE中央銀行は米連邦準備制度の政策に追随します。2024–2025年は利下げサイクルで、現状は7%前後。最悪のシナリオ(9%程度)でも、ドバイの典型的な5–8%粗利回りはなお利息を上回ります。ロックインしたければ固定金利モーゲージ(5年)も利用可能です。ご希望であれば金利上昇シナリオでIRRを再試算しましょう。</span>
+                <span class="en">UAE pegs AED to USD, so the Central Bank follows Fed policy. We're in a cutting cycle (rates ~7% now). Even in a worst-case (~9%), Dubai's 5–8% typical gross yields still beat the rate. Want to lock in? 5-year fixed-rate mortgages are available. Happy to re-run the IRR at a higher rate scenario right now.</span>
+              </div>
+            </details>
+
+            <details class="obj-item">
+              <summary>⏳ <span class="ja">「オフプランで遅延したら？」</span><span class="en">"What if the off-plan project is delayed?"</span></summary>
+              <div class="obj-answer">
+                <span class="ja">RERA要件によりエスクロー口座が義務化されており、支払金は完工マイルストーンに紐付けられます。遅延は資金を凍結し、開発者の他事業の支払いも止めます。最悪のケース（撤退）でもエスクローから返金されます。Emaar・Nakheel・Damacなどの主要デベロッパーは事業継続性が確保されており、過去5年の遅延は平均6〜9ヶ月程度です。当社は信頼できるデベロッパーのみ取り扱っています。</span>
+                <span class="en">RERA mandates escrow — your payments are tied to construction milestones. Delays freeze the developer's cash, also blocking their other projects. Worst case (developer pullout), escrow refunds you. Major developers — Emaar, Nakheel, Damac — have business-continuity protections. Average delay over last 5 years: 6–9 months. We only work with vetted developers.</span>
+              </div>
+            </details>
+
+            <details class="obj-item">
+              <summary>✈️ <span class="ja">「UAEを離れる必要があったら売却できる？」</span><span class="en">"What if I need to leave UAE?"</span></summary>
+              <div class="obj-answer">
+                <span class="ja">資産は完全な所有権でフリーホールド地区に位置しているため、UAEに居住する必要はありません。海外からでも:①売却 - DLDで30〜60日 ②賃貸運用 - 当社が管理可能 ③子に贈与/相続。アパートは年間1,500〜10,000件取引されるエリアの流動性高い市場なので、急ぎでも90日以内の売却は通常可能です。</span>
+                <span class="en">Your asset is fully owned freehold — UAE residency isn't a requirement to hold or sell it. From abroad you can: ① sell (DLD process is 30–60 days), ② rent it out (we manage), ③ gift/inherit. Apartments trade 1,500–10,000 units/year per area — even in a hurry, you'd typically sell within 90 days.</span>
+              </div>
+            </details>
+
+            <details class="obj-item">
+              <summary>🛂 <span class="ja">「Golden Visaのルールは変わる？」</span><span class="en">"Could the Golden Visa rules change?"</span></summary>
+              <div class="obj-answer">
+                <span class="ja">UAEのビザ政策は近年「緩和」方向にのみ動いています：2022年に投資家ビザ要件が大幅緩和、2024年にもさらに拡充。「厳格化」の方向は政府の経済戦略（人口拡大）と矛盾するため可能性は極めて低いです。発行済みビザは契約条件のまま維持されることが過去にも確認されています。万一ルールが変わっても、購入時点で取得した10年Golden Visaは満期まで有効です。</span>
+                <span class="en">UAE visa policy has only loosened over time — major relaxation in 2022, further expansion in 2024. Tightening would contradict the government's population-growth strategy and is extremely unlikely. Issued visas are honored under their original terms. Even if rules changed, a 10-year Golden Visa already issued runs until expiry.</span>
+              </div>
+            </details>
+
+            <details class="obj-item">
+              <summary>💱 <span class="ja">「AEDのドルペッグが崩れたら？」</span><span class="en">"What if the AED-USD peg breaks?"</span></summary>
+              <div class="obj-answer">
+                <span class="ja">AED-USDペッグは1997年から28年間維持され、UAE中央銀行は十分な外貨準備（GDPの100%超）を保有しています。仮にペッグが解除されると、湾岸産油国の経常黒字を考慮するとAEDは強含み(USDに対し増価)する可能性が高く、USDで購入したアセットの価値は変動なし、HKD/JPYで購入したアセットは為替差益が出ます。実質的なダウンサイドリスクはありません。</span>
+                <span class="en">The AED-USD peg has held for 28 years (since 1997), and the UAE Central Bank holds reserves exceeding 100% of GDP. If the peg ever broke, given Gulf oil surpluses, AED would likely strengthen vs USD — meaning USD-priced assets stay flat and HKD/JPY-priced gains would appreciate further. Effectively no downside.</span>
+              </div>
+            </details>
+
+            <details class="obj-item">
+              <summary>💎 <span class="ja">「ブランデッド・レジデンスは割高では？」</span><span class="en">"Are branded residences worth the premium?"</span></summary>
+              <div class="obj-answer">
+                <span class="ja">15〜25%の価格プレミアムは支払いますが、実質的なリターンに繋がります：①賃貸プレミアム15〜25%(同等エリアの非ブランド比) ②転売プレミアム高め(購入希望者が限定される=希少性) ③ホテル運営による短期賃貸オプション(粗利回り8〜12%)。Ritz・Bulgari・Six Sensesなどのブランドは時間と共に評価が高まる傾向にあり、過去のデータでは非ブランド比+30〜50%のリセール価値を実現しています。</span>
+                <span class="en">You pay a 15–25% price premium, but you get it back: ① 15–25% rental premium vs non-branded equivalents, ② higher resale premium (limited buyer pool = scarcity), ③ hotel-run short-let option (8–12% gross yield). Brands like Ritz, Bulgari, Six Senses appreciate faster — historical data shows +30–50% resale value vs non-branded peers.</span>
+              </div>
+            </details>
+
+            <details class="obj-item">
+              <summary>🏢 <span class="ja">「デベロッパーが倒産したら？」</span><span class="en">"What if the developer goes bankrupt?"</span></summary>
+              <div class="obj-answer">
+                <span class="ja">RERA(不動産規制庁)はエスクロー口座を義務化しています — 購入者の資金は専用口座で保管され、完工マイルストーン達成時にのみ放出されます。万一倒産時はエスクローから返金されます。当社が取り扱うTier 1デベロッパー(Emaar・Nakheel・Damac・Omniyat・Sobha)はすべて20年以上の実績があり、いずれも上場または政府関連で財務破綻リスクは極めて低いです。リスクの高い小規模デベロッパーは当社では取り扱っていません。</span>
+                <span class="en">RERA mandates escrow — your money sits in a dedicated account, released only on construction-milestone delivery. If bankruptcy ever happened, escrow refunds you. We only work with Tier 1 developers (Emaar, Nakheel, Damac, Omniyat, Sobha) — all 20+ year track records, all listed or government-linked, extremely low financial-failure risk. We don't deal in risky small developers.</span>
+              </div>
+            </details>
+
           </div>
         </div>
 
@@ -4566,6 +4671,41 @@ function render() {
   })();
   document.getElementById("kpiIrr").textContent = fmtPct(r.irr);
   document.getElementById("kpiMultiple").textContent = fmtMult(r.multiple);
+
+  // ===== Tax comparison table (Batch 1B) =====
+  (function paintTaxCompare() {
+    const tbody = document.getElementById("taxCompareTable");
+    if (!tbody) return;
+    const gain = Math.max(0, (r.salePrice || 0) - (inp.price || 0));
+    const lang = document.body.getAttribute("data-lang") || "ja";
+    const T = (ja, en) => lang === "ja" ? ja : en;
+    const fmtAed = (n) => "AED " + Math.round(n).toLocaleString();
+    // CGT top rates 2026 (long-held residential, individual). Indicative.
+    const rows = [
+      { code: "AE", flag: "🇦🇪", name: T("UAE", "UAE"), rate: 0.00,  note: T("キャピタルゲイン税なし", "No CGT"), highlight: true },
+      { code: "HK", flag: "🇭🇰", name: T("香港", "Hong Kong"), rate: 0.00, note: T("属地主義 — 海外資産非課税", "Territorial — offshore exempt") },
+      { code: "SG", flag: "🇸🇬", name: T("シンガポール", "Singapore"), rate: 0.00, note: T("個人キャピタルゲイン非課税", "No CGT on individuals") },
+      { code: "JP", flag: "🇯🇵", name: T("日本", "Japan"), rate: 0.20315, note: T("5年超保有・分離課税", ">5y hold, separate taxation") },
+      { code: "GB", flag: "🇬🇧", name: T("英国", "UK"), rate: 0.24, note: T("住宅資産・高所得者", "Residential, higher-rate") },
+      { code: "US", flag: "🇺🇸", name: T("米国", "USA"), rate: 0.238, note: T("LTCG 20% + NIIT 3.8%", "LTCG 20% + NIIT 3.8%") },
+      { code: "CN", flag: "🇨🇳", name: T("中国", "China"), rate: 0.20, note: T("個人所得税", "Individual income tax") },
+      { code: "KR", flag: "🇰🇷", name: T("韓国", "S. Korea"), rate: 0.275, note: T("最高税率＋地方税", "Top marginal + local surtax") }
+    ];
+    tbody.innerHTML = rows.map(c => {
+      const tax = gain * c.rate;
+      const net = gain - tax;
+      const rateStr = (c.rate * 100).toFixed(c.rate === 0 ? 0 : 2).replace(/\.00$/, "") + "%";
+      const taxCell = c.rate === 0
+        ? '<span class="tax-saved">AED 0</span>'
+        : '<span class="tax-owed">−' + fmtAed(tax) + '</span>';
+      return '<tr' + (c.highlight ? ' class="uae-row"' : '') + '>' +
+        '<td><span class="country-flag">' + c.flag + '</span>' + c.name + (c.highlight ? ' ⭐' : '') + '<div style="font-size:10px;color:#94a3b8;margin-top:2px;">' + c.note + '</div></td>' +
+        '<td class="num tax-rate">' + rateStr + '</td>' +
+        '<td class="num">' + taxCell + '</td>' +
+        '<td class="num"><strong>' + fmtAed(net) + '</strong></td>' +
+      '</tr>';
+    }).join("");
+  })();
 
   // ===== Quick Investor Metrics (Batch 1) =====
   (function paintQuickMetrics() {
