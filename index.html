@@ -1425,6 +1425,14 @@
   .area-stat-verified { font-size:9.5px; color:#16a34a; margin-top:3px; font-weight:600; letter-spacing:0.3px; }
   .area-stat.is-live { border-color:#3b82f6; background:#eff6ff; }
   .area-stat-live { font-size:9.5px; color:#1e40af; margin-top:3px; font-weight:600; letter-spacing:0.3px; }
+
+  /* Quick Investor Metrics (Batch 1) */
+  #card-quick-metrics .qm-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; }
+  #card-quick-metrics .qm-tile { padding:16px 18px; background:linear-gradient(135deg,#fafaf7,#fdfcf6); border:1px solid #e8e4d6; border-left:4px solid var(--accent, #c9a961); border-radius:8px; }
+  #card-quick-metrics .qm-label { font-size:11px; text-transform:uppercase; letter-spacing:0.6px; color:var(--text-muted); font-weight:600; margin-bottom:6px; }
+  #card-quick-metrics .qm-value { font-size:22px; font-weight:700; color:#0a2540; line-height:1.1; font-feature-settings:"tnum"; }
+  #card-quick-metrics .qm-value.muted { color:#94a3b8; font-size:16px; font-style:italic; }
+  #card-quick-metrics .qm-sub { font-size:10.5px; color:var(--text-muted); margin-top:6px; line-height:1.4; }
   .area-citations { display:flex; gap:14px; flex-wrap:wrap; margin-top:14px; padding-top:12px; border-top:1px solid #eee; font-size:11.5px; }
   .area-citations a { color:var(--accent, #b08850); text-decoration:none; border-bottom:1px dotted; }
   .area-citations a:hover { color:var(--text); }
@@ -1768,6 +1776,27 @@
             <button type="button" onclick="openIrrBreakdown()" title="IRR計算の詳細" style="position:absolute; top:8px; right:8px; background:rgba(255,255,255,0.2); color:var(--primary); border:none; border-radius:4px; padding:3px 8px; font-size:10px; font-weight:700; cursor:pointer; letter-spacing:0.05em;">
               <span class="ja">📊 計算詳細</span><span class="en">📊 Details</span>
             </button>
+          </div>
+        </div>
+
+        <div class="sim-card" id="card-quick-metrics">
+          <h3>📊 <span class="ja">投資家クイック指標</span><span class="en">Quick Investor Metrics</span></h3>
+          <div class="qm-grid">
+            <div class="qm-tile">
+              <div class="qm-label"><span class="ja">キャッシュオンキャッシュ</span><span class="en">Cash-on-Cash</span></div>
+              <div class="qm-value" id="qmCashOnCash">—</div>
+              <div class="qm-sub"><span class="ja">年間ネット家賃 ÷ 初期手出し</span><span class="en">Annual net rent ÷ initial cash out</span></div>
+            </div>
+            <div class="qm-tile">
+              <div class="qm-label"><span class="ja">回収期間</span><span class="en">Payback Period</span></div>
+              <div class="qm-value" id="qmPayback">—</div>
+              <div class="qm-sub"><span class="ja">初期手出しを回収するまで</span><span class="en">Until cumulative cashflow ≥ 0</span></div>
+            </div>
+            <div class="qm-tile">
+              <div class="qm-label"><span class="ja">損益分岐売却価格</span><span class="en">Break-Even Sale Price</span></div>
+              <div class="qm-value" id="qmBreakEven">—</div>
+              <div class="qm-sub"><span class="ja">この価格で売却 = 損益ゼロ</span><span class="en">Sell at this price → zero gain / zero loss</span></div>
+            </div>
           </div>
         </div>
 
@@ -4268,6 +4297,34 @@ function calculate(inp) {
   const s3 = scenOperating(7, scenAppr(7));   // ③ 7-yr scenario
   const s4 = scenOperating(inp.s4Years || 5, inp.s4Appr || scenAppr(inp.s4Years || 5));  // ④ Custom (fallback to scaled rate)
 
+  // ===== Quick investor metrics (Batch 1) =====
+  // Cash-on-cash return: annual cash yield on cash invested (operating-phase basis).
+  const cashOnCashPct = initialCashAED > 0 ? (annualNetCF / initialCashAED * 100) : 0;
+
+  // Payback period: years until cumulative cashflow returns to zero. Walks main.cf
+  // alongside main.times for sub-year precision. Returns null if never recovers
+  // within the configured holding period.
+  let paybackYears = null;
+  let _cum = 0;
+  for (let i = 0; i < main.cf.length; i++) {
+    const prev = _cum;
+    _cum += main.cf[i];
+    if (prev < 0 && _cum >= 0 && i > 0) {
+      const t0 = main.times[i - 1] || 0;
+      const t1 = main.times[i];
+      const frac = (0 - prev) / (_cum - prev);
+      paybackYears = t0 + (t1 - t0) * frac;
+      break;
+    }
+  }
+
+  // Break-even sale price: at what gross sale price does total return = 0
+  // (no profit, no loss after recouping initial outlay + all operating cashflows)?
+  // SP * 0.979 - 5000 - remainingLoan = initialCash - sum(operatingCFs)
+  const totalOperatingCFs = main.cf.slice(1).reduce((a, b) => a + b, 0) - main.netSaleProceeds;
+  const requiredNet = initialCashAED - totalOperatingCFs;
+  const breakEvenSalePrice = (requiredNet + main.saleNOC + main.remainingLoan) / (1 - 0.021);
+
   return {
     cashDown, loanAmount, dld, trustee, titleDeed, oqood, noc, agentFee, mortgageReg, brokerFee,
     furniture: inp.furniture, initialCashAED,
@@ -4276,6 +4333,7 @@ function calculate(inp) {
     remainingLoan: main.remainingLoan, netSaleProceeds: main.netSaleProceeds,
     irr: mainIrr, multiple, cashflowSeries: main.cf,
     constructionYears, operatingYears: main.operatingYears,
+    cashOnCashPct, paybackYears, breakEvenSalePrice,
     scenarios: {
       s1: { irr: irr(s1.cf, s1.times), net: s1.netSaleProceeds, return: s1.cf.slice(1).reduce((a,b)=>a+b,0) / initialCashAED },
       s2: { irr: irr(s2.cf, s2.times), net: s2.netSaleProceeds, return: s2.cf.slice(1).reduce((a,b)=>a+b,0) / initialCashAED },
@@ -4508,6 +4566,56 @@ function render() {
   })();
   document.getElementById("kpiIrr").textContent = fmtPct(r.irr);
   document.getElementById("kpiMultiple").textContent = fmtMult(r.multiple);
+
+  // ===== Quick Investor Metrics (Batch 1) =====
+  (function paintQuickMetrics() {
+    const coc = document.getElementById("qmCashOnCash");
+    const pb = document.getElementById("qmPayback");
+    const be = document.getElementById("qmBreakEven");
+    if (!coc || !pb || !be) return;
+    const lang = document.body.getAttribute("data-lang") || "ja";
+    const T = (ja, en) => lang === "ja" ? ja : en;
+
+    // Cash-on-cash — only meaningful if there's rental income
+    if (r.annualNetCF && r.annualNetCF !== 0 && r.cashOnCashPct !== undefined) {
+      coc.textContent = (r.cashOnCashPct >= 0 ? "+" : "") + r.cashOnCashPct.toFixed(1) + "%";
+      coc.classList.remove("muted");
+    } else {
+      coc.textContent = T("家賃なし", "no rent yet");
+      coc.classList.add("muted");
+    }
+
+    // Payback period
+    if (r.paybackYears != null && r.paybackYears >= 0) {
+      const years = Math.floor(r.paybackYears);
+      const months = Math.round((r.paybackYears - years) * 12);
+      pb.textContent = (lang === "ja"
+        ? (years > 0 ? years + "年" : "") + (months > 0 ? months + "ヶ月" : (years > 0 ? "" : "0年"))
+        : (years > 0 ? years + "y" : "") + (months > 0 ? " " + months + "mo" : (years > 0 ? "" : "0"))).trim();
+      pb.classList.remove("muted");
+    } else {
+      pb.textContent = T("保有期間内に未回収", "not within hold period");
+      pb.classList.add("muted");
+    }
+
+    // Break-even sale price
+    const inpPrice = +document.getElementById("price").value || 0;
+    if (r.breakEvenSalePrice != null && isFinite(r.breakEvenSalePrice)) {
+      if (r.breakEvenSalePrice <= 0) {
+        be.textContent = T("家賃のみで回収", "covered by rent alone");
+        be.classList.add("muted");
+      } else {
+        const aedM = (r.breakEvenSalePrice / 1_000_000).toFixed(2);
+        const deltaPct = inpPrice > 0 ? ((r.breakEvenSalePrice - inpPrice) / inpPrice * 100) : 0;
+        const arrow = deltaPct >= 0 ? "↑" : "↓";
+        be.innerHTML = `AED ${aedM}M <span style="font-size:12px; color:${deltaPct < 0 ? '#16a34a' : '#b91c1c'}; font-weight:600;">${arrow} ${Math.abs(deltaPct).toFixed(0)}%</span>`;
+        be.classList.remove("muted");
+      }
+    } else {
+      be.textContent = "—";
+      be.classList.add("muted");
+    }
+  })();
 
   // V2: replace the IRR card with side-by-side dual display
   if (VF.dualIRR && r.cashflowSeries) {
