@@ -1451,6 +1451,16 @@
   #card-objections .obj-item summary::after { content:"▾"; margin-left:auto; opacity:0.4; transition:transform 0.2s; }
   #card-objections .obj-item[open] summary::after { transform:rotate(180deg); opacity:0.7; }
   #card-objections .obj-answer { padding:0 16px 14px 16px; font-size:12.5px; line-height:1.65; color:var(--text); }
+
+  /* What-If sliders */
+  #card-whatif .whatif-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:18px; }
+  #card-whatif .whatif-slider { padding:14px 16px; background:#fafafa; border:1px solid #e5e7eb; border-radius:8px; }
+  #card-whatif .whatif-label { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px; font-size:12px; font-weight:600; color:var(--text); text-transform:uppercase; letter-spacing:0.4px; }
+  #card-whatif .whatif-value { font-size:18px; color:var(--accent, #c9a961); font-weight:700; font-family:monospace; text-transform:none; letter-spacing:0; }
+  #card-whatif input[type="range"] { width:100%; height:6px; -webkit-appearance:none; appearance:none; background:linear-gradient(to right, #e5e7eb, #c9a961); border-radius:3px; outline:none; cursor:pointer; }
+  #card-whatif input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none; appearance:none; width:22px; height:22px; border-radius:50%; background:#0a2540; cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,0.25); border:3px solid #fff; }
+  #card-whatif input[type="range"]::-moz-range-thumb { width:22px; height:22px; border-radius:50%; background:#0a2540; cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,0.25); border:3px solid #fff; }
+  #card-whatif .whatif-scale { font-size:10px; color:var(--text-muted); margin-top:6px; display:flex; justify-content:space-between; font-family:monospace; }
   .area-citations { display:flex; gap:14px; flex-wrap:wrap; margin-top:14px; padding-top:12px; border-top:1px solid #eee; font-size:11.5px; }
   .area-citations a { color:var(--accent, #b08850); text-decoration:none; border-bottom:1px dotted; }
   .area-citations a:hover { color:var(--text); }
@@ -1532,6 +1542,9 @@
         </select>
         <button class="nav-brochure-btn" style="background:var(--accent);color:var(--primary);margin:0;" onclick="openBrochureModal()">
           <span class="ja">物件資料を開く</span><span class="en">Open Brochures</span>
+        </button>
+        <button class="nav-brochure-btn" style="background:#3b82f6;color:#fff;margin:0;" onclick="shareCurrentState()">
+          🔗 <span class="ja">クライアントに共有</span><span class="en">Share with Client</span>
         </button>
         <button class="nav-brochure-btn" style="background:var(--primary);color:#fff;margin:0;" onclick="generateReport()">
           📄 <span class="ja">レポート生成</span><span class="en">Generate Report</span>
@@ -1794,6 +1807,45 @@
             <button type="button" onclick="openIrrBreakdown()" title="IRR計算の詳細" style="position:absolute; top:8px; right:8px; background:rgba(255,255,255,0.2); color:var(--primary); border:none; border-radius:4px; padding:3px 8px; font-size:10px; font-weight:700; cursor:pointer; letter-spacing:0.05em;">
               <span class="ja">📊 計算詳細</span><span class="en">📊 Details</span>
             </button>
+          </div>
+        </div>
+
+        <div class="sim-card" id="card-whatif">
+          <h3>🎚 <span class="ja">ライブ What-If シミュレーション</span><span class="en">Live What-If Sliders</span></h3>
+          <p style="font-size:11.5px;color:var(--text-muted);margin:0 0 14px;"><span class="ja">面談中にスライダーを動かしてリアルタイムで数値の変化を見せる。すべての他の数値も即時更新されます。</span><span class="en">Drag during a call — IRR and all other numbers update live. Built for live presentations.</span></p>
+          <div class="whatif-grid">
+            <div class="whatif-slider">
+              <div class="whatif-label">
+                <span class="ja">値上がり率</span><span class="en">Appreciation</span>
+                <span class="whatif-value" id="wifAppreciationVal">—</span>
+              </div>
+              <input type="range" id="wifAppreciation" min="-20" max="80" step="1" oninput="syncWhatIfSlider('appreciation', this.value, 'wifAppreciationVal', '%')">
+              <div class="whatif-scale">−20%　・　0%　・　+30%　・　+80%</div>
+            </div>
+            <div class="whatif-slider">
+              <div class="whatif-label">
+                <span class="ja">モーゲージ金利</span><span class="en">Mortgage Rate</span>
+                <span class="whatif-value" id="wifMortgageRateVal">—</span>
+              </div>
+              <input type="range" id="wifMortgageRate" min="3" max="10" step="0.1" oninput="syncWhatIfSlider('mortgageRate', this.value, 'wifMortgageRateVal', '%')">
+              <div class="whatif-scale">3%　・　5%　・　7%　・　10%</div>
+            </div>
+            <div class="whatif-slider">
+              <div class="whatif-label">
+                <span class="ja">グロス利回り</span><span class="en">Gross Yield</span>
+                <span class="whatif-value" id="wifGrossYieldVal">—</span>
+              </div>
+              <input type="range" id="wifGrossYield" min="0" max="15" step="0.1" oninput="syncWhatIfSlider('grossYield', this.value, 'wifGrossYieldVal', '%')">
+              <div class="whatif-scale">0%　・　5%　・　10%　・　15%</div>
+            </div>
+            <div class="whatif-slider">
+              <div class="whatif-label">
+                <span class="ja">保有期間 (年)</span><span class="en">Hold Years</span>
+                <span class="whatif-value" id="wifHoldYearsVal">—</span>
+              </div>
+              <input type="range" id="wifHoldYears" min="1" max="15" step="1" oninput="syncWhatIfSlider('holdYears', this.value, 'wifHoldYearsVal', 'y')">
+              <div class="whatif-scale">1y　・　5y　・　10y　・　15y</div>
+            </div>
           </div>
         </div>
 
@@ -3551,6 +3603,132 @@ function renderAreaCard(areaKey) {
   renderUnitInsights();
 }
 
+// ----- Share state via URL fragment (Batch 2) -----
+// Captures the agent's current scenario into a shareable URL hash. When opened,
+// the recipient sees the same dashboard pre-filled — drag sliders, see the
+// numbers update.
+const SHARE_FIELDS = [
+  ["preset","p"], ["price","pr"], ["sqft","sq"], ["propertyType","tp"],
+  ["purchaseMode","mo"], ["completionYear","cy"], ["completionQuarter","cq"],
+  ["grossYield","y"], ["appreciation","a"], ["appreciationMode","am"],
+  ["furniture","f"], ["serviceChargePsf","sc"],
+  ["holdYears","hy"], ["holdMonths","hm"],
+  ["ltv","l"], ["mortgageRate","mr"], ["mortgageTerm","mt"], ["useMortgage","um"],
+  ["currency","c"], ["s4Years","s4y"], ["s4Appr","s4a"]
+];
+
+function serializeShareState() {
+  const params = new URLSearchParams();
+  SHARE_FIELDS.forEach(([id, short]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    let v;
+    if (el.type === "checkbox") v = el.checked ? "1" : "0";
+    else v = el.value;
+    if (v != null && v !== "") params.set(short, v);
+  });
+  // Include language toggle
+  const lang = document.body.getAttribute("data-lang");
+  if (lang) params.set("lang", lang);
+  return params.toString();
+}
+
+function applyShareState(qs) {
+  if (!qs) return false;
+  const params = new URLSearchParams(qs);
+  let applied = 0;
+  // language first
+  const lang = params.get("lang");
+  if (lang) document.body.setAttribute("data-lang", lang);
+  SHARE_FIELDS.forEach(([id, short]) => {
+    const v = params.get(short);
+    if (v == null) return;
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (el.type === "checkbox") el.checked = (v === "1");
+    else el.value = v;
+    el.dispatchEvent(new Event("change", { bubbles: true }));
+    applied++;
+  });
+  // If a preset was set, call loadPreset to wire up the full property context
+  const preset = params.get("p");
+  if (preset && typeof loadPreset === "function" && (window.presets?.[preset] || customProps?.[preset])) {
+    loadPreset(preset);
+    // After loadPreset overwrites with preset defaults, re-apply any per-field overrides
+    SHARE_FIELDS.forEach(([id, short]) => {
+      if (id === "preset") return;
+      const v = params.get(short);
+      if (v == null) return;
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (el.type === "checkbox") el.checked = (v === "1");
+      else el.value = v;
+    });
+    if (typeof render === "function") render();
+  }
+  return applied > 0;
+}
+
+function showToast(message) {
+  let t = document.getElementById("toast");
+  if (!t) {
+    t = document.createElement("div");
+    t.id = "toast";
+    t.style.cssText = "position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:#0a2540;color:#fff;padding:14px 22px;border-radius:8px;font-size:13.5px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,0.25);z-index:10000;opacity:0;transition:opacity 0.25s,bottom 0.25s;pointer-events:none;";
+    document.body.appendChild(t);
+  }
+  t.textContent = message;
+  t.style.opacity = "1";
+  t.style.bottom = "48px";
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => {
+    t.style.opacity = "0";
+    t.style.bottom = "32px";
+  }, 2200);
+}
+
+function shareCurrentState() {
+  const qs = serializeShareState();
+  const url = location.origin + location.pathname + "#" + qs;
+  // Prefer clipboard API; fall back to prompt
+  const lang = document.body.getAttribute("data-lang") || "ja";
+  const msg = lang === "ja" ? "✓ クライアント向けURLをコピーしました" : "✓ Client share-link copied";
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(() => showToast(msg)).catch(() => {
+      window.prompt(lang === "ja" ? "このURLをコピーしてください:" : "Copy this URL:", url);
+    });
+  } else {
+    window.prompt(lang === "ja" ? "このURLをコピーしてください:" : "Copy this URL:", url);
+  }
+  // Also push to current address bar so the user can see it
+  history.replaceState(null, "", "#" + qs);
+}
+
+// On page boot, if a hash fragment is present, apply it.
+(function bootShareState() {
+  const hash = location.hash.replace(/^#/, "");
+  if (hash) {
+    // Defer until after the rest of init has run
+    document.addEventListener("DOMContentLoaded", () => setTimeout(() => applyShareState(hash), 500));
+    // Also if DOMContentLoaded already fired:
+    if (document.readyState !== "loading") setTimeout(() => applyShareState(hash), 500);
+  }
+})();
+
+// ----- What-If sliders (slider → input direction) -----
+function syncWhatIfSlider(inputId, value, readoutId, suffix) {
+  const inp = document.getElementById(inputId);
+  if (!inp) return;
+  inp.value = value;
+  // Fire 'input' event so the existing global listener (which calls render()) runs.
+  inp.dispatchEvent(new Event("input", { bubbles: true }));
+  const readout = document.getElementById(readoutId);
+  if (readout) {
+    const formatted = (suffix === "%" ? (value.startsWith("-") ? value : "+" + value) : value) + suffix;
+    readout.textContent = formatted;
+  }
+}
+
 // ----- Stat-tile inline edit (verify-and-override workflow) -----
 function openStatEdit(fieldPath, btn) {
   const tile = btn.closest(".area-stat");
@@ -4671,6 +4849,27 @@ function render() {
   })();
   document.getElementById("kpiIrr").textContent = fmtPct(r.irr);
   document.getElementById("kpiMultiple").textContent = fmtMult(r.multiple);
+
+  // ===== What-If sliders sync (Batch 2) =====
+  // Sync slider positions FROM the input fields on each render — so when the user
+  // picks a preset or types in an input, the sliders catch up.
+  (function syncWhatIfFromInputs() {
+    const pairs = [
+      ["appreciation",  "wifAppreciation",  "wifAppreciationVal",  "%"],
+      ["mortgageRate",  "wifMortgageRate",  "wifMortgageRateVal",  "%"],
+      ["grossYield",    "wifGrossYield",    "wifGrossYieldVal",    "%"],
+      ["holdYears",     "wifHoldYears",     "wifHoldYearsVal",     "y"]
+    ];
+    pairs.forEach(([inpId, sliderId, valId, suffix]) => {
+      const inpEl = document.getElementById(inpId);
+      const sliderEl = document.getElementById(sliderId);
+      const valEl = document.getElementById(valId);
+      if (!inpEl || !sliderEl) return;
+      const v = inpEl.value;
+      if (sliderEl.value !== v) sliderEl.value = v;
+      if (valEl) valEl.textContent = (suffix === "%" ? (v.startsWith("-") ? v : "+" + v) : v) + suffix;
+    });
+  })();
 
   // ===== Tax comparison table (Batch 1B) =====
   (function paintTaxCompare() {
