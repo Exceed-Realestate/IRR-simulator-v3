@@ -3,7 +3,7 @@
     "source": "investmentmap.ai (164 Dubai areas)",
     "dataAsOf": "2026-05",
     "totalAreas": 164,
-    "curatedCount": 13
+    "curatedCount": 22
   },
   "areas": [
     {
@@ -286,7 +286,8 @@
     },
     {
       "key": "dubaiHarbour",
-      "nameEN": "Dubai Harbour"
+      "nameEN": "Dubai Harbour",
+      "curatedAs": "dubaiHarbour"
     },
     {
       "key": "dubaiHills",
@@ -388,7 +389,8 @@
     },
     {
       "key": "jlt",
-      "nameEN": "JLT (Jumeirah Lake Towers)"
+      "nameEN": "JLT (Jumeirah Lake Towers)",
+      "curatedAs": "jlt"
     },
     {
       "key": "jumeirahBay",
@@ -457,15 +459,18 @@
     },
     {
       "key": "mbrCityDistrict1",
-      "nameEN": "MBR City District 1"
+      "nameEN": "MBR City District 1",
+      "curatedAs": "mbrCity1"
     },
     {
       "key": "mbrCityDistrict7",
-      "nameEN": "MBR City District 7"
+      "nameEN": "MBR City District 7",
+      "curatedAs": "mbrCity1"
     },
     {
       "key": "mbrDistrict11",
-      "nameEN": "MBR District 11 (Meydan South)"
+      "nameEN": "MBR District 11 (Meydan South)",
+      "curatedAs": "mbrCity1"
     },
     {
       "key": "meaisemFirst",
@@ -477,7 +482,8 @@
     },
     {
       "key": "minaRashid",
-      "nameEN": "Mina Rashid"
+      "nameEN": "Mina Rashid",
+      "curatedAs": "minaRashid"
     },
     {
       "key": "miraOasis",
@@ -571,11 +577,13 @@
     },
     {
       "key": "sobhaHartland",
-      "nameEN": "Sobha Hartland"
+      "nameEN": "Sobha Hartland",
+      "curatedAs": "sobhaHartland"
     },
     {
       "key": "sobhaHartland2",
-      "nameEN": "Sobha Hartland 2"
+      "nameEN": "Sobha Hartland 2",
+      "curatedAs": "sobhaHartland"
     },
     {
       "key": "sustainableCity",
@@ -619,7 +627,8 @@
     },
     {
       "key": "tilalAlGhaf",
-      "nameEN": "Tilal Al Ghaf"
+      "nameEN": "Tilal Al Ghaf",
+      "curatedAs": "tilalAlGhaf"
     },
     {
       "key": "townSquare",

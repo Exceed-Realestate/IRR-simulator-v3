@@ -1254,5 +1254,567 @@
       "lat": 25.2103,
       "lng": 55.2825
     }
+  },
+  "sobhaHartland": {
+    "nameEN": "Sobha Hartland",
+    "nameJP": "ソバ・ハートランド",
+    "tier": "prime-suburban",
+    "avgPriceSqftAed": {
+      "apartment": "1,800–2,500",
+      "villa": "2,200–3,500"
+    },
+    "priceSqftYoYPct": "+10 to +15",
+    "priceSqft5yrPct": "+75 to +95",
+    "avgRentalYieldPct": {
+      "apartment": "5.5–6.8",
+      "villa": "4.5–5.5"
+    },
+    "transactionVolume": "High — Sobha's flagship master-community within MBR City",
+    "txCount12mo": "~3,500",
+    "typicalRentAed": {
+      "1br": "75–105k",
+      "2br": "120–170k",
+      "3br": "180–260k apt / 280–420k villa"
+    },
+    "tenantProfile": {
+      "en": "Affluent families, executives at Downtown/DIFC, international school parents (Hartland International)",
+      "jp": "富裕層ファミリー、ダウンタウン／DIFCのエグゼクティブ、ハートランド・インターナショナル・スクール通学世帯"
+    },
+    "infrastructure": [
+      {
+        "en": "Dubai Canal waterfront access",
+        "jp": "ドバイ・キャナルの水辺アクセス"
+      },
+      {
+        "en": "Hartland International School + North London Collegiate",
+        "jp": "ハートランド・インターナショナル／ノース・ロンドン・コレジエート"
+      },
+      {
+        "en": "Meydan Racecourse + Bay Avenue",
+        "jp": "メイダン競馬場／ベイ・アベニュー"
+      },
+      {
+        "en": "8 min to Burj Khalifa / Downtown Dubai",
+        "jp": "ブルジュ・ハリファ／ダウンタウンまで車で8分"
+      },
+      {
+        "en": "Multiple parks + 1km of forest landscaping",
+        "jp": "複数の公園と1kmにわたる森林ランドスケープ"
+      }
+    ],
+    "infrastructurePipeline": [
+      {
+        "when": "2027",
+        "en": "Sobha Hartland II expansion",
+        "jp": "Sobha Hartland II 拡張"
+      },
+      {
+        "when": "Ongoing",
+        "en": "Crystal Lagoon community (MBR adjacent)",
+        "jp": "クリスタル・ラグーン・コミュニティ（MBR隣接）"
+      }
+    ],
+    "comparableProjects": [
+      {
+        "name": "District One Mansions (MBR)",
+        "context": "Adjacent ultra-prime mansion benchmark"
+      },
+      {
+        "name": "Dubai Hills Estate",
+        "context": "Comparable family-oriented Emaar community"
+      },
+      {
+        "name": "Damac Hills",
+        "context": "Comparable golf-community villa product"
+      }
+    ],
+    "dxbInteractUrl": "https://dxbinteract.com/area-analysis/sobha-hartland",
+    "dldUrl": "https://dubailand.gov.ae/en/open-data/real-estate-data/",
+    "talkingPoints": [
+      {
+        "en": "Sobha Hartland sits inside MBR City — Dubai's largest masterplan — with direct Dubai Canal frontage, ~8 min to Downtown. Family-buyer demand keeps vacancy minimal.",
+        "jp": "ソバ・ハートランドはドバイ最大のマスタープラン「MBRシティ」内に位置し、ドバイ・キャナル沿岸、ダウンタウンまで車で約8分。ファミリー需要で空室率は極小水準。"
+      },
+      {
+        "en": "Sobha is one of Dubai's most quality-conscious developers — 'Backward Integration' building model, lower defect rates than industry average, supports premium resale.",
+        "jp": "Sobhaはドバイで最も品質志向のデベロッパーの一つ。「Backward Integration」建築方式により業界平均より低い欠陥率を実現し、転売プレミアムを支えます。"
+      },
+      {
+        "en": "Apartment yields 5.5–6.8% and family-tenant lease durations of 2–3 years yield very low effective vacancy.",
+        "jp": "アパート利回り5.5〜6.8%、ファミリー賃借人の平均契約期間2〜3年で実質空室率は極めて低い水準。"
+      }
+    ],
+    "latLng": {
+      "lat": 25.184,
+      "lng": 55.301
+    }
+  },
+  "mbrCity1": {
+    "nameEN": "MBR City District 1",
+    "nameJP": "MBRシティ ディストリクト 1",
+    "tier": "ultra-prime",
+    "avgPriceSqftAed": {
+      "apartment": "1,700–2,400",
+      "villa": "2,200–3,800 (mansions 4,000+)"
+    },
+    "priceSqftYoYPct": "+9 to +14",
+    "priceSqft5yrPct": "+85 to +110",
+    "avgRentalYieldPct": {
+      "apartment": "5.5–6.5",
+      "villa": "4.0–5.0"
+    },
+    "transactionVolume": "High — MBR City overall is Dubai's largest masterplan",
+    "txCount12mo": "~4,200",
+    "typicalRentAed": {
+      "1br": "80–120k",
+      "2br": "130–190k",
+      "3br": "210–300k apt / 380–600k villa"
+    },
+    "tenantProfile": {
+      "en": "Ultra-HNW homeowners, founders, GCC nationals, ambassadors — District One mansions cluster",
+      "jp": "超富裕層ホームオーナー、創業者、GCC国民、外交官。ディストリクト・ワン・マンション地区"
+    },
+    "infrastructure": [
+      {
+        "en": "Crystal Lagoon (largest man-made lagoon in Dubai community)",
+        "jp": "クリスタル・ラグーン（ドバイ最大の人工ラグーン）"
+      },
+      {
+        "en": "Meydan Racecourse + Grandstand",
+        "jp": "メイダン競馬場とグランドスタンド"
+      },
+      {
+        "en": "Direct Al Khail Road + Sheikh Zayed Road access",
+        "jp": "アル・カイル・ロード／シェイク・ザイード・ロード直結"
+      },
+      {
+        "en": "10 min to Downtown / DIFC",
+        "jp": "ダウンタウン／DIFCまで車で10分"
+      },
+      {
+        "en": "Multiple international schools planned + delivered",
+        "jp": "複数のインターナショナルスクール（完成済・計画中）"
+      }
+    ],
+    "infrastructurePipeline": [
+      {
+        "when": "2026–28",
+        "en": "Continued District One Mansions Phase 3-4 handovers",
+        "jp": "ディストリクト・ワン・マンション・フェーズ3-4の継続的引渡し"
+      },
+      {
+        "when": "2027+",
+        "en": "Dubai Hills border retail expansion",
+        "jp": "ドバイ・ヒルズ境界部のリテール拡張"
+      }
+    ],
+    "comparableProjects": [
+      {
+        "name": "Emirates Hills",
+        "context": "Established ultra-prime mansion benchmark"
+      },
+      {
+        "name": "Dubai Hills Estate (Emerald Hills)",
+        "context": "Comparable mansion-tier community"
+      },
+      {
+        "name": "Palm Jumeirah signature villas",
+        "context": "Waterfront ultra-prime alternative"
+      }
+    ],
+    "dxbInteractUrl": "https://dxbinteract.com/area-analysis/mbr-city",
+    "dldUrl": "https://dubailand.gov.ae/en/open-data/real-estate-data/",
+    "talkingPoints": [
+      {
+        "en": "MBR City is Dubai's largest masterplan, anchored by the Crystal Lagoon and Meydan racecourse. District 1 mansions are the marquee trophy product.",
+        "jp": "MBRシティはドバイ最大のマスタープラン。クリスタル・ラグーンとメイダン競馬場を核とし、ディストリクト1マンションが旗艦トロフィー物件。"
+      },
+      {
+        "en": "Trophy-villa buyer profile keeps secondary transactions thin — when units do sell, they tend to set new area-record prices.",
+        "jp": "トロフィーヴィラ買い手層が中心のため二次取引は希少。売却時には新たな高値が更新される傾向。"
+      },
+      {
+        "en": "Crystal Lagoon + 10-min Downtown access is unique — no other Dubai community combines both.",
+        "jp": "クリスタル・ラグーンとダウンタウン10分というアクセスはドバイで唯一無二。"
+      }
+    ],
+    "latLng": {
+      "lat": 25.165,
+      "lng": 55.298
+    }
+  },
+  "jlt": {
+    "nameEN": "JLT (Jumeirah Lake Towers)",
+    "nameJP": "JLT（ジュメイラ・レイク・タワーズ）",
+    "tier": "prime",
+    "avgPriceSqftAed": {
+      "apartment": "1,400–2,000",
+      "villa": "n/a"
+    },
+    "priceSqftYoYPct": "+8 to +13",
+    "priceSqft5yrPct": "+65 to +85",
+    "avgRentalYieldPct": {
+      "apartment": "6.5–8.0"
+    },
+    "transactionVolume": "Very high — 87 towers, mature secondary market",
+    "txCount12mo": "~5,800",
+    "typicalRentAed": {
+      "1br": "65–95k",
+      "2br": "100–150k",
+      "3br": "150–220k"
+    },
+    "tenantProfile": {
+      "en": "Young professionals, DMCC company employees, mid-managers, expat couples",
+      "jp": "若手プロフェッショナル、DMCC企業の従業員、中堅マネージャー、エクスパット夫婦"
+    },
+    "infrastructure": [
+      {
+        "en": "3 Metro stations on the Red Line (DMCC, JLT, Sobha Realty)",
+        "jp": "メトロ・レッドラインの3駅（DMCC／JLT／Sobha Realty）"
+      },
+      {
+        "en": "DMCC Free Zone (Dubai's largest free zone by company count)",
+        "jp": "DMCC自由貿易区（企業数でドバイ最大のフリーゾーン）"
+      },
+      {
+        "en": "4 artificial lakes + 80+ retail outlets at lake level",
+        "jp": "4つの人工湖と湖畔の80以上のリテール"
+      },
+      {
+        "en": "Adjacent to Dubai Marina (5 min walk)",
+        "jp": "ドバイ・マリーナ徒歩5分"
+      },
+      {
+        "en": "Sheikh Zayed Road direct access",
+        "jp": "シェイク・ザイード・ロード直結"
+      }
+    ],
+    "infrastructurePipeline": [
+      {
+        "when": "Ongoing",
+        "en": "DMCC Crypto Centre + Web3 hub expansion",
+        "jp": "DMCC暗号通貨センター／Web3ハブの拡張"
+      },
+      {
+        "when": "2027",
+        "en": "Uptown Tower Phase 2 (SO/Uptown Dubai)",
+        "jp": "Uptown Tower フェーズ2（SO/Uptown Dubai）"
+      }
+    ],
+    "comparableProjects": [
+      {
+        "name": "Dubai Marina",
+        "context": "Adjacent comparable; JLT typically -15–20% on price/sqft"
+      },
+      {
+        "name": "Business Bay",
+        "context": "Comparable urban apartment market"
+      }
+    ],
+    "dxbInteractUrl": "https://dxbinteract.com/area-analysis/jumeirah-lake-towers",
+    "dldUrl": "https://dubailand.gov.ae/en/open-data/real-estate-data/",
+    "talkingPoints": [
+      {
+        "en": "JLT prices typically run 15–20% below Marina for similar product — agents pitching value to budget-conscious investors love this gap.",
+        "jp": "JLTは同等物件でマリーナ比15〜20%安く、価格重視の投資家への提案で強い武器に。"
+      },
+      {
+        "en": "Three metro stations + DMCC's 25,000 companies = deep tenant pool. Apartment yields 6.5–8.0% — highest in the Marina-adjacent prime cluster.",
+        "jp": "メトロ3駅とDMCCの25,000社による厚いテナント層。アパート利回り6.5〜8.0%はマリーナ近接プライムエリアで最高水準。"
+      },
+      {
+        "en": "87-tower secondary market with very deep liquidity — easy resale, tight bid-ask spreads.",
+        "jp": "87タワーの厚い二次市場で流動性が高く、転売容易、ビッド・アスク・スプレッドも狭い。"
+      }
+    ],
+    "latLng": {
+      "lat": 25.069,
+      "lng": 55.143
+    }
+  },
+  "dubaiHarbour": {
+    "nameEN": "Dubai Harbour",
+    "nameJP": "ドバイ・ハーバー",
+    "tier": "ultra-prime",
+    "avgPriceSqftAed": {
+      "apartment": "2,800–4,000",
+      "villa": "n/a"
+    },
+    "priceSqftYoYPct": "+14 to +18",
+    "priceSqft5yrPct": "+90 to +110",
+    "avgRentalYieldPct": {
+      "apartment": "5.5–7.0"
+    },
+    "transactionVolume": "High — newer Emaar destination master-community, strong off-plan demand",
+    "txCount12mo": "~1,200",
+    "typicalRentAed": {
+      "1br": "100–140k",
+      "2br": "160–220k",
+      "3br": "250–360k"
+    },
+    "tenantProfile": {
+      "en": "HNW expats, yacht owners, lifestyle-oriented executives, holiday-let guests",
+      "jp": "富裕層エクスパット、ヨットオーナー、ライフスタイル重視のエグゼクティブ、ホリデーレット利用者"
+    },
+    "infrastructure": [
+      {
+        "en": "Dubai Harbour Cruise Terminal (largest in Middle East)",
+        "jp": "ドバイ・ハーバー・クルーズターミナル（中東最大）"
+      },
+      {
+        "en": "Skydive Dubai",
+        "jp": "スカイダイブ・ドバイ"
+      },
+      {
+        "en": "1,400-berth super-yacht marina (largest in the region)",
+        "jp": "1,400バースのスーパーヨット・マリーナ（地域最大）"
+      },
+      {
+        "en": "Pedestrian bridges to Palm Jumeirah + JBR",
+        "jp": "パーム・ジュメイラ／JBRへの歩道橋"
+      },
+      {
+        "en": "Aviation Club, Olympic-grade beach",
+        "jp": "アビエーション・クラブ、五輪規格のビーチ"
+      }
+    ],
+    "infrastructurePipeline": [
+      {
+        "when": "2027",
+        "en": "Emaar Beachfront final phases (Beach Mansion, Beach Vista) delivery",
+        "jp": "Emaar Beachfront 最終フェーズ（Beach Mansion, Beach Vista）引渡し"
+      },
+      {
+        "when": "Ongoing",
+        "en": "Cruise terminal expansion, retail district build-out",
+        "jp": "クルーズターミナル拡張、リテール地区開発"
+      }
+    ],
+    "comparableProjects": [
+      {
+        "name": "Palm Jumeirah Marina Residences",
+        "context": "Adjacent prime waterfront comparable"
+      },
+      {
+        "name": "Bluewaters Island",
+        "context": "Comparable destination island product"
+      },
+      {
+        "name": "JBR La Vie / 1 JBR",
+        "context": "Adjacent prime beachfront benchmark"
+      }
+    ],
+    "dxbInteractUrl": "https://dxbinteract.com/area-analysis/dubai-harbour",
+    "dldUrl": "https://dubailand.gov.ae/en/open-data/real-estate-data/",
+    "talkingPoints": [
+      {
+        "en": "Dubai Harbour is the only Dubai location with a super-yacht marina, cruise terminal, AND direct walking access to both Palm Jumeirah and JBR. Genuinely irreplaceable position.",
+        "jp": "ドバイ・ハーバーはスーパーヨット・マリーナ／クルーズターミナル／パーム・ジュメイラ・JBRへの徒歩アクセスを兼ね備える唯一の立地。代替不可能なポジション。"
+      },
+      {
+        "en": "Off-plan resale premiums of +25–40% common in the first 12-18 months of each phase launch — Emaar's flagship destination community.",
+        "jp": "Emaarの旗艦デスティネーション・コミュニティとして、各フェーズ・ローンチ後12〜18ヶ月でオフプラン転売プレミアム+25〜40%が一般的。"
+      },
+      {
+        "en": "Holiday-let demand from cruise tourism + yacht visitors supports 8–12% short-let yields on furnished inventory.",
+        "jp": "クルーズ観光客とヨット訪問客のホリデーレット需要により、家具付き物件でショートレット利回り8〜12%を実現。"
+      }
+    ],
+    "latLng": {
+      "lat": 25.097,
+      "lng": 55.149
+    }
+  },
+  "minaRashid": {
+    "nameEN": "Mina Rashid",
+    "nameJP": "ミナ・ラシッド",
+    "tier": "emerging-prime",
+    "avgPriceSqftAed": {
+      "apartment": "2,200–3,200",
+      "villa": "n/a"
+    },
+    "priceSqftYoYPct": "+12 to +18",
+    "priceSqft5yrPct": "+60 to +80 (newer area, shorter track record)",
+    "avgRentalYieldPct": {
+      "apartment": "6.0–7.5"
+    },
+    "transactionVolume": "Moderate-high — Emaar destination launches selling out quickly",
+    "txCount12mo": "~1,800",
+    "typicalRentAed": {
+      "1br": "85–125k",
+      "2br": "140–200k",
+      "3br": "200–290k"
+    },
+    "tenantProfile": {
+      "en": "Lifestyle-oriented executives, yacht enthusiasts, Old Dubai heritage seekers",
+      "jp": "ライフスタイル重視のエグゼクティブ、ヨット愛好家、オールドドバイの遺産を求める層"
+    },
+    "infrastructure": [
+      {
+        "en": "Queen Elizabeth 2 floating hotel (heritage anchor)",
+        "jp": "クイーン・エリザベス2世号フローティング・ホテル（遺産アンカー）"
+      },
+      {
+        "en": "Dubai Mall of the World (planned)",
+        "jp": "ドバイ・モール・オブ・ザ・ワールド（計画中）"
+      },
+      {
+        "en": "Dubai Harbour pedestrian / boat connectivity (planned)",
+        "jp": "ドバイ・ハーバーへの徒歩／ボート接続（計画中）"
+      },
+      {
+        "en": "12 min to Downtown Dubai / DXB Airport",
+        "jp": "ダウンタウン／DXB空港まで車で12分"
+      },
+      {
+        "en": "Promenade + retail + dining destinations",
+        "jp": "プロムナード／リテール／ダイニング・デスティネーション"
+      }
+    ],
+    "infrastructurePipeline": [
+      {
+        "when": "2027",
+        "en": "Sirdhana / Seascape Phase 2 + 3 handovers",
+        "jp": "Sirdhana／Seascape フェーズ2-3 引渡し"
+      },
+      {
+        "when": "2028+",
+        "en": "Dubai Mall of the World (Pearl of the Gulf) anchor district",
+        "jp": "ドバイ・モール・オブ・ザ・ワールド（パール・オブ・ザ・ガルフ）アンカー地区"
+      },
+      {
+        "when": "Ongoing",
+        "en": "Yacht marina expansion + heritage cruise port upgrades",
+        "jp": "ヨット・マリーナ拡張／遺産クルーズ港改修"
+      }
+    ],
+    "comparableProjects": [
+      {
+        "name": "Dubai Creek Harbour",
+        "context": "Comparable Emaar waterfront masterplan"
+      },
+      {
+        "name": "Dubai Harbour",
+        "context": "Adjacent Emaar destination community"
+      },
+      {
+        "name": "Bluewaters Island",
+        "context": "Comparable destination product"
+      }
+    ],
+    "dxbInteractUrl": "https://dxbinteract.com/area-analysis/mina-rashid",
+    "dldUrl": "https://dubailand.gov.ae/en/open-data/real-estate-data/",
+    "talkingPoints": [
+      {
+        "en": "Mina Rashid is Emaar's newest large-scale destination, with the QE2 heritage anchor and the planned Mall of the World — strong long-term capital growth story.",
+        "jp": "ミナ・ラシッドはEmaarの新しい大規模デスティネーション。QE2の遺産アンカーと計画中のモール・オブ・ザ・ワールドにより長期資本成長ストーリーが強固。"
+      },
+      {
+        "en": "Off-plan launches consistently selling out within hours — early-mover pricing advantage diminishes fast.",
+        "jp": "オフプラン・ローンチは数時間で完売が常態。先行参入の価格優位性は急速に縮小。"
+      },
+      {
+        "en": "12-min Downtown + DXB Airport access is exceptional for a waterfront / yacht-marina community.",
+        "jp": "ヨットマリーナ・コミュニティとしてはダウンタウン／DXB空港まで12分のアクセスは極めて優秀。"
+      }
+    ],
+    "latLng": {
+      "lat": 25.27,
+      "lng": 55.279
+    }
+  },
+  "tilalAlGhaf": {
+    "nameEN": "Tilal Al Ghaf",
+    "nameJP": "ティラル・アル・ガフ",
+    "tier": "prime-suburban",
+    "avgPriceSqftAed": {
+      "apartment": "1,400–1,900",
+      "villa": "1,800–2,800 (mansions 3,500+)"
+    },
+    "priceSqftYoYPct": "+10 to +15",
+    "priceSqft5yrPct": "+80 to +100",
+    "avgRentalYieldPct": {
+      "apartment": "5.5–6.5",
+      "villa": "4.5–5.5"
+    },
+    "transactionVolume": "Moderate-high — Majid Al Futtaim's flagship lagoon community",
+    "txCount12mo": "~2,500",
+    "typicalRentAed": {
+      "1br": "65–95k",
+      "2br": "95–135k",
+      "3br": "150–230k apt / 250–380k villa"
+    },
+    "tenantProfile": {
+      "en": "Family-oriented executives, lifestyle-driven buyers, lagoon-community enthusiasts",
+      "jp": "ファミリー重視のエグゼクティブ、ライフスタイル志向のバイヤー、ラグーン・コミュニティ愛好家"
+    },
+    "infrastructure": [
+      {
+        "en": "Lagoon Al Ghaf (70,000 m² crystal lagoon + sandy beach)",
+        "jp": "ラグーン・アル・ガフ（70,000㎡のクリスタル・ラグーンとサンディ・ビーチ）"
+      },
+      {
+        "en": "Royal Grammar School Guildford Dubai",
+        "jp": "ロイヤル・グラマー・スクール・ギルフォード・ドバイ"
+      },
+      {
+        "en": "Hessa Street + Sheikh Mohammed Bin Zayed Road direct access",
+        "jp": "ヘッサ・ストリート／シェイク・ムハンマド・ビン・ザーイド・ロード直結"
+      },
+      {
+        "en": "15 min to Mall of the Emirates / Dubai Marina",
+        "jp": "モール・オブ・エミレーツ／ドバイ・マリーナまで車で15分"
+      },
+      {
+        "en": "18 km of cycling tracks within community",
+        "jp": "コミュニティ内に18kmのサイクリングコース"
+      }
+    ],
+    "infrastructurePipeline": [
+      {
+        "when": "2026–27",
+        "en": "Aura Gardens, Aura, Solana phases continuing handovers",
+        "jp": "Aura Gardens／Aura／Solana 各フェーズの継続的引渡し"
+      },
+      {
+        "when": "2027+",
+        "en": "Tilal Al Ghaf Mall + community retail expansion",
+        "jp": "Tilal Al Ghaf モール／コミュニティ・リテール拡張"
+      }
+    ],
+    "comparableProjects": [
+      {
+        "name": "Damac Hills",
+        "context": "Comparable family-villa community"
+      },
+      {
+        "name": "Dubai Hills Estate",
+        "context": "Adjacent Emaar mature comparable; Tilal trades 10–15% below"
+      },
+      {
+        "name": "Arabian Ranches 3",
+        "context": "Comparable Emaar suburban villa product"
+      }
+    ],
+    "dxbInteractUrl": "https://dxbinteract.com/area-analysis/tilal-al-ghaf",
+    "dldUrl": "https://dubailand.gov.ae/en/open-data/real-estate-data/",
+    "talkingPoints": [
+      {
+        "en": "Majid Al Futtaim (the Mall of the Emirates / Carrefour group) is one of Dubai's most reliable developers — Tilal Al Ghaf is their flagship residential community.",
+        "jp": "Majid Al Futtaim（モール・オブ・エミレーツ／カルフール・グループ）はドバイ最も信頼性の高いデベロッパーの一つ。Tilal Al Ghafは旗艦住宅コミュニティ。"
+      },
+      {
+        "en": "Lagoon Al Ghaf is the largest crystal-lagoon community amenity in Dubai — central pull factor for family buyers seeking 'staycation at home'.",
+        "jp": "ラグーン・アル・ガフはドバイ最大規模のクリスタル・ラグーン・コミュニティ施設。家族層の「家で過ごすステイケーション」需要を強く引き付ける。"
+      },
+      {
+        "en": "Trades at 10–15% discount to Dubai Hills villas with comparable amenities — strong value proposition for family buyers.",
+        "jp": "同等の施設を持つドバイ・ヒルズのヴィラと比較して10〜15%安く、ファミリー層への強い価値提案。"
+      }
+    ],
+    "latLng": {
+      "lat": 25.014,
+      "lng": 55.231
+    }
   }
 }

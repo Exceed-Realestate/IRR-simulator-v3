@@ -1541,6 +1541,45 @@
   .area-map { height:280px; width:100%; border-radius:8px; border:1px solid #e5e7eb; z-index:0; }
   .leaflet-container { font-family:inherit; }
 
+  /* AI Assistant */
+  .ai-setup-banner { padding:14px 18px; background:linear-gradient(135deg,#eff6ff,#ede9fe); border:1px solid #c7d2fe; border-radius:8px; margin-bottom:14px; }
+  .ai-setup-title { font-size:14px; font-weight:700; color:#3730a3; }
+  .ai-setup-form { display:flex; gap:8px; }
+  .ai-setup-form input { flex:1; padding:9px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px; font-family:monospace; }
+  .ai-tabs { display:flex; gap:4px; border-bottom:2px solid #e5e7eb; margin-bottom:16px; }
+  .ai-tab { padding:9px 16px; background:transparent; border:none; cursor:pointer; font-size:12.5px; font-weight:600; color:var(--text-muted); border-bottom:2px solid transparent; margin-bottom:-2px; transition:all 0.15s; }
+  .ai-tab:hover { color:var(--text); }
+  .ai-tab.active { color:#6366f1; border-bottom-color:#6366f1; }
+  .ai-pane { min-height:200px; }
+  .ai-generate-btn { box-shadow:0 2px 8px rgba(99,102,241,0.25); transition:transform 0.1s; }
+  .ai-generate-btn:hover { transform:translateY(-1px); }
+  .ai-generate-btn:disabled { opacity:0.7; cursor:not-allowed; }
+  .ai-output { margin-top:14px; padding:18px 20px; background:#fafafa; border:1px solid #e5e7eb; border-radius:8px; min-height:120px; font-size:13.5px; line-height:1.7; color:var(--text); white-space:pre-wrap; }
+  .ai-output:empty::before { content:""; }
+  .ai-output.thinking { color:var(--text-muted); font-style:italic; }
+  .ai-output .ai-actions { display:flex; gap:8px; margin-top:14px; padding-top:12px; border-top:1px dashed #e5e7eb; }
+  .ai-output .ai-actions button { padding:6px 12px; border:1px solid #cbd5e1; background:#fff; border-radius:5px; cursor:pointer; font-size:11.5px; font-weight:600; color:var(--text); }
+  .ai-output .ai-actions button:hover { background:#f5f5f5; }
+  .ai-chat-history { padding:12px; background:#fafafa; border:1px solid #e5e7eb; border-radius:8px; max-height:340px; overflow-y:auto; display:flex; flex-direction:column; gap:10px; min-height:120px; }
+  .ai-chat-history:empty::before { content:""; }
+  .ai-chat-msg { padding:10px 14px; border-radius:10px; font-size:12.5px; line-height:1.55; max-width:88%; white-space:pre-wrap; }
+  .ai-chat-msg.user { align-self:flex-end; background:#dbeafe; color:#1e3a8a; }
+  .ai-chat-msg.assistant { align-self:flex-start; background:#fff; border:1px solid #e5e7eb; color:var(--text); }
+  .ai-chat-msg.thinking { color:var(--text-muted); font-style:italic; }
+  .ai-chat-input { display:flex; gap:8px; margin-top:12px; }
+  .ai-chat-input textarea { flex:1; padding:10px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px; font-family:inherit; resize:vertical; }
+  .ai-clear-btn { background:transparent; border:1px solid #e5e7eb; padding:4px 10px; border-radius:5px; font-size:11px; color:var(--text-muted); cursor:pointer; }
+  .ai-clear-btn:hover { background:#f5f5f5; }
+  .ai-settings-row { margin-bottom:14px; }
+  .ai-settings-row label { display:block; font-size:12px; font-weight:600; margin-bottom:6px; }
+  .ai-settings-row input { width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px; font-family:monospace; box-sizing:border-box; }
+  .ai-settings-row small { display:block; font-size:11px; color:var(--text-muted); margin-top:5px; }
+  .ai-settings-actions { display:flex; gap:8px; }
+  .ai-settings-actions button { flex:1; padding:9px; font-size:13px; }
+  .ai-settings-status { margin-top:10px; padding:10px 12px; border-radius:6px; font-size:12px; display:none; }
+  .ai-settings-status.ok { display:block; background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; }
+  .ai-settings-status.err { display:block; background:#fef2f2; color:#991b1b; border:1px solid #fecaca; }
+
   /* Portfolio modal */
   .pf-save-form { padding:14px 16px; background:#fafafa; border:1px solid #e5e7eb; border-radius:8px; margin-bottom:18px; }
   .pf-save-title { font-size:13px; font-weight:700; color:var(--text); margin-bottom:10px; }
@@ -1646,6 +1685,9 @@
         </select>
         <button class="nav-brochure-btn" style="background:var(--accent);color:var(--primary);margin:0;" onclick="openBrochureModal()">
           <span class="ja">物件資料を開く</span><span class="en">Open Brochures</span>
+        </button>
+        <button class="nav-brochure-btn" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;margin:0;" onclick="openAiAssistant()">
+          ✨ <span class="ja">AI</span><span class="en">AI</span>
         </button>
         <button class="nav-brochure-btn" style="background:#0891b2;color:#fff;margin:0;" onclick="openPortfolioModal()">
           📂 <span class="ja">ポートフォリオ</span><span class="en">Portfolio</span>
@@ -2461,6 +2503,96 @@
       <button type="button" class="b-btn primary" onclick="saveCustomProperty()" style="background:var(--accent);color:var(--primary);font-weight:700">
         💾 <span class="ja">保存して試算</span><span class="en">Save &amp; Simulate</span>
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ AI ASSISTANT MODAL ============ -->
+<div class="modal-overlay" id="aiAssistantModal" onclick="if(event.target===this)closeAiAssistant()">
+  <div class="modal" style="max-width:760px">
+    <div class="modal-header">
+      <div>
+        <h2>✨ <span class="ja">AIアシスタント</span><span class="en">AI Assistant</span></h2>
+        <div class="subtitle"><span class="ja">投資テーゼ生成 + 商談中の質問応答（プロパティ・コンテキスト自動反映）</span><span class="en">Investment thesis + live client Q&amp;A — both grounded in the loaded property context</span></div>
+      </div>
+      <button class="modal-close" onclick="closeAiAssistant()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Setup banner — only when worker URL not configured -->
+      <div id="aiSetupBanner" class="ai-setup-banner" style="display:none;">
+        <div class="ai-setup-title">🛠 <span class="ja">初回セットアップ (10分)</span><span class="en">First-time setup (10 min)</span></div>
+        <p style="font-size:12.5px;line-height:1.55;margin:8px 0 12px;"><span class="ja">AI機能はCloudflare Workerに保管されたAnthropic APIキーを使います。<a href="https://github.com/Exceed-Realestate/IRR-simulator-v3/blob/main/cloudflare-worker/README.md" target="_blank" rel="noopener" style="color:#1e40af;">セットアップ手順</a>に沿ってWorkerをデプロイし、URLを下に貼り付けてください。</span><span class="en">AI features call a Cloudflare Worker that holds your Anthropic API key. Follow the <a href="https://github.com/Exceed-Realestate/IRR-simulator-v3/blob/main/cloudflare-worker/README.md" target="_blank" rel="noopener" style="color:#1e40af;">setup guide</a> to deploy the Worker, then paste its URL below.</span></p>
+        <div class="ai-setup-form">
+          <input type="url" id="aiWorkerUrl" placeholder="https://exceed-irr-ai.your-subdomain.workers.dev" autocomplete="off">
+          <button class="b-btn primary" onclick="saveAiWorkerUrl()" style="background:#1e40af;color:#fff;font-weight:700;white-space:nowrap;">
+            <span class="ja">保存</span><span class="en">Save</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="ai-tabs">
+        <button class="ai-tab active" data-tab="thesis" onclick="switchAiTab('thesis')">📝 <span class="ja">投資テーゼ</span><span class="en">Thesis</span></button>
+        <button class="ai-tab" data-tab="chat" onclick="switchAiTab('chat')">💬 <span class="ja">クライアントQ&amp;A</span><span class="en">Client Q&amp;A</span></button>
+        <button class="ai-tab" data-tab="settings" onclick="switchAiTab('settings')">⚙️ <span class="ja">設定</span><span class="en">Settings</span></button>
+      </div>
+
+      <!-- Thesis tab -->
+      <div class="ai-pane" id="aiPaneThesis">
+        <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px;"><span class="ja">現在のプロパティに対し、180〜220語の投資テーゼをAIが生成します。エージェントが読み上げる用。</span><span class="en">AI generates a 180–220 word investment thesis for the loaded property — built for the agent to read aloud or paraphrase.</span></p>
+        <button class="b-btn primary ai-generate-btn" onclick="generateAiThesis()" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;width:100%;padding:11px;font-weight:700;">
+          ✨ <span class="ja">テーゼを生成</span><span class="en">Generate Thesis</span>
+        </button>
+        <div id="aiThesisOutput" class="ai-output"></div>
+      </div>
+
+      <!-- Chat tab -->
+      <div class="ai-pane" id="aiPaneChat" style="display:none;">
+        <p style="font-size:12px;color:var(--text-muted);margin:0 0 10px;"><span class="ja">クライアントから受けた質問をそのまま貼り付け。プロパティ・コンテキストを踏まえた回答をAIが返します。</span><span class="en">Paste a client's question — AI replies grounded in the loaded property + area context.</span></p>
+        <div id="aiChatHistory" class="ai-chat-history"></div>
+        <div class="ai-chat-input">
+          <textarea id="aiChatInput" rows="2" placeholder="例: もし途中で UAE を離れる必要があったら…  /  e.g. What if I need to leave UAE after 3 years?"></textarea>
+          <button class="b-btn primary" onclick="sendAiChat()" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;font-weight:700;white-space:nowrap;">
+            <span class="ja">送信</span><span class="en">Send</span>
+          </button>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+          <small style="font-size:10.5px;color:var(--text-muted);"><span class="ja">⌘+Enter で送信</span><span class="en">⌘+Enter to send</span></small>
+          <button class="ai-clear-btn" onclick="clearAiChat()">↻ <span class="ja">履歴クリア</span><span class="en">Clear history</span></button>
+        </div>
+      </div>
+
+      <!-- Settings tab -->
+      <div class="ai-pane" id="aiPaneSettings" style="display:none;">
+        <div class="ai-settings-row">
+          <label><span class="ja">Cloudflare Worker URL</span><span class="en">Cloudflare Worker URL</span></label>
+          <input type="url" id="aiWorkerUrlSettings" placeholder="https://exceed-irr-ai.your-subdomain.workers.dev">
+          <small><span class="ja">空欄にすると AI 機能はデモモードに戻ります。</span><span class="en">Leave blank to fall back to demo mode.</span></small>
+        </div>
+        <div class="ai-settings-actions">
+          <button class="b-btn" onclick="testAiWorker()" style="background:#e5e7eb;color:var(--text);">
+            🔍 <span class="ja">接続テスト</span><span class="en">Test connection</span>
+          </button>
+          <button class="b-btn primary" onclick="saveAiWorkerUrlFromSettings()" style="background:#1e40af;color:#fff;font-weight:700;">
+            💾 <span class="ja">保存</span><span class="en">Save</span>
+          </button>
+        </div>
+        <div id="aiSettingsStatus" class="ai-settings-status"></div>
+        <hr style="margin:18px 0; border:none; border-top:1px solid #e5e7eb;">
+        <details>
+          <summary style="font-size:12.5px; font-weight:600; cursor:pointer;">📘 <span class="ja">セットアップ手順</span><span class="en">Setup instructions</span></summary>
+          <ol style="font-size:12px; line-height:1.7; padding-left:20px; margin-top:10px;">
+            <li><a href="https://console.anthropic.com/settings/keys" target="_blank">Anthropic API key</a><span class="ja">を取得</span><span class="en"> — get one</span></li>
+            <li><code>npm install -g wrangler</code></li>
+            <li><code>wrangler login</code></li>
+            <li><code>cd cloudflare-worker && wrangler secret put ANTHROPIC_API_KEY</code> <span class="ja">（プロンプトでキーを貼り付け）</span><span class="en"> (paste your key when prompted)</span></li>
+            <li><code>wrangler deploy</code> — <span class="ja">出力されたURLを上の欄に貼り付け</span><span class="en">paste the printed URL above</span></li>
+          </ol>
+          <p style="font-size:11px;color:var(--text-muted);"><span class="ja">詳細：</span><span class="en">Full docs: </span><a href="https://github.com/Exceed-Realestate/IRR-simulator-v3/blob/main/cloudflare-worker/README.md" target="_blank">cloudflare-worker/README.md</a></p>
+        </details>
+      </div>
+
     </div>
   </div>
 </div>
@@ -3927,6 +4059,265 @@ function initAreaMap() {
   // Resize hint — Leaflet sometimes mis-sizes when its container was hidden
   setTimeout(() => { try { map.invalidateSize(); } catch (e) {} }, 100);
 }
+
+// ============ AI ASSISTANT ============
+const AI_WORKER_KEY = "exceedAiWorkerUrl_v1";
+const AI_CHAT_HISTORY_KEY = "exceedAiChatHistory_v1";
+
+function aiGetWorkerUrl() {
+  return (localStorage.getItem(AI_WORKER_KEY) || "").trim();
+}
+function aiSetWorkerUrl(url) {
+  if (url) localStorage.setItem(AI_WORKER_KEY, url.trim());
+  else localStorage.removeItem(AI_WORKER_KEY);
+}
+
+function aiBuildPayload() {
+  const inp = (typeof getInputs === "function") ? getInputs() : {};
+  let result = null;
+  try { result = calculate(inp); } catch (e) {}
+  const presetKey = (document.getElementById("preset") || {}).value;
+  const presetSel = document.getElementById("preset");
+  const presetLabel = presetSel?.options?.[presetSel.selectedIndex]?.text?.replace(/^★\s*/, "").replace(/\s*\([\d.]+M\)\s*$/, "") || "";
+  const area = (typeof getAreaProfile === "function" && currentAreaKey)
+    ? getAreaProfile(currentAreaKey) : null;
+  const lang = document.body.getAttribute("data-lang") || "ja";
+  return {
+    unit: {
+      name: presetLabel,
+      preset: presetKey,
+      price: inp.price,
+      sqft: inp.sqft,
+      propertyType: inp.propertyType,
+      purchaseMode: inp.purchaseMode,
+      holdYears: inp.holdYears,
+      useMortgage: inp.useMortgage,
+      ltv: inp.ltv,
+      mortgageRate: inp.mortgageRate,
+      grossYield: inp.grossYield,
+      appreciation: inp.appreciation
+    },
+    area: area ? {
+      nameEN: area.nameEN, nameJP: area.nameJP, tier: area.tier,
+      avgPriceSqftAed: area.avgPriceSqftAed,
+      priceSqftYoYPct: area.priceSqftYoYPct,
+      priceSqft5yrPct: area.priceSqft5yrPct,
+      avgRentalYieldPct: area.avgRentalYieldPct,
+      tenantProfile: area.tenantProfile,
+      comparableProjects: area.comparableProjects,
+      txCount12mo: area.txCount12mo
+    } : null,
+    result: result ? {
+      irr: result.irr,
+      multiple: result.multiple,
+      totalReturn: result.totalIn ? (result.totalIn - result.totalOut) / result.totalOut : null,
+      netSaleProceeds: result.netSaleProceeds,
+      initialCashAED: result.initialCashAED,
+      cashOnCashPct: result.cashOnCashPct,
+      paybackYears: result.paybackYears
+    } : null,
+    lang
+  };
+}
+
+function openAiAssistant() {
+  const m = document.getElementById("aiAssistantModal");
+  if (!m) return;
+  // Sync setup banner visibility
+  const hasUrl = !!aiGetWorkerUrl();
+  document.getElementById("aiSetupBanner").style.display = hasUrl ? "none" : "";
+  document.getElementById("aiWorkerUrl").value = aiGetWorkerUrl();
+  document.getElementById("aiWorkerUrlSettings").value = aiGetWorkerUrl();
+  m.classList.add("open");
+  document.body.style.overflow = "hidden";
+  // Restore chat history if any
+  renderAiChat();
+}
+function closeAiAssistant() {
+  const m = document.getElementById("aiAssistantModal");
+  if (m) m.classList.remove("open");
+  document.body.style.overflow = "";
+}
+
+function switchAiTab(tab) {
+  document.querySelectorAll(".ai-tab").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
+  document.getElementById("aiPaneThesis").style.display = tab === "thesis" ? "" : "none";
+  document.getElementById("aiPaneChat").style.display = tab === "chat" ? "" : "none";
+  document.getElementById("aiPaneSettings").style.display = tab === "settings" ? "" : "none";
+}
+
+function saveAiWorkerUrl() {
+  const v = (document.getElementById("aiWorkerUrl").value || "").trim();
+  aiSetWorkerUrl(v);
+  document.getElementById("aiSetupBanner").style.display = v ? "none" : "";
+  document.getElementById("aiWorkerUrlSettings").value = v;
+  showToast("✓ " + (document.body.getAttribute("data-lang") === "ja" ? "Worker URL を保存" : "Worker URL saved"));
+}
+function saveAiWorkerUrlFromSettings() {
+  const v = (document.getElementById("aiWorkerUrlSettings").value || "").trim();
+  aiSetWorkerUrl(v);
+  document.getElementById("aiWorkerUrl").value = v;
+  document.getElementById("aiSetupBanner").style.display = v ? "none" : "";
+  const status = document.getElementById("aiSettingsStatus");
+  status.className = "ai-settings-status ok";
+  status.textContent = "✓ " + (document.body.getAttribute("data-lang") === "ja" ? "保存しました" : "Saved");
+}
+
+async function testAiWorker() {
+  const url = aiGetWorkerUrl();
+  const status = document.getElementById("aiSettingsStatus");
+  if (!url) {
+    status.className = "ai-settings-status err";
+    status.textContent = "⚠ " + (document.body.getAttribute("data-lang") === "ja" ? "Worker URL が設定されていません" : "No Worker URL set");
+    return;
+  }
+  status.className = "ai-settings-status";
+  status.style.display = "block";
+  status.textContent = "…";
+  try {
+    const r = await fetch(url.replace(/\/$/, "") + "/");
+    if (r.ok) {
+      status.className = "ai-settings-status ok";
+      status.textContent = "✓ " + (document.body.getAttribute("data-lang") === "ja" ? "接続成功 — Worker は応答しています" : "Connected — Worker is responding");
+    } else {
+      status.className = "ai-settings-status err";
+      status.textContent = "✗ HTTP " + r.status;
+    }
+  } catch (e) {
+    status.className = "ai-settings-status err";
+    status.textContent = "✗ " + e.message;
+  }
+}
+
+async function generateAiThesis() {
+  const out = document.getElementById("aiThesisOutput");
+  const lang = document.body.getAttribute("data-lang") || "ja";
+  const T = (ja, en) => lang === "ja" ? ja : en;
+  const url = aiGetWorkerUrl();
+  if (!url) {
+    out.className = "ai-output thinking";
+    out.innerHTML = T(
+      "⚠ AI Worker が設定されていません。「⚙️ 設定」タブで Worker URL を入力してください。それまではデモテーゼを表示します。<br><br>",
+      "⚠ No AI Worker configured. Set the Worker URL in the ⚙️ Settings tab. Until then, here's a demo thesis based on the loaded property:<br><br>"
+    ) + aiDemoThesis(lang);
+    return;
+  }
+  out.className = "ai-output thinking";
+  out.textContent = T("テーゼを生成中…", "Generating thesis…");
+  try {
+    const payload = aiBuildPayload();
+    const resp = await fetch(url.replace(/\/$/, "") + "/thesis", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    if (!resp.ok) throw new Error("HTTP " + resp.status);
+    const data = await resp.json();
+    out.className = "ai-output";
+    out.innerHTML = escapeHtml(data.thesis || "").replace(/\n/g, "<br>") +
+      '<div class="ai-actions">' +
+        '<button onclick="copyAiText(this)">📋 ' + T("コピー", "Copy") + '</button>' +
+        '<button onclick="generateAiThesis()">↻ ' + T("再生成", "Regenerate") + '</button>' +
+      '</div>';
+  } catch (e) {
+    out.className = "ai-output thinking";
+    out.textContent = "✗ " + e.message;
+  }
+}
+
+function copyAiText(btn) {
+  const parent = btn.closest(".ai-output");
+  const txt = parent.innerText.replace(/[\n]*📋 ?Copy[\s\S]*$/u, "").trim();
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(txt).then(() => showToast("✓ Copied"));
+  }
+}
+
+function aiDemoThesis(lang) {
+  return lang === "ja"
+    ? "（デモ）本物件はドバイ・プライムエリアに位置し、過去5年間のエリア成長と branded-residence プレミアムに裏付けられた構造的なバリュー・プレイです。エリアの坪単価は X AED 前後で取引されており、本ユニットの値付けは中央値前後にあります。想定IRR・キャッシュオンキャッシュ・回収期間は試算機の主な数値をご確認ください。リスクは金利・市場サイクルですが、UAEの人口増・ペッグ通貨・賃料の厚みで部分的に緩和されています。ファミリー保有または中期インカム志向の投資家に適合します。"
+    : "(Demo) This property sits in a Dubai prime area, anchored by the area's five-year price growth and the branded-residence rental premium. Area-average AED/sqft trades around X, and this unit is priced near the midpoint. Refer to the simulator for the projected IRR, cash-on-cash, and payback period. The principal risk — rate cycle and market timing — is partially mitigated by UAE population growth, the AED-USD peg, and a deep rental pool. Suited to family-buyer or mid-term income investors. (Configure your AI Worker to replace this with a real, property-specific thesis.)";
+}
+
+function aiChatHistory() {
+  try { return JSON.parse(localStorage.getItem(AI_CHAT_HISTORY_KEY) || "[]"); }
+  catch (e) { return []; }
+}
+function aiSaveChatHistory(h) {
+  try { localStorage.setItem(AI_CHAT_HISTORY_KEY, JSON.stringify(h.slice(-20))); } catch (e) {}
+}
+function renderAiChat() {
+  const list = document.getElementById("aiChatHistory");
+  if (!list) return;
+  const h = aiChatHistory();
+  if (h.length === 0) {
+    list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:12px;font-style:italic;">' +
+      (document.body.getAttribute("data-lang") === "ja" ? "履歴なし — 下に質問を入力してください" : "No messages yet — type a question below") + '</div>';
+    return;
+  }
+  list.innerHTML = h.map(m => '<div class="ai-chat-msg ' + escapeHtml(m.role) + '">' + escapeHtml(m.content) + '</div>').join("");
+  list.scrollTop = list.scrollHeight;
+}
+function clearAiChat() {
+  aiSaveChatHistory([]);
+  renderAiChat();
+}
+async function sendAiChat() {
+  const inputEl = document.getElementById("aiChatInput");
+  const question = (inputEl.value || "").trim();
+  if (!question) return;
+  inputEl.value = "";
+  const h = aiChatHistory();
+  h.push({ role: "user", content: question });
+  aiSaveChatHistory(h);
+  renderAiChat();
+
+  const list = document.getElementById("aiChatHistory");
+  const thinking = document.createElement("div");
+  thinking.className = "ai-chat-msg assistant thinking";
+  thinking.textContent = document.body.getAttribute("data-lang") === "ja" ? "考え中…" : "Thinking…";
+  list.appendChild(thinking);
+  list.scrollTop = list.scrollHeight;
+
+  const url = aiGetWorkerUrl();
+  if (!url) {
+    thinking.classList.remove("thinking");
+    thinking.textContent = (document.body.getAttribute("data-lang") === "ja"
+      ? "⚠ AI Worker が設定されていません。「⚙️ 設定」タブで Worker URL を入力してください。"
+      : "⚠ No AI Worker configured. Set the Worker URL in the ⚙️ Settings tab.");
+    const h2 = aiChatHistory();
+    h2.push({ role: "assistant", content: thinking.textContent });
+    aiSaveChatHistory(h2);
+    return;
+  }
+  try {
+    const payload = aiBuildPayload();
+    payload.history = h.slice(0, -1);  // exclude latest user msg (it's in `question`)
+    payload.question = question;
+    const resp = await fetch(url.replace(/\/$/, "") + "/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    if (!resp.ok) throw new Error("HTTP " + resp.status);
+    const data = await resp.json();
+    thinking.classList.remove("thinking");
+    thinking.textContent = data.reply || "(empty reply)";
+    const h3 = aiChatHistory();
+    h3.push({ role: "assistant", content: data.reply || "" });
+    aiSaveChatHistory(h3);
+  } catch (e) {
+    thinking.classList.remove("thinking");
+    thinking.textContent = "✗ " + e.message;
+  }
+}
+// Cmd+Enter submits chat
+document.getElementById("aiChatInput")?.addEventListener("keydown", (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+    e.preventDefault();
+    sendAiChat();
+  }
+});
 
 // ----- Portfolio (saved scenarios per client) — Batch 4C -----
 const PF_KEY = "exceedSavedScenarios_v1";
