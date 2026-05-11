@@ -104,7 +104,11 @@
         "en": "Palm Monorail metro link feasibility study",
         "jp": "パーム・モノレールのメトロ接続検討"
       }
-    ]
+    ],
+    "latLng": {
+      "lat": 25.1124,
+      "lng": 55.139
+    }
   },
   "dubaiCreekHarbour": {
     "nameEN": "Dubai Creek Harbour",
@@ -198,7 +202,11 @@
         "en": "Dubai Creek Tower (project status under review)",
         "jp": "ドバイ・クリーク・タワー（計画見直し中）"
       }
-    ]
+    ],
+    "latLng": {
+      "lat": 25.1972,
+      "lng": 55.3473
+    }
   },
   "zaabeel": {
     "nameEN": "Za'abeel / World Trade Centre district",
@@ -287,7 +295,11 @@
         "en": "DIFC 2.0 connectivity upgrades",
         "jp": "DIFC 2.0 接続性向上"
       }
-    ]
+    ],
+    "latLng": {
+      "lat": 25.2274,
+      "lng": 55.2956
+    }
   },
   "palmJebelAli": {
     "nameEN": "Palm Jebel Ali",
@@ -377,7 +389,11 @@
         "en": "Al Maktoum Airport (DWC) Phase 1 expansion",
         "jp": "アル・マクトゥーム空港（DWC）フェーズ1拡張"
       }
-    ]
+    ],
+    "latLng": {
+      "lat": 24.9869,
+      "lng": 54.9931
+    }
   },
   "dubaiHills": {
     "nameEN": "Dubai Hills Estate",
@@ -472,7 +488,11 @@
         "en": "Additional retail clusters & community schools",
         "jp": "リテール・クラスター／学校の継続増設"
       }
-    ]
+    ],
+    "latLng": {
+      "lat": 25.1124,
+      "lng": 55.2587
+    }
   },
   "businessBay": {
     "nameEN": "Business Bay",
@@ -570,7 +590,11 @@
         "en": "Bay Avenue redevelopment",
         "jp": "ベイ・アベニュー再開発"
       }
-    ]
+    ],
+    "latLng": {
+      "lat": 25.1864,
+      "lng": 55.2756
+    }
   },
   "downtownDubai": {
     "nameEN": "Downtown Dubai",
@@ -668,7 +692,11 @@
         "en": "Boulevard branded-tower densification",
         "jp": "ブールバード沿いのブランデッド・タワー集積"
       }
-    ]
+    ],
+    "latLng": {
+      "lat": 25.1972,
+      "lng": 55.2744
+    }
   },
   "dubaiMarina": {
     "nameEN": "Dubai Marina",
@@ -757,7 +785,11 @@
         "en": "Marina Walk retail & dining refresh",
         "jp": "マリーナ・ウォークのリテール／飲食リフレッシュ"
       }
-    ]
+    ],
+    "latLng": {
+      "lat": 25.0805,
+      "lng": 55.1407
+    }
   },
   "jvc": {
     "nameEN": "JVC (Jumeirah Village Circle)",
@@ -848,7 +880,11 @@
         "en": "Densification — 100+ new towers in pipeline",
         "jp": "供給増加 — 100棟超のタワーが計画中"
       }
-    ]
+    ],
+    "latLng": {
+      "lat": 25.0506,
+      "lng": 55.209
+    }
   },
   "jbr": {
     "nameEN": "JBR (Jumeirah Beach Residence)",
@@ -937,7 +973,11 @@
         "en": "The Beach mall renovation & Tram station upgrades",
         "jp": "ザ・ビーチ・モール改装／トラム駅改修"
       }
-    ]
+    ],
+    "latLng": {
+      "lat": 25.0786,
+      "lng": 55.1342
+    }
   },
   "damacHills": {
     "nameEN": "DAMAC Hills",
@@ -1023,7 +1063,11 @@
         "en": "Additional retail & community-school expansion",
         "jp": "リテール／コミュニティスクールの増設"
       }
-    ]
+    ],
+    "latLng": {
+      "lat": 25.0156,
+      "lng": 55.2638
+    }
   },
   "bluewatersIsland": {
     "nameEN": "Bluewaters Island",
@@ -1112,7 +1156,11 @@
         "en": "The Wharf retail expansion",
         "jp": "ザ・ワーフ・リテール拡張"
       }
-    ]
+    ],
+    "latLng": {
+      "lat": 25.0788,
+      "lng": 55.1234
+    }
   },
   "difc": {
     "nameEN": "DIFC (Dubai International Financial Centre)",
@@ -1201,6 +1249,10 @@
         "en": "Gate Avenue retail extensions",
         "jp": "ゲート・アベニュー・リテール拡張"
       }
-    ]
+    ],
+    "latLng": {
+      "lat": 25.2103,
+      "lng": 55.2825
+    }
   }
 }

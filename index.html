@@ -6,6 +6,8 @@
 <title>EXIT IRR Simulator | EXCEED REAL ESTATE</title>
 <link rel="icon" type="image/jpeg" href="./exceed_logo.jpg">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <style>
   :root {
     --primary: #0a2540;
@@ -1493,6 +1495,59 @@
   #card-sensitivity .sens-bar-down { background:#dc2626; border-radius:3px 0 0 3px; }
   #card-sensitivity .sens-bar-up { background:#16a34a; border-radius:0 3px 3px 0; }
   #card-sensitivity .sens-values { font-size:11px; color:#475569; text-align:right; font-family:monospace; font-weight:600; }
+
+  /* Mortgage qualifier */
+  .mq-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:18px; }
+  .mq-grid .field label { display:block; font-size:11.5px; font-weight:600; color:var(--text); margin-bottom:5px; text-transform:uppercase; letter-spacing:0.4px; }
+  .mq-grid .field input, .mq-grid .field select { width:100%; padding:8px 10px; border:1px solid #cbd5e1; border-radius:6px; font-size:13.5px; box-sizing:border-box; }
+  .mq-result { padding:16px 18px; border-radius:8px; margin-bottom:14px; border:2px solid; }
+  .mq-result.pass { background:#f0fdf4; border-color:#16a34a; }
+  .mq-result.warn { background:#fffbeb; border-color:#f59e0b; }
+  .mq-result.fail { background:#fef2f2; border-color:#dc2626; }
+  .mq-result .mq-headline { font-size:16px; font-weight:700; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+  .mq-result.pass .mq-headline { color:#166534; }
+  .mq-result.warn .mq-headline { color:#92400e; }
+  .mq-result.fail .mq-headline { color:#991b1b; }
+  .mq-result .mq-summary { font-size:13px; line-height:1.5; color:var(--text); }
+  .mq-result .mq-stats { display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:8px; margin-top:12px; }
+  .mq-result .mq-stat { padding:8px 12px; background:rgba(255,255,255,0.7); border-radius:6px; }
+  .mq-result .mq-stat-label { font-size:10.5px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.4px; }
+  .mq-result .mq-stat-value { font-size:15px; font-weight:700; color:var(--text); }
+  .mq-result .mq-fail-reasons { margin-top:10px; padding:10px 12px; background:rgba(255,255,255,0.8); border-radius:6px; font-size:12px; line-height:1.5; }
+  .mq-result .mq-fail-reasons ul { margin:4px 0 0; padding-left:20px; }
+  .mq-rules summary { font-size:12px; cursor:pointer; color:var(--text-muted); }
+  .mq-rules-body { padding:12px; background:#fafafa; border-radius:6px; margin-top:8px; font-size:12px; line-height:1.6; }
+  .mq-rules-body ul { margin:6px 0; padding-left:20px; }
+
+  /* Area map (Leaflet container) */
+  .area-map-block { margin-top:18px; }
+  .area-map { height:280px; width:100%; border-radius:8px; border:1px solid #e5e7eb; z-index:0; }
+  .leaflet-container { font-family:inherit; }
+
+  /* Portfolio modal */
+  .pf-save-form { padding:14px 16px; background:#fafafa; border:1px solid #e5e7eb; border-radius:8px; margin-bottom:18px; }
+  .pf-save-title { font-size:13px; font-weight:700; color:var(--text); margin-bottom:10px; }
+  .pf-save-grid { display:grid; grid-template-columns:1fr 1fr auto; gap:8px; }
+  .pf-save-grid input { padding:8px 10px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px; }
+  .pf-list { display:flex; flex-direction:column; gap:14px; }
+  .pf-empty { padding:32px; text-align:center; color:var(--text-muted); font-style:italic; font-size:13px; background:#fafafa; border-radius:8px; }
+  .pf-client { border:1px solid #e5e7eb; border-radius:8px; padding:14px 16px; background:#fff; }
+  .pf-client-name { font-size:14px; font-weight:700; color:var(--text); margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid #f0f0f0; display:flex; align-items:center; gap:8px; }
+  .pf-client-count { font-size:11px; color:var(--text-muted); font-weight:500; }
+  .pf-scenario { display:grid; grid-template-columns:1fr auto auto auto; gap:10px; align-items:center; padding:8px 0; border-bottom:1px dashed #f0f0f0; }
+  .pf-scenario:last-child { border-bottom:none; }
+  .pf-scenario-label { font-size:12.5px; font-weight:600; color:var(--text); }
+  .pf-scenario-meta { font-size:10.5px; color:var(--text-muted); margin-top:2px; }
+  .pf-scenario-irr { font-family:monospace; font-size:12.5px; font-weight:700; color:#0a2540; }
+  .pf-scenario-btn { padding:5px 10px; background:transparent; border:1px solid #cbd5e1; border-radius:5px; cursor:pointer; font-size:11.5px; font-weight:600; }
+  .pf-scenario-btn.load { color:#1e40af; border-color:#bfdbfe; }
+  .pf-scenario-btn.load:hover { background:#dbeafe; }
+  .pf-scenario-btn.del { color:#b91c1c; border-color:#fecaca; }
+  .pf-scenario-btn.del:hover { background:#fee2e2; }
+  @media (max-width:560px) {
+    .pf-save-grid { grid-template-columns:1fr; }
+    .pf-scenario { grid-template-columns:1fr auto; gap:6px 10px; }
+  }
   .area-citations { display:flex; gap:14px; flex-wrap:wrap; margin-top:14px; padding-top:12px; border-top:1px solid #eee; font-size:11.5px; }
   .area-citations a { color:var(--accent, #b08850); text-decoration:none; border-bottom:1px dotted; }
   .area-citations a:hover { color:var(--text); }
@@ -1574,6 +1629,12 @@
         </select>
         <button class="nav-brochure-btn" style="background:var(--accent);color:var(--primary);margin:0;" onclick="openBrochureModal()">
           <span class="ja">物件資料を開く</span><span class="en">Open Brochures</span>
+        </button>
+        <button class="nav-brochure-btn" style="background:#0891b2;color:#fff;margin:0;" onclick="openPortfolioModal()">
+          📂 <span class="ja">ポートフォリオ</span><span class="en">Portfolio</span>
+        </button>
+        <button class="nav-brochure-btn" style="background:#059669;color:#fff;margin:0;" onclick="openMortgageQualifier()">
+          💰 <span class="ja">ローン適格</span><span class="en">Mortgage Check</span>
         </button>
         <button class="nav-brochure-btn" style="background:#7c3aed;color:#fff;margin:0;" onclick="openCompareModal()">
           ⚖️ <span class="ja">比較</span><span class="en">Compare</span>
@@ -2360,6 +2421,115 @@
       </button>
       <button type="button" class="b-btn primary" onclick="saveCustomProperty()" style="background:var(--accent);color:var(--primary);font-weight:700">
         💾 <span class="ja">保存して試算</span><span class="en">Save &amp; Simulate</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PORTFOLIO (saved scenarios) MODAL ============ -->
+<div class="modal-overlay" id="portfolioModal" onclick="if(event.target===this)closePortfolioModal()">
+  <div class="modal" style="max-width:760px">
+    <div class="modal-header">
+      <div>
+        <h2>📂 <span class="ja">クライアント・ポートフォリオ</span><span class="en">Client Portfolio</span></h2>
+        <div class="subtitle"><span class="ja">クライアント毎にシナリオを保存し、いつでも再現可能。フォローアップ・更新提案に最適。</span><span class="en">Save scenarios per client, reload anytime. Perfect for follow-up and refresh proposals.</span></div>
+      </div>
+      <button class="modal-close" onclick="closePortfolioModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="pf-save-form">
+        <div class="pf-save-title">➕ <span class="ja">現在のシナリオを保存</span><span class="en">Save current scenario</span></div>
+        <div class="pf-save-grid">
+          <input type="text" id="pfClient" placeholder="クライアント名 / Client name (e.g. Tanaka-san)" autocomplete="off">
+          <input type="text" id="pfLabel" placeholder="シナリオラベル / Label (auto-generated if blank)" autocomplete="off">
+          <button class="b-btn primary" onclick="savePfScenario()" style="background:var(--accent);color:var(--primary);font-weight:700;white-space:nowrap;">
+            💾 <span class="ja">保存</span><span class="en">Save</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="pf-list" id="pfList">
+        <div class="pf-empty"><span class="ja">保存されたシナリオはまだありません。</span><span class="en">No saved scenarios yet.</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MORTGAGE QUALIFIER MODAL ============ -->
+<div class="modal-overlay" id="mortgageQualifierModal" onclick="if(event.target===this)closeMortgageQualifier()">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-header">
+      <div>
+        <h2>💰 <span class="ja">モーゲージ適格性チェック</span><span class="en">Mortgage Eligibility Check</span></h2>
+        <div class="subtitle"><span class="ja">UAE中央銀行の規則に基づく適格LTV・最大ローン額・DBRを即時計算</span><span class="en">UAE Central Bank rules — instant eligible LTV, max loan, and DBR check</span></div>
+      </div>
+      <button class="modal-close" onclick="closeMortgageQualifier()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="mq-grid">
+        <div class="field">
+          <label><span class="ja">居住区分</span><span class="en">Residency Status</span></label>
+          <select id="mqResidency">
+            <option value="uae_national"><span class="ja">UAE国民</span>UAE National</option>
+            <option value="expat_resident" selected>UAE Resident (Expat)</option>
+            <option value="non_resident">Non-Resident</option>
+          </select>
+        </div>
+        <div class="field">
+          <label><span class="ja">年齢</span><span class="en">Age</span></label>
+          <input type="number" id="mqAge" min="18" max="80" value="40">
+        </div>
+        <div class="field">
+          <label><span class="ja">月収 (AED)</span><span class="en">Monthly Income (AED)</span></label>
+          <input type="number" id="mqIncome" min="0" step="1000" value="50000">
+        </div>
+        <div class="field">
+          <label><span class="ja">既存月返済額 (AED)</span><span class="en">Existing Monthly Debts (AED)</span></label>
+          <input type="number" id="mqDebts" min="0" step="500" value="5000">
+        </div>
+        <div class="field">
+          <label><span class="ja">物件区分</span><span class="en">Buyer Status</span></label>
+          <select id="mqBuyerStatus">
+            <option value="first" selected>First home in UAE</option>
+            <option value="second">Second / additional home</option>
+          </select>
+        </div>
+        <div class="field">
+          <label><span class="ja">物件モード（自動）</span><span class="en">Property Mode (auto)</span></label>
+          <input type="text" id="mqMode" readonly style="background:#f9fafb;">
+        </div>
+      </div>
+
+      <div id="mqResult" class="mq-result"></div>
+
+      <div class="mq-rules">
+        <details>
+          <summary>📋 <span class="ja">適用ルールを確認</span><span class="en">View applied rules</span></summary>
+          <div class="mq-rules-body">
+            <strong>UAE Central Bank Mortgage Regulation:</strong>
+            <ul>
+              <li>UAE National, first home &lt;AED 5M: <strong>80% LTV</strong></li>
+              <li>UAE National, first home ≥AED 5M: <strong>70% LTV</strong></li>
+              <li>Expat Resident, first home &lt;AED 5M: <strong>75% LTV</strong></li>
+              <li>Expat Resident, first home ≥AED 5M: <strong>65% LTV</strong></li>
+              <li>Non-Resident: <strong>50% LTV</strong> (varies by bank)</li>
+              <li>Any second home: <strong>60% LTV</strong></li>
+              <li>Off-plan (any buyer): <strong>50% LTV</strong></li>
+              <li>Age cap: borrower must be ≤65 at loan maturity (salaried) / ≤70 (self-employed)</li>
+              <li>DBR cap: total monthly debt incl. new mortgage ≤ 50% of monthly income</li>
+              <li>Min income (typical): AED 15,000/mo national, AED 25,000/mo expat</li>
+            </ul>
+            <em>Rules are indicative — final approval at lender discretion.</em>
+          </div>
+        </details>
+      </div>
+    </div>
+    <div class="modal-footer" style="display:flex;justify-content:flex-end;gap:10px;padding:16px 28px">
+      <button type="button" class="b-btn" onclick="closeMortgageQualifier()" style="background:#e5e7eb;color:var(--text)">
+        <span class="ja">閉じる</span><span class="en">Close</span>
+      </button>
+      <button type="button" class="b-btn primary" id="mqApplyBtn" onclick="applyMortgageEligibility()" style="background:var(--accent);color:var(--primary);font-weight:700">
+        ✓ <span class="ja">この適格条件を試算機に適用</span><span class="en">Apply eligible LTV to simulator</span>
       </button>
     </div>
   </div>
@@ -3670,6 +3840,15 @@ function renderAreaCard(areaKey) {
   const asOf = meta.dataAsOf ? '<span class="data-as-of"><span class="ja">データ基準</span><span class="en">Data as of</span>: ' + escapeHtml(meta.dataAsOf) + '</span>' : '';
   const citations = (dxbUrl || dldUrl || asOf) ? '<div class="area-citations">' + dxbUrl + dldUrl + asOf + '</div>' : '';
 
+  // Map block (Batch 4B) — only rendered when we have coords for this area
+  let mapBlock = '';
+  if (a.latLng && a.latLng.lat && a.latLng.lng) {
+    mapBlock = '<div class="area-block area-map-block">' +
+      '<h4>📍 <span class="ja">立地</span><span class="en">Location</span></h4>' +
+      '<div id="areaMap" class="area-map" data-lat="' + a.latLng.lat + '" data-lng="' + a.latLng.lng + '" data-name="' + escapeHtml(a.nameEN) + '"></div>' +
+    '</div>';
+  }
+
   el.innerHTML =
     '<div class="area-header">' +
       '<div>' +
@@ -3681,9 +3860,319 @@ function renderAreaCard(areaKey) {
     verifyBlock +
     rentsBlock + tenantBlock +
     '<div id="unitInsights"></div>' +
+    mapBlock +
     infra + pipelineBlock + comps + talks + citations;
 
   renderUnitInsights();
+  initAreaMap();
+}
+
+// Initialize the embedded Leaflet map for the current area
+function initAreaMap() {
+  if (typeof L === "undefined") return; // Leaflet hasn't loaded
+  const el = document.getElementById("areaMap");
+  if (!el) return;
+  const lat = parseFloat(el.dataset.lat);
+  const lng = parseFloat(el.dataset.lng);
+  const name = el.dataset.name || "";
+  if (!isFinite(lat) || !isFinite(lng)) return;
+  // Dispose any existing map bound to this el (renderAreaCard rebuilds DOM, so previous map is dead — but safe to re-init)
+  if (el._leafletMap) { try { el._leafletMap.remove(); } catch (e) {} }
+  const map = L.map(el, { scrollWheelZoom: false }).setView([lat, lng], 14);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    maxZoom: 19
+  }).addTo(map);
+  L.marker([lat, lng]).addTo(map).bindPopup("<strong>" + name + "</strong>").openPopup();
+  el._leafletMap = map;
+  // Resize hint — Leaflet sometimes mis-sizes when its container was hidden
+  setTimeout(() => { try { map.invalidateSize(); } catch (e) {} }, 100);
+}
+
+// ----- Portfolio (saved scenarios per client) — Batch 4C -----
+const PF_KEY = "exceedSavedScenarios_v1";
+
+function pfLoadAll() {
+  try { return JSON.parse(localStorage.getItem(PF_KEY) || "{}"); } catch (e) { return {}; }
+}
+function pfPersist(data) {
+  try { localStorage.setItem(PF_KEY, JSON.stringify(data)); }
+  catch (e) { console.warn("[v3] portfolio persist failed:", e); }
+}
+
+function openPortfolioModal() {
+  const m = document.getElementById("portfolioModal");
+  if (!m) return;
+  renderPfList();
+  m.classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+function closePortfolioModal() {
+  const m = document.getElementById("portfolioModal");
+  if (m) m.classList.remove("open");
+  document.body.style.overflow = "";
+}
+
+function pfAutoLabel() {
+  // Build a sensible default label from the current scenario
+  const presetSel = document.getElementById("preset");
+  const presetText = presetSel?.options?.[presetSel.selectedIndex]?.text || "Custom property";
+  const cleaned = presetText.replace(/\s*\([\d.]+M\)\s*$/, "").replace(/^★\s*/, "");
+  const hold = (document.getElementById("holdYears") || {}).value || "?";
+  const ltv = (document.getElementById("ltv") || {}).value || "?";
+  return `${cleaned} · ${ltv}% LTV · ${hold}y hold`;
+}
+
+function savePfScenario() {
+  const lang = document.body.getAttribute("data-lang") || "ja";
+  const client = (document.getElementById("pfClient").value || "").trim();
+  if (!client) {
+    alert(lang === "ja" ? "クライアント名を入力してください。" : "Please enter a client name.");
+    return;
+  }
+  const label = (document.getElementById("pfLabel").value || "").trim() || pfAutoLabel();
+  const data = pfLoadAll();
+  if (!data[client]) data[client] = { scenarios: [] };
+
+  let inp = null, r = null;
+  try { inp = getInputs(); r = calculate(inp); } catch (e) { console.warn("[v3] portfolio calc failed:", e); }
+
+  data[client].scenarios.unshift({
+    id: "s_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
+    label,
+    savedAt: new Date().toISOString(),
+    state: serializeShareState(),
+    snapshot: r ? {
+      irr: r.irr,
+      totalReturn: (r.cashflowSeries.slice(1).reduce((s,v)=>s+v,0)) / r.initialCashAED,
+      price: inp.price,
+      holdYears: inp.holdYears
+    } : null
+  });
+  pfPersist(data);
+  document.getElementById("pfLabel").value = "";
+  showToast("✓ " + (lang === "ja" ? `「${client}」に保存しました` : `Saved to "${client}"`));
+  renderPfList();
+}
+
+function pfLoadScenario(client, id) {
+  const data = pfLoadAll();
+  const s = data[client]?.scenarios?.find(x => x.id === id);
+  if (!s) return;
+  applyShareState(s.state);
+  closePortfolioModal();
+  showToast("✓ " + (document.body.getAttribute("data-lang") === "ja" ? "シナリオをロードしました" : "Scenario loaded"));
+}
+
+function pfDeleteScenario(client, id) {
+  const lang = document.body.getAttribute("data-lang") || "ja";
+  if (!confirm(lang === "ja" ? "このシナリオを削除しますか？" : "Delete this scenario?")) return;
+  const data = pfLoadAll();
+  if (!data[client]) return;
+  data[client].scenarios = data[client].scenarios.filter(x => x.id !== id);
+  if (data[client].scenarios.length === 0) delete data[client];
+  pfPersist(data);
+  renderPfList();
+}
+
+function renderPfList() {
+  const list = document.getElementById("pfList");
+  if (!list) return;
+  const data = pfLoadAll();
+  const clients = Object.keys(data).sort();
+  if (clients.length === 0) {
+    list.innerHTML = '<div class="pf-empty"><span class="ja">保存されたシナリオはまだありません。</span><span class="en">No saved scenarios yet.</span></div>';
+    return;
+  }
+  const lang = document.body.getAttribute("data-lang") || "ja";
+  const T = (ja, en) => lang === "ja" ? ja : en;
+  const fmtDate = (iso) => {
+    try { return new Date(iso).toLocaleDateString(lang === "ja" ? "ja-JP" : "en-GB", { year:"numeric", month:"short", day:"numeric" }); }
+    catch (e) { return iso; }
+  };
+  list.innerHTML = clients.map(client => {
+    const scenarios = data[client].scenarios || [];
+    return '<div class="pf-client">' +
+      '<div class="pf-client-name">👤 ' + escapeHtml(client) + '<span class="pf-client-count">— ' + scenarios.length + ' ' + T("シナリオ", "scenario(s)") + '</span></div>' +
+      scenarios.map(s => {
+        const irr = s.snapshot?.irr != null ? (s.snapshot.irr * 100).toFixed(1) + "%" : "—";
+        return '<div class="pf-scenario">' +
+          '<div>' +
+            '<div class="pf-scenario-label">' + escapeHtml(s.label) + '</div>' +
+            '<div class="pf-scenario-meta">' + escapeHtml(fmtDate(s.savedAt)) + '</div>' +
+          '</div>' +
+          '<div class="pf-scenario-irr">' + irr + '</div>' +
+          '<button class="pf-scenario-btn load" onclick="pfLoadScenario(\'' + client.replace(/\\/g, "\\\\").replace(/'/g, "\\'") + '\', \'' + s.id + '\')">↺ ' + T("ロード", "Load") + '</button>' +
+          '<button class="pf-scenario-btn del" onclick="pfDeleteScenario(\'' + client.replace(/\\/g, "\\\\").replace(/'/g, "\\'") + '\', \'' + s.id + '\')">🗑</button>' +
+        '</div>';
+      }).join("") +
+    '</div>';
+  }).join("");
+}
+
+// ----- Mortgage Qualifier (Batch 4) -----
+const MQ_KEY = "exceedMortgageQualifier_v1";
+
+function loadMqState() {
+  try {
+    const s = JSON.parse(localStorage.getItem(MQ_KEY) || "{}");
+    if (s.residency)   document.getElementById("mqResidency").value = s.residency;
+    if (s.age)         document.getElementById("mqAge").value = s.age;
+    if (s.income)      document.getElementById("mqIncome").value = s.income;
+    if (s.debts != null) document.getElementById("mqDebts").value = s.debts;
+    if (s.buyerStatus) document.getElementById("mqBuyerStatus").value = s.buyerStatus;
+  } catch (e) {}
+}
+function saveMqState() {
+  try {
+    localStorage.setItem(MQ_KEY, JSON.stringify({
+      residency:   document.getElementById("mqResidency").value,
+      age:         +document.getElementById("mqAge").value || 40,
+      income:      +document.getElementById("mqIncome").value || 0,
+      debts:       +document.getElementById("mqDebts").value || 0,
+      buyerStatus: document.getElementById("mqBuyerStatus").value
+    }));
+  } catch (e) {}
+}
+
+function openMortgageQualifier() {
+  const m = document.getElementById("mortgageQualifierModal");
+  if (!m) return;
+  loadMqState();
+  // Auto-populate property mode from current simulator state
+  const mode = (document.getElementById("purchaseMode") || {}).value || "ready";
+  const modeLabel = mode === "offplan" ? "Off-plan" : (mode === "secondary" ? "Secondary (Ready)" : "Ready (Primary)");
+  document.getElementById("mqMode").value = modeLabel;
+  m.classList.add("open");
+  document.body.style.overflow = "hidden";
+  // Wire live re-compute
+  ["mqResidency","mqAge","mqIncome","mqDebts","mqBuyerStatus"].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el || el._mqWired) return;
+    el.addEventListener("input", computeMortgageEligibility);
+    el.addEventListener("change", computeMortgageEligibility);
+    el._mqWired = true;
+  });
+  computeMortgageEligibility();
+}
+function closeMortgageQualifier() {
+  const m = document.getElementById("mortgageQualifierModal");
+  if (m) m.classList.remove("open");
+  document.body.style.overflow = "";
+  saveMqState();
+}
+
+function computeMortgageEligibility() {
+  const lang = document.body.getAttribute("data-lang") || "ja";
+  const T = (ja, en) => lang === "ja" ? ja : en;
+  const residency = document.getElementById("mqResidency").value;
+  const age       = +document.getElementById("mqAge").value || 40;
+  const income    = +document.getElementById("mqIncome").value || 0;
+  const debts     = +document.getElementById("mqDebts").value || 0;
+  const buyer     = document.getElementById("mqBuyerStatus").value;
+  const mode      = (document.getElementById("purchaseMode") || {}).value || "ready";
+  const price     = +document.getElementById("price").value || 0;
+  const rate      = (+document.getElementById("mortgageRate").value || 6) / 100 / 12;
+  const term      = (+document.getElementById("mortgageTerm").value || 25) * 12;
+
+  // 1. Determine max LTV by rule
+  let maxLtv;
+  let rule = "";
+  if (mode === "offplan") { maxLtv = 50; rule = T("オフプラン物件は一律 50% LTV", "Off-plan capped at 50% LTV"); }
+  else if (buyer === "second") { maxLtv = 60; rule = T("2軒目以上は一律 60% LTV", "Any second home capped at 60% LTV"); }
+  else if (residency === "non_resident") { maxLtv = 50; rule = T("非居住者は概ね 50% LTV (銀行により異なる)", "Non-residents typically 50% LTV (varies by bank)"); }
+  else if (residency === "uae_national") {
+    if (price < 5_000_000) { maxLtv = 80; rule = T("UAE国民・1軒目・5M未満は 80% LTV", "UAE National, 1st home <AED 5M → 80% LTV"); }
+    else                    { maxLtv = 70; rule = T("UAE国民・1軒目・5M以上は 70% LTV", "UAE National, 1st home ≥AED 5M → 70% LTV"); }
+  } else { // expat_resident
+    if (price < 5_000_000) { maxLtv = 75; rule = T("エクスパット居住者・1軒目・5M未満は 75% LTV", "Expat Resident, 1st home <AED 5M → 75% LTV"); }
+    else                    { maxLtv = 65; rule = T("エクスパット居住者・1軒目・5M以上は 65% LTV", "Expat Resident, 1st home ≥AED 5M → 65% LTV"); }
+  }
+  const maxLoan = price * maxLtv / 100;
+  const requiredCash = price - maxLoan;
+
+  // 2. Estimate monthly mortgage payment at maxLoan
+  const monthlyPmt = rate > 0
+    ? maxLoan * rate * Math.pow(1+rate, term) / (Math.pow(1+rate, term) - 1)
+    : maxLoan / term;
+
+  // 3. DBR check
+  const totalDebt = monthlyPmt + debts;
+  const dbr = income > 0 ? (totalDebt / income * 100) : 999;
+  const dbrPass = dbr <= 50;
+
+  // 4. Age at maturity check
+  const ageAtMaturity = age + (term / 12);
+  const agePass = ageAtMaturity <= 65;
+
+  // 5. Min income check
+  const minIncome = (residency === "uae_national") ? 15_000 : 25_000;
+  const incomePass = income >= minIncome;
+
+  // 6. Determine actual qualified loan based on DBR constraint
+  // DBR <= 50% means monthly pmt + existing debts <= 0.5 * income
+  // monthly pmt cap = 0.5 * income - debts
+  const cappedMonthly = Math.max(0, 0.5 * income - debts);
+  let dbrCappedLoan = 0;
+  if (rate > 0 && cappedMonthly > 0) {
+    dbrCappedLoan = cappedMonthly * (Math.pow(1+rate, term) - 1) / (rate * Math.pow(1+rate, term));
+  } else if (cappedMonthly > 0) {
+    dbrCappedLoan = cappedMonthly * term;
+  }
+  const actualQualifiedLoan = Math.min(maxLoan, dbrCappedLoan);
+  const actualQualifiedLtv = price > 0 ? (actualQualifiedLoan / price * 100) : 0;
+
+  // Decision
+  const reasons = [];
+  if (!agePass) reasons.push(T("年齢上限超過：満期時 " + Math.round(ageAtMaturity) + "歳（上限65）。期間短縮を検討。", "Age at maturity " + Math.round(ageAtMaturity) + " exceeds 65 cap. Consider shorter term."));
+  if (!incomePass) reasons.push(T("最低月収未達：必要 AED " + minIncome.toLocaleString(), "Below typical minimum income: AED " + minIncome.toLocaleString() + " required"));
+  if (!dbrPass) reasons.push(T("DBR 50% 超過：" + dbr.toFixed(1) + "%。最大ローン額が DBR で制限されます。", "DBR exceeds 50%: " + dbr.toFixed(1) + "%. Max loan is capped by DBR."));
+
+  let cls = "pass";
+  let headline = "✅ " + T("適格 — 最大 " + maxLtv + "% LTV", "Eligible — up to " + maxLtv + "% LTV");
+  if (reasons.length > 0 && !dbrPass && !agePass && !incomePass) {
+    cls = "fail";
+    headline = "❌ " + T("適格性に問題あり", "Eligibility blocked");
+  } else if (reasons.length > 0) {
+    cls = "warn";
+    headline = "⚠ " + T("条件付き適格", "Conditionally eligible");
+  }
+
+  const fmtAed = (n) => "AED " + (n / 1_000_000).toFixed(2) + "M";
+  const resEl = document.getElementById("mqResult");
+  resEl.className = "mq-result " + cls;
+  resEl.innerHTML =
+    '<div class="mq-headline">' + headline + '</div>' +
+    '<div class="mq-summary">' + escapeHtml(rule) + '</div>' +
+    '<div class="mq-stats">' +
+      '<div class="mq-stat"><div class="mq-stat-label">' + T("最大 LTV", "Max LTV") + '</div><div class="mq-stat-value">' + maxLtv + '%</div></div>' +
+      '<div class="mq-stat"><div class="mq-stat-label">' + T("実適格 LTV (DBR込)", "Actual eligible (DBR)") + '</div><div class="mq-stat-value">' + actualQualifiedLtv.toFixed(0) + '%</div></div>' +
+      '<div class="mq-stat"><div class="mq-stat-label">' + T("最大ローン額", "Max Loan") + '</div><div class="mq-stat-value">' + fmtAed(actualQualifiedLoan) + '</div></div>' +
+      '<div class="mq-stat"><div class="mq-stat-label">' + T("必要頭金", "Cash Down Required") + '</div><div class="mq-stat-value">' + fmtAed(price - actualQualifiedLoan) + '</div></div>' +
+      '<div class="mq-stat"><div class="mq-stat-label">' + T("月額返済", "Monthly Payment") + '</div><div class="mq-stat-value">' + fmtAed((rate > 0 ? actualQualifiedLoan * rate * Math.pow(1+rate, term) / (Math.pow(1+rate, term) - 1) : actualQualifiedLoan / term) / 1) + '</div></div>' +
+      '<div class="mq-stat"><div class="mq-stat-label">' + T("DBR", "DBR") + '</div><div class="mq-stat-value" style="color:' + (dbrPass ? '#16a34a' : '#dc2626') + '">' + dbr.toFixed(1) + '%</div></div>' +
+    '</div>' +
+    (reasons.length > 0 ? '<div class="mq-fail-reasons"><strong>' + T("注意事項", "Considerations") + ':</strong><ul><li>' + reasons.join('</li><li>') + '</li></ul></div>' : '');
+
+  // Stash the qualified LTV for the apply button
+  resEl.dataset.qualifiedLtv = actualQualifiedLtv.toFixed(0);
+  saveMqState();
+}
+
+function applyMortgageEligibility() {
+  const resEl = document.getElementById("mqResult");
+  const ltv = +resEl.dataset.qualifiedLtv;
+  if (!ltv || ltv <= 0) return;
+  const ltvEl = document.getElementById("ltv");
+  if (ltvEl) {
+    ltvEl.value = Math.min(80, Math.max(0, ltv));
+    ltvEl.dispatchEvent(new Event("input", { bubbles: true }));
+  }
+  // Make sure useMortgage is on
+  const um = document.getElementById("useMortgage");
+  if (um) { um.checked = true; um.dispatchEvent(new Event("change", { bubbles: true })); }
+  closeMortgageQualifier();
+  showToast("✓ " + (document.body.getAttribute("data-lang") === "ja" ? "適格 LTV を試算機に適用しました" : "Eligible LTV applied to simulator"));
 }
 
 // ----- Compare two properties side-by-side (Batch 3) -----
