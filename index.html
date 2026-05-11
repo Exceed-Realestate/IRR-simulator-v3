@@ -1461,6 +1461,38 @@
   #card-whatif input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none; appearance:none; width:22px; height:22px; border-radius:50%; background:#0a2540; cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,0.25); border:3px solid #fff; }
   #card-whatif input[type="range"]::-moz-range-thumb { width:22px; height:22px; border-radius:50%; background:#0a2540; cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,0.25); border:3px solid #fff; }
   #card-whatif .whatif-scale { font-size:10px; color:var(--text-muted); margin-top:6px; display:flex; justify-content:space-between; font-family:monospace; }
+
+  /* Compare modal */
+  .compare-grid { display:grid; grid-template-columns:1fr 50px 1fr; gap:12px; align-items:flex-start; }
+  .compare-col { padding:14px; background:#fafafa; border:2px solid #e5e7eb; border-radius:8px; }
+  .compare-col.compare-A { border-color:#3b82f6; background:#eff6ff; }
+  .compare-col.compare-B { border-color:#16a34a; background:#f0fdf4; }
+  .compare-col-header { display:flex; align-items:center; gap:8px; margin-bottom:12px; }
+  .compare-side-label { width:28px; height:28px; border-radius:50%; background:#0a2540; color:#fff; font-weight:700; display:flex; align-items:center; justify-content:center; font-size:14px; flex:0 0 28px; }
+  .compare-col select { flex:1; padding:7px 10px; border:1px solid #cbd5e1; border-radius:6px; font-size:12.5px; background:#fff; }
+  .compare-vs { display:flex; align-items:center; justify-content:center; height:80px; font-size:24px; font-weight:700; color:var(--text-muted); margin-top:20px; }
+  .compare-metrics { display:flex; flex-direction:column; gap:8px; margin-bottom:14px; }
+  .compare-metric { display:flex; justify-content:space-between; align-items:baseline; padding:8px 12px; background:#fff; border-radius:6px; border:1px solid #e5e7eb; font-size:12.5px; }
+  .compare-metric .cm-label { color:var(--text-muted); }
+  .compare-metric .cm-value { font-weight:700; font-feature-settings:"tnum"; color:var(--text); font-size:14px; }
+  .compare-metric.winner .cm-value { color:#16a34a; }
+  .compare-metric.loser .cm-value { color:#b91c1c; }
+  .compare-metric .cm-delta { font-size:10px; color:var(--text-muted); margin-left:6px; font-weight:600; }
+  @media (max-width:720px) {
+    .compare-grid { grid-template-columns:1fr; }
+    .compare-vs { height:auto; }
+  }
+
+  /* Sensitivity tornado */
+  #card-sensitivity .sens-row { display:grid; grid-template-columns:170px 1fr 130px; gap:12px; align-items:center; padding:8px 0; border-bottom:1px dashed #eee; }
+  #card-sensitivity .sens-row:last-child { border-bottom:none; }
+  #card-sensitivity .sens-label { font-size:12px; font-weight:600; color:var(--text); }
+  #card-sensitivity .sens-bar-container { position:relative; height:14px; background:#f5f5f5; border-radius:7px; overflow:hidden; }
+  #card-sensitivity .sens-baseline { position:absolute; left:50%; top:0; bottom:0; width:1px; background:#475569; z-index:2; }
+  #card-sensitivity .sens-bar { position:absolute; top:1px; bottom:1px; z-index:1; }
+  #card-sensitivity .sens-bar-down { background:#dc2626; border-radius:3px 0 0 3px; }
+  #card-sensitivity .sens-bar-up { background:#16a34a; border-radius:0 3px 3px 0; }
+  #card-sensitivity .sens-values { font-size:11px; color:#475569; text-align:right; font-family:monospace; font-weight:600; }
   .area-citations { display:flex; gap:14px; flex-wrap:wrap; margin-top:14px; padding-top:12px; border-top:1px solid #eee; font-size:11.5px; }
   .area-citations a { color:var(--accent, #b08850); text-decoration:none; border-bottom:1px dotted; }
   .area-citations a:hover { color:var(--text); }
@@ -1542,6 +1574,9 @@
         </select>
         <button class="nav-brochure-btn" style="background:var(--accent);color:var(--primary);margin:0;" onclick="openBrochureModal()">
           <span class="ja">物件資料を開く</span><span class="en">Open Brochures</span>
+        </button>
+        <button class="nav-brochure-btn" style="background:#7c3aed;color:#fff;margin:0;" onclick="openCompareModal()">
+          ⚖️ <span class="ja">比較</span><span class="en">Compare</span>
         </button>
         <button class="nav-brochure-btn" style="background:#3b82f6;color:#fff;margin:0;" onclick="shareCurrentState()">
           🔗 <span class="ja">クライアントに共有</span><span class="en">Share with Client</span>
@@ -1846,6 +1881,16 @@
               <input type="range" id="wifHoldYears" min="1" max="15" step="1" oninput="syncWhatIfSlider('holdYears', this.value, 'wifHoldYearsVal', 'y')">
               <div class="whatif-scale">1y　・　5y　・　10y　・　15y</div>
             </div>
+          </div>
+        </div>
+
+        <div class="sim-card" id="card-sensitivity">
+          <h3>🌪 <span class="ja">感応度分析（トルネード）</span><span class="en">Sensitivity Analysis (Tornado)</span></h3>
+          <p style="font-size:11.5px;color:var(--text-muted);margin:0 0 14px;"><span class="ja">どの入力値が IRR に最も影響を与えるかを可視化。クライアントのリスク質問への透明な回答に。</span><span class="en">Which inputs move IRR the most? Transparent answer to client risk questions.</span></p>
+          <div id="sensContainer"></div>
+          <div style="margin-top:10px; font-size:10.5px; color:var(--text-muted); display:flex; align-items:center; gap:14px;">
+            <span><span style="display:inline-block;width:10px;height:10px;background:#dc2626;border-radius:2px;vertical-align:middle;margin-right:4px;"></span><span class="ja">入力が下方に動いた場合の IRR 変化</span><span class="en">IRR change if input goes down</span></span>
+            <span><span style="display:inline-block;width:10px;height:10px;background:#16a34a;border-radius:2px;vertical-align:middle;margin-right:4px;"></span><span class="ja">上方</span><span class="en">if input goes up</span></span>
           </div>
         </div>
 
@@ -2316,6 +2361,44 @@
       <button type="button" class="b-btn primary" onclick="saveCustomProperty()" style="background:var(--accent);color:var(--primary);font-weight:700">
         💾 <span class="ja">保存して試算</span><span class="en">Save &amp; Simulate</span>
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ COMPARE MODAL ============ -->
+<div class="modal-overlay" id="compareModal" onclick="if(event.target===this)closeCompareModal()">
+  <div class="modal" style="max-width:980px">
+    <div class="modal-header">
+      <div>
+        <h2>⚖️ <span class="ja">2物件を比較</span><span class="en">Compare Two Properties</span></h2>
+        <div class="subtitle"><span class="ja">同じ財務前提（LTV・金利・保有期間）で2物件を並べる。クライアントの選択を視覚的に支援。</span><span class="en">Same financial assumptions (LTV, rate, hold) — visualizes the trade-off side by side.</span></div>
+      </div>
+      <button class="modal-close" onclick="closeCompareModal()">✕</button>
+    </div>
+    <div class="modal-body" id="compareBody">
+      <div class="compare-grid">
+        <div class="compare-col compare-A">
+          <div class="compare-col-header">
+            <div class="compare-side-label">A</div>
+            <select id="compareA" onchange="renderCompareModal()"></select>
+          </div>
+          <div class="compare-metrics" id="compareAMetrics"></div>
+          <button class="b-btn primary compare-load" onclick="loadFromCompare('A')" style="background:var(--accent);color:var(--primary);font-weight:700;width:100%;">
+            <span class="ja">この物件を試算機にロード</span><span class="en">Load A into simulator</span>
+          </button>
+        </div>
+        <div class="compare-vs">VS</div>
+        <div class="compare-col compare-B">
+          <div class="compare-col-header">
+            <div class="compare-side-label">B</div>
+            <select id="compareB" onchange="renderCompareModal()"></select>
+          </div>
+          <div class="compare-metrics" id="compareBMetrics"></div>
+          <button class="b-btn primary compare-load" onclick="loadFromCompare('B')" style="background:var(--accent);color:var(--primary);font-weight:700;width:100%;">
+            <span class="ja">この物件を試算機にロード</span><span class="en">Load B into simulator</span>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -3603,6 +3686,126 @@ function renderAreaCard(areaKey) {
   renderUnitInsights();
 }
 
+// ----- Compare two properties side-by-side (Batch 3) -----
+function openCompareModal() {
+  const m = document.getElementById("compareModal");
+  if (!m) return;
+  // Populate both dropdowns
+  ["compareA", "compareB"].forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    sel.innerHTML = "";
+    const allOpts = Object.entries(window.presets || {}).map(([k, p]) => {
+      const labelEn = (k === "ritz" ? "Ritz-Carlton Creekside 2BR"
+                    : k === "oneZaabeel" ? "One Za'abeel 2BR"
+                    : k === "serenia" ? "Serenia Living 2BR"
+                    : k === "sixSenses3" ? "Six Senses Palm 3BR G/6"
+                    : k === "sixSenses3b" ? "Six Senses Palm 3BR 1/6"
+                    : k === "sixSenses4" ? "Six Senses Palm 4BR"
+                    : k === "orla" ? "ORLA Dorchester 3BR"
+                    : k === "palmJebel" ? "Palm Jebel Ali 6BR Villa"
+                    : k === "emerald" ? "Emerald Hills Mansion" : k);
+      return { key: k, label: labelEn + " (AED " + (p.price/1_000_000).toFixed(1) + "M)" };
+    });
+    Object.entries(customProps || {}).forEach(([k, p]) => {
+      allOpts.push({ key: k, label: "★ " + p.name + " (AED " + (p.price/1_000_000).toFixed(1) + "M)" });
+    });
+    allOpts.forEach(({ key, label }) => {
+      const o = document.createElement("option");
+      o.value = key;
+      o.textContent = label;
+      sel.appendChild(o);
+    });
+  });
+  // Default: A = current preset, B = a different one
+  const current = (document.getElementById("preset") || {}).value;
+  document.getElementById("compareA").value = current;
+  // Pick a sensible B — anything that's not A
+  const allKeys = [...Object.keys(window.presets || {}), ...Object.keys(customProps || {})];
+  const otherKey = allKeys.find(k => k !== current) || allKeys[1] || allKeys[0];
+  document.getElementById("compareB").value = otherKey;
+  m.classList.add("open");
+  document.body.style.overflow = "hidden";
+  renderCompareModal();
+}
+function closeCompareModal() {
+  const m = document.getElementById("compareModal");
+  if (m) m.classList.remove("open");
+  document.body.style.overflow = "";
+}
+
+function computeForPreset(presetKey) {
+  const baseInp = getInputs();
+  const pr = (customProps && customProps[presetKey]) || (window.presets && window.presets[presetKey]);
+  if (!pr) return null;
+  // Override the property-specific fields; keep the agent's financial assumptions.
+  const inp = Object.assign({}, baseInp, {
+    price: pr.price,
+    sqft: pr.sqft,
+    serviceChargePsf: pr.serviceChargePsf,
+    propertyType: pr.type,
+    grossYield: pr.yield,
+    appreciation: pr.appreciation,
+    appreciationMode: pr.apprMode || "cumulative",
+    furniture: pr.furniture,
+    purchaseMode: pr.mode || baseInp.purchaseMode,
+    completionYear: pr.completionYear || baseInp.completionYear,
+    completionQuarter: pr.completionQuarter || baseInp.completionQuarter
+  });
+  if (typeof pr.holdYears === "number") inp.holdYears = pr.holdYears;
+  if (typeof pr.holdMonths === "number") inp.holdMonths = pr.holdMonths;
+  const result = calculate(inp);
+  return { inp, result, presetName: pr.name || presetKey, presetKey };
+}
+
+function renderCompareModal() {
+  const aKey = document.getElementById("compareA")?.value;
+  const bKey = document.getElementById("compareB")?.value;
+  const a = computeForPreset(aKey);
+  const b = computeForPreset(bKey);
+  if (!a || !b) return;
+  const lang = document.body.getAttribute("data-lang") || "ja";
+  const T = (ja, en) => lang === "ja" ? ja : en;
+  const fx = a.inp.fxRate || 1;
+  const cur = a.inp.currency || "AED";
+  const fmtAed = (n) => "AED " + (n / 1_000_000).toFixed(2) + "M";
+  const fmtPct = (n) => (n * 100).toFixed(1) + "%";
+  const fmtYears = (y) => {
+    if (y == null) return "—";
+    const yr = Math.floor(y);
+    const mo = Math.round((y - yr) * 12);
+    return (yr > 0 ? yr + (lang === "ja" ? "年" : "y") : "") + (mo > 0 ? " " + mo + (lang === "ja" ? "ヶ月" : "mo") : (yr > 0 ? "" : "0"));
+  };
+  const metrics = [
+    { label: T("価格", "Price"),                  vA: fmtAed(a.inp.price),                              vB: fmtAed(b.inp.price),                              cmp: a.inp.price <= b.inp.price },
+    { label: T("面積", "Size"),                    vA: a.inp.sqft.toLocaleString() + " sqft",          vB: b.inp.sqft.toLocaleString() + " sqft",          cmp: null },
+    { label: T("AED/sqft", "AED/sqft"),            vA: Math.round(a.inp.price / a.inp.sqft).toLocaleString(),    vB: Math.round(b.inp.price / b.inp.sqft).toLocaleString(),    cmp: (a.inp.price / a.inp.sqft) <= (b.inp.price / b.inp.sqft) },
+    { label: T("年率 IRR", "IRR p.a."),           vA: fmtPct(a.result.irr),                          vB: fmtPct(b.result.irr),                          cmp: a.result.irr >= b.result.irr,                hi: true },
+    { label: T("累計リターン", "Total Return"),     vA: fmtPct((a.result.cashflowSeries.slice(1).reduce((s,x)=>s+x,0))/a.result.initialCashAED), vB: fmtPct((b.result.cashflowSeries.slice(1).reduce((s,x)=>s+x,0))/b.result.initialCashAED), cmp: null },
+    { label: T("着金ネット", "Net at Exit"),        vA: fmtAed(a.result.netSaleProceeds),                vB: fmtAed(b.result.netSaleProceeds),                cmp: a.result.netSaleProceeds >= b.result.netSaleProceeds },
+    { label: T("初期手出し", "Initial Outlay"),    vA: fmtAed(a.result.initialCashAED),                vB: fmtAed(b.result.initialCashAED),                cmp: a.result.initialCashAED <= b.result.initialCashAED },
+    { label: T("キャッシュオンキャッシュ", "Cash-on-Cash"), vA: (a.result.cashOnCashPct?.toFixed(1) || "—") + "%",    vB: (b.result.cashOnCashPct?.toFixed(1) || "—") + "%",    cmp: (a.result.cashOnCashPct || 0) >= (b.result.cashOnCashPct || 0) },
+    { label: T("回収期間", "Payback"),              vA: fmtYears(a.result.paybackYears),                vB: fmtYears(b.result.paybackYears),                cmp: (a.result.paybackYears == null ? false : (b.result.paybackYears == null ? true : a.result.paybackYears <= b.result.paybackYears)) }
+  ];
+  const renderCol = (side, data) => metrics.map(m => {
+    const v = side === "A" ? m.vA : m.vB;
+    const winnerClass = m.cmp == null ? "" : (m.cmp === (side === "A") ? "winner" : "loser");
+    return '<div class="compare-metric ' + winnerClass + (m.hi ? ' compare-metric-hi' : '') + '">' +
+      '<span class="cm-label">' + escapeHtml(m.label) + '</span>' +
+      '<span class="cm-value">' + v + '</span>' +
+    '</div>';
+  }).join("");
+  document.getElementById("compareAMetrics").innerHTML = renderCol("A", a);
+  document.getElementById("compareBMetrics").innerHTML = renderCol("B", b);
+}
+
+function loadFromCompare(side) {
+  const key = document.getElementById(side === "A" ? "compareA" : "compareB")?.value;
+  if (!key) return;
+  closeCompareModal();
+  if (typeof loadPreset === "function") loadPreset(key);
+}
+
 // ----- Share state via URL fragment (Batch 2) -----
 // Captures the agent's current scenario into a shareable URL hash. When opened,
 // the recipient sees the same dashboard pre-filled — drag sliders, see the
@@ -4849,6 +5052,73 @@ function render() {
   })();
   document.getElementById("kpiIrr").textContent = fmtPct(r.irr);
   document.getElementById("kpiMultiple").textContent = fmtMult(r.multiple);
+
+  // ===== Sensitivity tornado (Batch 3) =====
+  (function paintSensitivity() {
+    const container = document.getElementById("sensContainer");
+    if (!container) return;
+    const lang = document.body.getAttribute("data-lang") || "ja";
+    const T = (ja, en) => lang === "ja" ? ja : en;
+    const baseIrr = r.irr;
+    if (baseIrr == null || !isFinite(baseIrr)) { container.innerHTML = '<div style="font-size:12px;color:#94a3b8;">' + T("IRRを計算できないため感応度分析を表示できません", "IRR not computable — sensitivity skipped") + '</div>'; return; }
+    const vary = [
+      { key: "price",          label: T("価格 ±10%", "Price ±10%"),                 delta: 0.10,  mode: "mult" },
+      { key: "appreciation",   label: T("値上がり率 ±20pp", "Appreciation ±20pp"),   delta: 20,    mode: "abs" },
+      { key: "grossYield",     label: T("グロス利回り ±2pp", "Gross Yield ±2pp"),     delta: 2,     mode: "abs" },
+      { key: "mortgageRate",   label: T("金利 ±2pp", "Mortgage Rate ±2pp"),          delta: 2,     mode: "abs" },
+      { key: "vacancy",        label: T("空室率 ±5pp", "Vacancy ±5pp"),               delta: 5,     mode: "abs" },
+      { key: "holdYears",      label: T("保有期間 ±2y", "Hold Years ±2y"),            delta: 2,     mode: "abs", int: true }
+    ];
+    const results = vary.map(v => {
+      const downInp = Object.assign({}, inp);
+      const upInp = Object.assign({}, inp);
+      if (v.mode === "mult") {
+        downInp[v.key] = inp[v.key] * (1 - v.delta);
+        upInp[v.key] = inp[v.key] * (1 + v.delta);
+      } else {
+        downInp[v.key] = inp[v.key] - v.delta;
+        upInp[v.key] = inp[v.key] + v.delta;
+        if (v.int) { downInp[v.key] = Math.max(1, Math.round(downInp[v.key])); upInp[v.key] = Math.round(upInp[v.key]); }
+        if (v.key === "vacancy") downInp[v.key] = Math.max(0, downInp[v.key]);
+        if (v.key === "grossYield") downInp[v.key] = Math.max(0, downInp[v.key]);
+        if (v.key === "mortgageRate") downInp[v.key] = Math.max(0.1, downInp[v.key]);
+      }
+      let downIrr, upIrr;
+      try { downIrr = calculate(downInp).irr; } catch (e) { downIrr = baseIrr; }
+      try { upIrr = calculate(upInp).irr; } catch (e) { upIrr = baseIrr; }
+      const downDelta = (downIrr - baseIrr) * 100;
+      const upDelta = (upIrr - baseIrr) * 100;
+      return { label: v.label, downDelta, upDelta, range: Math.max(Math.abs(downDelta), Math.abs(upDelta)) };
+    });
+    results.sort((a, b) => b.range - a.range);
+    const maxRange = Math.max(...results.map(r => r.range)) || 1;
+    const padded = maxRange * 1.1;
+    container.innerHTML = results.map(rr => {
+      // Each bar starts at center (50%) and extends. Half-width per side = 50%.
+      const downPct = -rr.downDelta / padded * 50;  // positive number if IRR went down when input went down
+      const upPct = rr.upDelta / padded * 50;
+      const leftDown = 50 - Math.max(0, downPct);
+      const widthDown = Math.max(0, downPct);
+      const leftDownNeg = 50;
+      const widthDownNeg = Math.max(0, -downPct);
+      // Same for up
+      const leftUp = 50;
+      const widthUp = Math.max(0, upPct);
+      const leftUpNeg = 50 - Math.max(0, -upPct);
+      const widthUpNeg = Math.max(0, -upPct);
+      return '<div class="sens-row">' +
+        '<div class="sens-label">' + escapeHtml(rr.label) + '</div>' +
+        '<div class="sens-bar-container">' +
+          (widthDown > 0    ? '<div class="sens-bar sens-bar-down" style="left:' + leftDown.toFixed(2) + '%; width:' + widthDown.toFixed(2) + '%"></div>' : '') +
+          (widthDownNeg > 0 ? '<div class="sens-bar sens-bar-up"   style="left:' + leftDownNeg.toFixed(2) + '%; width:' + widthDownNeg.toFixed(2) + '%"></div>' : '') +
+          (widthUp > 0      ? '<div class="sens-bar sens-bar-up"   style="left:' + leftUp.toFixed(2) + '%; width:' + widthUp.toFixed(2) + '%"></div>' : '') +
+          (widthUpNeg > 0   ? '<div class="sens-bar sens-bar-down" style="left:' + leftUpNeg.toFixed(2) + '%; width:' + widthUpNeg.toFixed(2) + '%"></div>' : '') +
+          '<div class="sens-baseline"></div>' +
+        '</div>' +
+        '<div class="sens-values">' + (rr.downDelta >= 0 ? "+" : "") + rr.downDelta.toFixed(1) + "pp / " + (rr.upDelta >= 0 ? "+" : "") + rr.upDelta.toFixed(1) + "pp</div>" +
+      '</div>';
+    }).join("");
+  })();
 
   // ===== What-If sliders sync (Batch 2) =====
   // Sync slider positions FROM the input fields on each render — so when the user
