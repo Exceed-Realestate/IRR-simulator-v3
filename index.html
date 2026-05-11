@@ -1519,6 +1519,23 @@
   .mq-rules-body { padding:12px; background:#fafafa; border-radius:6px; margin-top:8px; font-size:12px; line-height:1.6; }
   .mq-rules-body ul { margin:6px 0; padding-left:20px; }
 
+  /* Payment plan (off-plan) */
+  #card-payment-plan .pp-presets { display:flex; gap:6px; flex-wrap:wrap; align-items:center; margin-bottom:14px; padding-bottom:12px; border-bottom:1px dashed #eee; }
+  #card-payment-plan .pp-preset-btn { padding:5px 11px; background:#fff; border:1px solid #cbd5e1; border-radius:5px; cursor:pointer; font-size:11.5px; font-weight:600; color:var(--text); transition:all 0.15s; }
+  #card-payment-plan .pp-preset-btn:hover { background:#eff6ff; border-color:#3b82f6; color:#1e40af; }
+  #card-payment-plan .pp-rows { display:flex; flex-direction:column; gap:6px; margin-bottom:12px; }
+  #card-payment-plan .pp-row { display:grid; grid-template-columns:1.5fr 1.2fr 90px 80px 32px; gap:8px; align-items:center; padding:6px 0; }
+  #card-payment-plan .pp-row input, #card-payment-plan .pp-row select { padding:7px 9px; border:1px solid #cbd5e1; border-radius:5px; font-size:12.5px; }
+  #card-payment-plan .pp-row .pp-pct { text-align:right; font-family:monospace; font-weight:600; }
+  #card-payment-plan .pp-row .pp-del { padding:0 8px; background:transparent; border:none; cursor:pointer; color:#94a3b8; font-size:14px; }
+  #card-payment-plan .pp-row .pp-del:hover { color:#dc2626; }
+  #card-payment-plan .pp-rows-header { display:grid; grid-template-columns:1.5fr 1.2fr 90px 80px 32px; gap:8px; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; color:var(--text-muted); padding-bottom:4px; border-bottom:1px solid #eee; margin-bottom:4px; }
+  #card-payment-plan .pp-footer { display:flex; justify-content:space-between; align-items:center; gap:14px; padding-top:12px; border-top:1px dashed #eee; }
+  #card-payment-plan .pp-add-btn { font-size:12px; padding:7px 14px; background:var(--accent); color:var(--primary); border:none; border-radius:6px; font-weight:700; cursor:pointer; }
+  #card-payment-plan .pp-total { font-size:13.5px; font-weight:700; padding:6px 14px; border-radius:6px; }
+  #card-payment-plan .pp-total.ok { background:#f0fdf4; color:#166534; }
+  #card-payment-plan .pp-total.warn { background:#fef2f2; color:#991b1b; }
+
   /* Area map (Leaflet container) */
   .area-map-block { margin-top:18px; }
   .area-map { height:280px; width:100%; border-radius:8px; border:1px solid #e5e7eb; z-index:0; }
@@ -1749,6 +1766,28 @@
                 <option value="4">Q4</option>
               </select>
             </div>
+          </div>
+        </div>
+
+        <!-- Payment Plan (off-plan only) -->
+        <div class="sim-card" id="card-payment-plan" style="display:none;">
+          <h3>💳 <span class="ja">支払いプラン (オフプラン)</span><span class="en">Payment Plan (Off-Plan)</span></h3>
+          <p style="font-size:11.5px;color:var(--text-muted);margin:0 0 12px;line-height:1.55;"><span class="ja">建設期間中の分割支払いスケジュールを入力してください。オフプラン物件のIRRは購入価格を一括前払いせず段階的に支払うため、これを反映しないとリターンが過小評価されます。</span><span class="en">Construction-linked installments. Off-plan IRR is materially understated when paid lump-sum on day 0 because the buyer holds cash through construction.</span></p>
+
+          <div class="pp-presets">
+            <span style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.4px;"><span class="ja">クイック・プリセット:</span><span class="en">Quick presets:</span></span>
+            <button type="button" class="pp-preset-btn" onclick="applyPpPreset('standard')">20 / 10×4 / 40</button>
+            <button type="button" class="pp-preset-btn" onclick="applyPpPreset('aggressive')">10 / 10×4 / 50</button>
+            <button type="button" class="pp-preset-btn" onclick="applyPpPreset('balanced')">30 / 30 / 40</button>
+            <button type="button" class="pp-preset-btn" onclick="applyPpPreset('payOnHandover')">60 / 40</button>
+            <button type="button" class="pp-preset-btn" onclick="applyPpPreset('postHandover')">20 / 30 / 20 + 30 PHPP</button>
+          </div>
+
+          <div id="ppRowsContainer" class="pp-rows"></div>
+
+          <div class="pp-footer">
+            <button type="button" class="b-btn pp-add-btn" onclick="addPpRow()">+ <span class="ja">マイルストーン追加</span><span class="en">Add Milestone</span></button>
+            <div class="pp-total" id="ppTotal"></div>
           </div>
         </div>
 
@@ -4645,6 +4684,7 @@ function loadPreset(key) {
   if (typeof pr.holdMonths === "number") document.getElementById("holdMonths").value = pr.holdMonths;
   syncScenarioToggles();
   syncReadyMode();   // hide/show completion field based on mode
+  if (typeof syncPaymentPlanVisibility === "function") syncPaymentPlanVisibility();
   updateCustomPresetActions(key);
   renderAreaCard(pr.area || null);
   render();
@@ -5026,6 +5066,162 @@ fetchAreasData();
   if (qEl) qEl.value = String(pq);
 })();
 
+// =========== PAYMENT PLAN (off-plan) ===========
+// Off-plan IRR is materially understated when the simulator treats price as paid
+// lump-sum on day 0. Real off-plan deals stagger payments across construction.
+// This system lets the agent define milestones (% × price at month-offset from
+// purchase, OR at handover); calculate() then builds a multi-period outflow
+// series instead of one initial outflow.
+
+// Preset templates. `at` is either a month offset from purchase, or "handover".
+const PP_PRESETS = {
+  standard:      [
+    { label: "Booking",      at: 0,            pct: 20 },
+    { label: "Construction 1", at: 6,          pct: 10 },
+    { label: "Construction 2", at: 12,         pct: 10 },
+    { label: "Construction 3", at: 18,         pct: 10 },
+    { label: "Construction 4", at: 24,         pct: 10 },
+    { label: "Handover",     at: "handover",   pct: 40 }
+  ],
+  aggressive:    [
+    { label: "Booking",        at: 0,          pct: 10 },
+    { label: "Construction 1", at: 6,          pct: 10 },
+    { label: "Construction 2", at: 12,         pct: 10 },
+    { label: "Construction 3", at: 18,         pct: 10 },
+    { label: "Construction 4", at: 24,         pct: 10 },
+    { label: "Handover",       at: "handover", pct: 50 }
+  ],
+  balanced:      [
+    { label: "Booking",       at: 0,           pct: 30 },
+    { label: "30% Construction", at: 12,       pct: 30 },
+    { label: "Handover",      at: "handover",  pct: 40 }
+  ],
+  payOnHandover: [
+    { label: "Construction (60% spread)", at: 12, pct: 60 },
+    { label: "Handover",      at: "handover",  pct: 40 }
+  ],
+  postHandover: [
+    { label: "Booking",       at: 0,           pct: 20 },
+    { label: "Construction",  at: 12,          pct: 30 },
+    { label: "Handover",      at: "handover",  pct: 20 },
+    { label: "Post-handover 1 (+12mo)", at: "handover+12", pct: 15 },
+    { label: "Post-handover 2 (+24mo)", at: "handover+24", pct: 15 }
+  ]
+};
+
+let paymentPlan = []; // [{label, at: <number months> | "handover" | "handover+N", pct}]
+
+function applyPpPreset(name) {
+  const tpl = PP_PRESETS[name];
+  if (!tpl) return;
+  paymentPlan = tpl.map(m => Object.assign({}, m));
+  renderPpRows();
+  if (typeof render === "function") render();
+}
+
+function addPpRow() {
+  paymentPlan.push({ label: "New milestone", at: 6, pct: 0 });
+  renderPpRows();
+}
+
+function deletePpRow(idx) {
+  paymentPlan.splice(idx, 1);
+  renderPpRows();
+  if (typeof render === "function") render();
+}
+
+function updatePpRow(idx, field, value) {
+  if (!paymentPlan[idx]) return;
+  if (field === "pct") paymentPlan[idx].pct = +value || 0;
+  else if (field === "label") paymentPlan[idx].label = value;
+  else if (field === "at") {
+    // "handover", "handover+12", or a number-of-months
+    if (value === "handover" || value === "handover+12" || value === "handover+24" || value === "handover+36") {
+      paymentPlan[idx].at = value;
+    } else {
+      paymentPlan[idx].at = +value || 0;
+    }
+  }
+  updatePpTotal();
+  if (typeof render === "function") render();
+}
+
+function renderPpRows() {
+  const container = document.getElementById("ppRowsContainer");
+  if (!container) return;
+  if (paymentPlan.length === 0) {
+    container.innerHTML = '<div style="padding:14px;text-align:center;color:var(--text-muted);font-size:12.5px;font-style:italic;">No milestones — click a preset above or "Add Milestone"</div>';
+    updatePpTotal();
+    return;
+  }
+  const lang = document.body.getAttribute("data-lang") || "ja";
+  const T = (ja, en) => lang === "ja" ? ja : en;
+  const atOptions = [
+    { v: 0,   l: T("購入時", "On booking") },
+    { v: 3,   l: T("+3ヶ月", "+3 months") },
+    { v: 6,   l: T("+6ヶ月", "+6 months") },
+    { v: 9,   l: T("+9ヶ月", "+9 months") },
+    { v: 12,  l: T("+12ヶ月", "+12 months") },
+    { v: 15,  l: T("+15ヶ月", "+15 months") },
+    { v: 18,  l: T("+18ヶ月", "+18 months") },
+    { v: 21,  l: T("+21ヶ月", "+21 months") },
+    { v: 24,  l: T("+24ヶ月", "+24 months") },
+    { v: 30,  l: T("+30ヶ月", "+30 months") },
+    { v: 36,  l: T("+36ヶ月", "+36 months") },
+    { v: "handover",     l: T("引渡し時", "On handover") },
+    { v: "handover+12",  l: T("引渡し +12ヶ月", "Handover +12mo") },
+    { v: "handover+24",  l: T("引渡し +24ヶ月", "Handover +24mo") },
+    { v: "handover+36",  l: T("引渡し +36ヶ月", "Handover +36mo") }
+  ];
+  container.innerHTML =
+    '<div class="pp-rows-header">' +
+      '<div>' + T("ラベル", "Label") + '</div>' +
+      '<div>' + T("タイミング", "Timing") + '</div>' +
+      '<div style="text-align:right;">%</div>' +
+      '<div></div>' +
+      '<div></div>' +
+    '</div>' +
+    paymentPlan.map((m, i) => {
+      const opts = atOptions.map(o => {
+        const sel = String(o.v) === String(m.at) ? " selected" : "";
+        return '<option value="' + o.v + '"' + sel + '>' + o.l + '</option>';
+      }).join("");
+      return '<div class="pp-row">' +
+        '<input type="text" value="' + escapeHtml(m.label || "") + '" oninput="updatePpRow(' + i + ', \'label\', this.value)">' +
+        '<select onchange="updatePpRow(' + i + ', \'at\', this.value)">' + opts + '</select>' +
+        '<input type="number" class="pp-pct" min="0" max="100" step="0.5" value="' + (m.pct || 0) + '" oninput="updatePpRow(' + i + ', \'pct\', this.value)">' +
+        '<div style="text-align:right;font-size:11px;color:var(--text-muted);font-weight:600;">%</div>' +
+        '<button type="button" class="pp-del" onclick="deletePpRow(' + i + ')" title="Remove">✕</button>' +
+      '</div>';
+    }).join("");
+  updatePpTotal();
+}
+
+function updatePpTotal() {
+  const el = document.getElementById("ppTotal");
+  if (!el) return;
+  const total = paymentPlan.reduce((s, m) => s + (+m.pct || 0), 0);
+  const lang = document.body.getAttribute("data-lang") || "ja";
+  const T = (ja, en) => lang === "ja" ? ja : en;
+  const ok = Math.abs(total - 100) < 0.01;
+  el.className = "pp-total " + (ok ? "ok" : "warn");
+  el.textContent = (ok ? "✓ " : "⚠ ") + T("合計", "Total") + ": " + total.toFixed(1) + "% " + (ok ? "" : T("(100%でない)", "(should be 100%)"));
+}
+
+// Toggle visibility of the payment plan card based on purchase mode
+function syncPaymentPlanVisibility() {
+  const card = document.getElementById("card-payment-plan");
+  if (!card) return;
+  const mode = (document.getElementById("purchaseMode") || {}).value || "ready";
+  const isOffplan = mode === "offplan";
+  card.style.display = isOffplan ? "" : "none";
+  if (isOffplan && paymentPlan.length === 0) {
+    // First time off-plan is shown — seed with the standard plan
+    applyPpPreset("standard");
+  }
+}
+document.getElementById("purchaseMode")?.addEventListener("change", () => { syncPaymentPlanVisibility(); });
+
 // =========== SCENARIO TOGGLE STATE ===========
 const scenarioVisible = { s1: true, s2: true, s3: true, s4: false };
 let chartVisible = true;
@@ -5216,21 +5412,77 @@ function calculate(inp) {
     const saleQabs = anchorQ + totalQuarters - 1;
     const saleYrLocal = Math.floor(saleQabs / 4);
     const numRows = Math.ceil(totalQuarters / 4);
+
+    // ===== Payment plan detection (off-plan only) =====
+    // Real off-plan deals stagger payments across construction. When a valid
+    // payment plan exists for an off-plan property, distribute the price across
+    // milestones and credit the loan disbursement at handover. Mathematically
+    // total cash out is unchanged; what shifts is its timing — and that's
+    // exactly what makes off-plan IRR appear higher when modeled correctly.
+    const ppTotal = (typeof paymentPlan !== "undefined" && paymentPlan)
+      ? paymentPlan.reduce((s, m) => s + (+m.pct || 0), 0) : 0;
+    const usePP = (inp.purchaseMode === "offplan") && paymentPlan && paymentPlan.length > 0 && Math.abs(ppTotal - 100) < 0.5;
+    const handoverMonthsFromAnchor = Math.max(0, (handoverQabs - anchorQ) * 3);
+
+    // Bucket each milestone (and the loan disbursement, if any) into year indices
+    // 0 = year 0 (the t=0 bucket), 1 = year 1, etc.
+    const milestoneByYear = new Map();
+    if (usePP) {
+      paymentPlan.forEach(m => {
+        let monthsFromAnchor;
+        if (typeof m.at === "number") monthsFromAnchor = m.at;
+        else if (m.at === "handover") monthsFromAnchor = handoverMonthsFromAnchor;
+        else if (typeof m.at === "string" && m.at.startsWith("handover+")) {
+          monthsFromAnchor = handoverMonthsFromAnchor + (parseInt(m.at.slice(9)) || 0);
+        } else monthsFromAnchor = 0;
+        const yi = Math.max(0, Math.floor(monthsFromAnchor / 12));
+        const amount = -((m.pct || 0) / 100) * p;
+        milestoneByYear.set(yi, (milestoneByYear.get(yi) || 0) + amount);
+      });
+      // Loan disbursement (positive) at handover year
+      if (inp.useMortgage && loanAmount > 0) {
+        const hYi = Math.max(0, Math.floor(handoverMonthsFromAnchor / 12));
+        milestoneByYear.set(hYi, (milestoneByYear.get(hYi) || 0) + loanAmount);
+      }
+    }
+
     // cf rows still bucketed yearly (calendar resolution). times[] uses
     // EXACT MONTHS to preserve sub-year precision for IRR.
-    const cf = [-initialCashAED];
+    // For payment plan: cf[0] = -upfront fees + year-0 milestones (booking).
+    // For lump-sum: cf[0] = -initialCashAED (existing behavior).
+    const upfrontFees = initialCashAED - cashDown;   // dld + trustee + ... + furniture
+    const cf = [];
     const times = [0];
+    if (usePP) {
+      cf.push(-upfrontFees + (milestoneByYear.get(0) || 0));
+    } else {
+      cf.push(-initialCashAED);
+    }
+
     for (let yi = 0; yi < numRows; yi++) {
       const yStart = anchorQ + yi * 4;
       const yEnd = Math.min(yStart + 3, saleQabs);
       const overlap = Math.max(0, Math.min(yEnd, saleQabs) - Math.max(yStart, handoverQabs) + 1);
-      cf.push((overlap / 4) * annualNetCF);
+      let value = (overlap / 4) * annualNetCF;
+      // Add any milestones bucketed into year (yi+1)
+      if (usePP) value += (milestoneByYear.get(yi + 1) || 0);
+      cf.push(value);
       // Time at end of this row, in years from anchor. For all but the last
       // row this is (yi+1) full years. For the last row, we use the actual
       // sale time = totalMonths / 12 to fix the partial-year timing bug.
       const isLastRow = (yi === numRows - 1);
       const elapsedMonths = isLastRow ? totalMonths : (yi + 1) * 12;
       times.push(elapsedMonths / 12);
+    }
+    // Roll any milestones beyond the last yearly bucket into the final cf entry
+    // (e.g. post-handover payment plans where last milestone hits AFTER sale).
+    if (usePP) {
+      [...milestoneByYear.entries()].forEach(([yi, amt]) => {
+        if (yi > numRows) {
+          // Time has already passed for these — fold into final cf
+          if (cf.length > 0) cf[cf.length - 1] += amt;
+        }
+      });
     }
     const salePrice = p * (1 + apprCumulativePct/100);
     const saleAgentFee = salePrice * 0.021;
@@ -5246,7 +5498,7 @@ function calculate(inp) {
     const net = salePrice - saleAgentFee - saleNOC - remainingLoan;
     if (cf.length > 1) cf[cf.length-1] += net;
     else cf.push(net);
-    return { cf, times, salePrice, saleAgentFee, saleNOC, remainingLoan, netSaleProceeds: net, operatingYears: opMonths / 12, saleYr: saleYrLocal, totalMonths };
+    return { cf, times, salePrice, saleAgentFee, saleNOC, remainingLoan, netSaleProceeds: net, operatingYears: opMonths / 12, saleYr: saleYrLocal, totalMonths, usePP };
   }
 
   // Fix #5: include holdMonths in totalYearsHeld so annual→cumulative compounds
@@ -5257,7 +5509,19 @@ function calculate(inp) {
     : inp.appreciation;
   const main = scenOperating(inp.holdYears, effectiveCumulativePct, inp.holdMonths);
   const mainIrr = irr(main.cf, main.times);
-  const multiple = main.cf.slice(1).reduce((a,b) => a+b, 0) / initialCashAED;
+  // Multiple: total positive cashflows / total negative cashflows. For the
+  // common no-payment-plan case this reduces to the original formula
+  // (sum of cf[1..N] / |cf[0]|) since cf[0] is the only outflow.
+  const totalOut = Math.abs(main.cf.reduce((s, v) => s + Math.min(0, v), 0)) || initialCashAED;
+  const totalIn  = main.cf.reduce((s, v) => s + Math.max(0, v), 0);
+  const multiple = totalOut > 0 ? totalIn / totalOut : 0;
+  // Helper used for scenario return calculations — total positive / total
+  // negative, equivalent to (sum cf[1..]) / |cf[0]| in the simple case.
+  function _scenReturn(cfArr) {
+    const out = Math.abs(cfArr.reduce((s, v) => s + Math.min(0, v), 0)) || initialCashAED;
+    const inn = cfArr.reduce((s, v) => s + Math.max(0, v), 0);
+    return out > 0 ? (inn - out) / out : 0;
+  }
   // Fix #4: scenarios now SCALE WITH USER'S APPRECIATION INPUT instead of using
   // hardcoded 25/32/40. Convert user's input to an annual rate, then re-apply
   // it for each scenario's specific hold period.
@@ -5310,10 +5574,10 @@ function calculate(inp) {
     constructionYears, operatingYears: main.operatingYears,
     cashOnCashPct, paybackYears, breakEvenSalePrice,
     scenarios: {
-      s1: { irr: irr(s1.cf, s1.times), net: s1.netSaleProceeds, return: s1.cf.slice(1).reduce((a,b)=>a+b,0) / initialCashAED },
-      s2: { irr: irr(s2.cf, s2.times), net: s2.netSaleProceeds, return: s2.cf.slice(1).reduce((a,b)=>a+b,0) / initialCashAED },
-      s3: { irr: irr(s3.cf, s3.times), net: s3.netSaleProceeds, return: s3.cf.slice(1).reduce((a,b)=>a+b,0) / initialCashAED },
-      s4: { irr: irr(s4.cf, s4.times), net: s4.netSaleProceeds, return: s4.cf.slice(1).reduce((a,b)=>a+b,0) / initialCashAED }
+      s1: { irr: irr(s1.cf, s1.times), net: s1.netSaleProceeds, return: _scenReturn(s1.cf) },
+      s2: { irr: irr(s2.cf, s2.times), net: s2.netSaleProceeds, return: _scenReturn(s2.cf) },
+      s3: { irr: irr(s3.cf, s3.times), net: s3.netSaleProceeds, return: _scenReturn(s3.cf) },
+      s4: { irr: irr(s4.cf, s4.times), net: s4.netSaleProceeds, return: _scenReturn(s4.cf) }
     }
   };
 }
@@ -6264,6 +6528,7 @@ window.addEventListener("scroll", updateActiveNav);
 })();
 
 if (typeof syncReadyMode === "function") syncReadyMode();
+if (typeof syncPaymentPlanVisibility === "function") syncPaymentPlanVisibility();
 render();
 
 // Initialize area card for whichever preset the dropdown is currently on
