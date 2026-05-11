@@ -109,6 +109,28 @@ If a number isn't supplied, say "we'd need to verify that on DXB Interact / DLD"
 If the question is outside Dubai real estate, briefly redirect.
 Match the response language to the agent's input language (Japanese if they wrote in JP, English otherwise).`;
 
+const SUGGEST_COMPARE_SYSTEM = `You are a Dubai real estate analyst helping an Exceed Real Estate agent pick the BEST head-to-head comparison from a closed list of inventory.
+
+The agent has an "A side" property loaded. The user message includes A's full context AND a list of available B-side candidates (each with key, name, price, sqft, type, area).
+
+Rank the candidates by how good a comparison they would be against A, considering:
+- Tier match (ultra-prime vs ultra-prime is best)
+- Product-type match (branded apt vs branded apt, villa vs villa)
+- Price-band proximity (similar AED total = fair comparison; or a clear up/down option)
+- Area context (same area = direct comp; adjacent / similar area = value or tier comp)
+- Off-plan-vs-ready: matched pairs are stronger comparisons
+
+Return ONLY valid JSON in this exact shape, no markdown, no preamble:
+{ "suggestions": [ { "key": "presetKey", "reason": "one short sentence (max 100 chars)" }, ... ] }
+
+Rules:
+- 2 to 4 ranked entries (best first)
+- Use ONLY the keys from the provided candidate list — do not invent keys
+- 'reason' should explain in one sentence WHY this comparison is useful
+  (e.g. "Same Palm tier, lower-priced alternative", "Same off-plan stage, adjacent Emaar masterplan")
+- If A is in the candidate list, skip A itself
+- Match the response language to the agent's input language.`;
+
 const COMPARABLES_SYSTEM = `You are a Dubai real estate analyst. Given the property + area context, return 3–5 comparable Dubai projects MOST RELEVANT to this specific property based on:
 - Tier match (ultra-prime / prime / prime-suburban / emerging-prime)
 - Product type match (apartment / villa / mansion / branded / standalone)
@@ -136,6 +158,44 @@ async function handleThesis(request, env, origin) {
     { role: "user", content: `Property + area context:\n${ctx}\n\nWrite the investment thesis now.` }
   ]);
   return new Response(JSON.stringify({ thesis: text, model: MODEL }), {
+    headers: { ...corsHeaders(origin), "Content-Type": "application/json" }
+  });
+}
+
+async function handleSuggestCompare(request, env, origin) {
+  const payload = await request.json().catch(() => ({}));
+  const ctx = buildContext(payload);
+  const candidates = Array.isArray(payload.candidates) ? payload.candidates : [];
+  if (candidates.length === 0) {
+    return new Response(JSON.stringify({ error: "No candidates provided" }), {
+      status: 400,
+      headers: { ...corsHeaders(origin), "Content-Type": "application/json" }
+    });
+  }
+  const candidatesText = candidates.map(c =>
+    `- ${c.key}: ${c.name} (AED ${(Number(c.price || 0)/1_000_000).toFixed(1)}M, ${c.sqft || "?"} sqft, type=${c.type || "?"}, mode=${c.mode || "?"}, area=${c.area || "?"})`
+  ).join("\n");
+  const userMsg = `A-side property + area context:\n${ctx}\n\nAvailable B-side candidates:\n${candidatesText}\n\nRank the best 2–4 comparisons. Return JSON now.`;
+  const text = await callClaude(env, SUGGEST_COMPARE_SYSTEM, [
+    { role: "user", content: userMsg }
+  ]);
+  const cleaned = String(text || "").trim()
+    .replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/i, "").trim();
+  let parsed = null;
+  try { parsed = JSON.parse(cleaned); } catch (e) {}
+  if (!parsed || !Array.isArray(parsed.suggestions)) {
+    return new Response(JSON.stringify({ error: "Invalid AI response", raw: text }), {
+      status: 502,
+      headers: { ...corsHeaders(origin), "Content-Type": "application/json" }
+    });
+  }
+  // Sanitize — only keep keys that were in the input candidate list
+  const keySet = new Set(candidates.map(c => c.key));
+  const cleanedSuggestions = parsed.suggestions
+    .filter(s => s && typeof s.key === "string" && keySet.has(s.key))
+    .slice(0, 4)
+    .map(s => ({ key: s.key, reason: String(s.reason || "").trim().slice(0, 140) }));
+  return new Response(JSON.stringify({ suggestions: cleanedSuggestions, model: MODEL }), {
     headers: { ...corsHeaders(origin), "Content-Type": "application/json" }
   });
 }
@@ -211,6 +271,9 @@ export default {
       }
       if (request.method === "POST" && url.pathname === "/comparables") {
         return await handleComparables(request, env, origin);
+      }
+      if (request.method === "POST" && url.pathname === "/suggest-compare") {
+        return await handleSuggestCompare(request, env, origin);
       }
       if (request.method === "GET" && url.pathname === "/") {
         return new Response("Exceed IRR Simulator AI Worker. POST /thesis or /chat.", {

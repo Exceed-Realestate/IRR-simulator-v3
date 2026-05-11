@@ -1479,6 +1479,16 @@
   #card-whatif .whatif-scale { font-size:10px; color:var(--text-muted); margin-top:6px; display:flex; justify-content:space-between; font-family:monospace; }
 
   /* Compare modal */
+  .compare-ai-bar { padding:12px 14px; background:linear-gradient(135deg,#eef2ff,#ede9fe); border:1px solid #c7d2fe; border-radius:8px; margin-bottom:14px; display:flex; flex-direction:column; gap:8px; }
+  .compare-ai-btn { align-self:flex-start; padding:8px 14px; background:linear-gradient(135deg,#6366f1,#8b5cf6); color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:12.5px; font-weight:700; box-shadow:0 1px 3px rgba(99,102,241,0.25); }
+  .compare-ai-btn:hover { transform:translateY(-1px); box-shadow:0 3px 8px rgba(99,102,241,0.3); }
+  .compare-ai-btn:disabled { opacity:0.7; cursor:wait; transform:none; }
+  .compare-ai-suggestions { display:flex; flex-wrap:wrap; gap:6px; }
+  .compare-ai-suggestions:empty { display:none; }
+  .compare-ai-chip { display:inline-flex; align-items:center; gap:6px; padding:7px 11px; background:#fff; border:1px solid #c7d2fe; border-radius:18px; cursor:pointer; font-size:11.5px; font-weight:600; color:#3730a3; transition:all 0.15s; max-width:100%; }
+  .compare-ai-chip:hover { background:#eef2ff; border-color:#6366f1; }
+  .compare-ai-chip .chip-name { font-weight:700; }
+  .compare-ai-chip .chip-reason { font-weight:400; color:var(--text-muted); font-size:10.5px; }
   .compare-grid { display:grid; grid-template-columns:1fr 50px 1fr; gap:12px; align-items:flex-start; }
   .compare-col { padding:14px; background:#fafafa; border:2px solid #e5e7eb; border-radius:8px; }
   .compare-col.compare-A { border-color:#3b82f6; background:#eff6ff; }
@@ -2732,6 +2742,10 @@
       <button class="modal-close" onclick="closeCompareModal()">✕</button>
     </div>
     <div class="modal-body" id="compareBody">
+      <div class="compare-ai-bar">
+        <button class="compare-ai-btn" onclick="suggestCompareWithAi()">✨ <span class="ja">最適な比較対象をAIで提案</span><span class="en">AI: suggest best comparison</span></button>
+        <div id="compareAiSuggestions" class="compare-ai-suggestions"></div>
+      </div>
       <div class="compare-grid">
         <div class="compare-col compare-A">
           <div class="compare-col-header">
@@ -4832,6 +4846,64 @@ function renderCompareModal() {
   }).join("");
   document.getElementById("compareAMetrics").innerHTML = renderCol("A", a);
   document.getElementById("compareBMetrics").innerHTML = renderCol("B", b);
+}
+
+async function suggestCompareWithAi() {
+  const btn = document.querySelector(".compare-ai-btn");
+  const slot = document.getElementById("compareAiSuggestions");
+  const T = (ja, en) => currentLang() === "ja" ? ja : en;
+  const url = aiGetWorkerUrl();
+  if (!url) {
+    showToast(T("⚠ AI Worker が未設定 — ✨ AI ボタンから設定してください", "⚠ AI Worker not configured — set it via the ✨ AI button"));
+    return;
+  }
+  if (btn) btn.disabled = true;
+  if (slot) slot.innerHTML = '<div style="font-size:11.5px;color:var(--text-muted);font-style:italic;">' + T("AIが最適な比較対象を選定中…", "AI is picking the best comparisons…") + '</div>';
+  try {
+    const aKey = (document.getElementById("compareA") || {}).value;
+    const a = computeForPreset(aKey);
+    const candidates = [];
+    Object.entries(presets || {}).forEach(([k, p]) => {
+      if (k === aKey) return;
+      candidates.push({ key: k, name: p.name || k, price: p.price, sqft: p.sqft, type: p.type, mode: p.mode, area: p.area });
+    });
+    Object.entries(customProps || {}).forEach(([k, p]) => {
+      if (k === aKey) return;
+      candidates.push({ key: k, name: p.name || k, price: p.price, sqft: p.sqft, type: p.type, mode: p.mode, area: p.area });
+    });
+    const payload = aiBuildPayload();
+    payload.candidates = candidates;
+    const resp = await fetch(url.replace(/\/$/, "") + "/suggest-compare", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    if (!resp.ok) throw new Error("HTTP " + resp.status);
+    const data = await resp.json();
+    if (!Array.isArray(data.suggestions) || data.suggestions.length === 0) {
+      slot.innerHTML = '<div style="font-size:11.5px;color:var(--text-muted);">' + T("AIから提案がありませんでした", "AI returned no suggestions") + '</div>';
+      return;
+    }
+    slot.innerHTML = data.suggestions.map(s => {
+      const cand = candidates.find(c => c.key === s.key);
+      const label = cand ? (cand.name || s.key) : s.key;
+      return '<button class="compare-ai-chip" onclick="pickCompareSuggestion(\'' + s.key + '\')">' +
+        '<span class="chip-name">' + escapeHtml(label.replace(/^★\s*/, "")) + '</span>' +
+        '<span class="chip-reason">— ' + escapeHtml(s.reason || "") + '</span>' +
+      '</button>';
+    }).join("");
+  } catch (e) {
+    slot.innerHTML = '<div style="font-size:11.5px;color:#b91c1c;">✗ ' + escapeHtml(e.message) + '</div>';
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+function pickCompareSuggestion(key) {
+  const sel = document.getElementById("compareB");
+  if (!sel) return;
+  sel.value = key;
+  renderCompareModal();
+  showToast("✓ " + (currentLang() === "ja" ? "比較対象を更新" : "Comparison updated"));
 }
 
 function loadFromCompare(side) {
