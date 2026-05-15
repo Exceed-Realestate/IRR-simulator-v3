@@ -2,6 +2,13 @@ name = "exceed-irr-ai"
 main = "worker.js"
 compatibility_date = "2024-12-01"
 
+# Cloudflare Smart Placement — runs the Worker at the edge closest to the
+# external services it calls (data.dubai is UAE-hosted). This is what
+# (hopefully) satisfies the data.dubai 'UAE-only access' restriction without
+# us having to stand up our own UAE VM.
+[placement]
+mode = "smart"
+
 # After running `wrangler deploy`, the public URL will be:
 # https://exceed-irr-ai.<your-cloudflare-subdomain>.workers.dev
 #

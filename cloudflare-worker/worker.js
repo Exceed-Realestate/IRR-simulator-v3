@@ -28,6 +28,14 @@ const ALLOWED_ORIGINS = [
 const MODEL = "claude-opus-4-7";  // latest as of session date
 const MAX_TOKENS = 1024;
 
+// data.dubai DDA iPaaS — base URLs per environment
+const DDA_BASE_STG  = "https://stg-apis.data.dubai";
+const DDA_BASE_PROD = "https://apis.data.dubai";
+
+// Cached bearer token (Worker instance memory — fine for sub-hour reuse)
+let _ddaToken = null;
+let _ddaTokenExpiresAt = 0;
+
 function corsHeaders(origin) {
   const ok = origin && ALLOWED_ORIGINS.some(a => origin.startsWith(a));
   return {
@@ -162,6 +170,94 @@ async function handleThesis(request, env, origin) {
   });
 }
 
+// ============ DLD proxy (data.dubai DDA iPaaS) ============
+// GH Actions runner can't reach data.dubai (UAE-only IP). This Worker is
+// geo-pinned to UAE via wrangler.toml smart placement, so it proxies the
+// scraper's calls. Auth credentials live as Worker secrets.
+
+function ddaBase(env) {
+  return (env.DLD_ENV === "prod") ? DDA_BASE_PROD : DDA_BASE_STG;
+}
+
+function verifyProxySecret(request, env) {
+  // Simple shared-secret to keep the proxy private even if URL leaks.
+  if (!env.DLD_PROXY_SECRET) return true; // unset = open (not recommended for prod)
+  return request.headers.get("x-Proxy-Secret") === env.DLD_PROXY_SECRET;
+}
+
+async function ddaGetToken(env) {
+  if (_ddaToken && Date.now() < _ddaTokenExpiresAt - 30_000) return _ddaToken;
+  const url = `${ddaBase(env)}/secure/ssis/dubaiai/gatewaytoken/1.0.0/getAccessToken`;
+  const resp = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-DDA-SecurityApplicationIdentifier": env.DLD_APP_ID
+    },
+    body: JSON.stringify({
+      grant_type: "client_credentials",
+      client_id: env.DLD_CLIENT_ID,
+      client_secret: env.DLD_CLIENT_SECRET
+    })
+  });
+  if (!resp.ok) throw new Error(`DDA token ${resp.status}: ${await resp.text()}`);
+  const data = await resp.json();
+  _ddaToken = data.access_token;
+  _ddaTokenExpiresAt = Date.now() + (Number(data.expires_in || 3600) * 1000);
+  return _ddaToken;
+}
+
+async function handleDldHealth(request, env, origin) {
+  if (!verifyProxySecret(request, env)) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401, headers: { ...corsHeaders(origin), "Content-Type": "application/json" }
+    });
+  }
+  if (!env.DLD_APP_ID || !env.DLD_CLIENT_ID || !env.DLD_CLIENT_SECRET) {
+    return new Response(JSON.stringify({ error: "DLD credentials not configured on Worker" }), {
+      status: 500, headers: { ...corsHeaders(origin), "Content-Type": "application/json" }
+    });
+  }
+  const token = await ddaGetToken(env);
+  const url = `${ddaBase(env)}/secure/ddads/healthcheck/1.0.0/health`;
+  const r = await fetch(url, { headers: { "Authorization": `Bearer ${token}` } });
+  const body = await r.text();
+  return new Response(body, {
+    status: r.status,
+    headers: { ...corsHeaders(origin), "Content-Type": r.headers.get("Content-Type") || "application/json" }
+  });
+}
+
+async function handleDldFetch(request, env, origin) {
+  if (!verifyProxySecret(request, env)) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401, headers: { ...corsHeaders(origin), "Content-Type": "application/json" }
+    });
+  }
+  if (!env.DLD_APP_ID || !env.DLD_CLIENT_ID || !env.DLD_CLIENT_SECRET) {
+    return new Response(JSON.stringify({ error: "DLD credentials not configured on Worker" }), {
+      status: 500, headers: { ...corsHeaders(origin), "Content-Type": "application/json" }
+    });
+  }
+  const payload = await request.json().catch(() => ({}));
+  const { entity, dataset, ...query } = payload;
+  if (!entity || !dataset) {
+    return new Response(JSON.stringify({ error: "Missing 'entity' or 'dataset'" }), {
+      status: 400, headers: { ...corsHeaders(origin), "Content-Type": "application/json" }
+    });
+  }
+  const token = await ddaGetToken(env);
+  const qs = new URLSearchParams();
+  Object.entries(query).forEach(([k, v]) => { if (v !== null && v !== undefined && v !== "") qs.set(k, String(v)); });
+  const url = `${ddaBase(env)}/secure/ddads/openapi/1.0.0/${encodeURIComponent(entity)}/${encodeURIComponent(dataset)}?${qs.toString()}`;
+  const r = await fetch(url, { headers: { "Authorization": `Bearer ${token}` } });
+  const body = await r.text();
+  return new Response(body, {
+    status: r.status,
+    headers: { ...corsHeaders(origin), "Content-Type": r.headers.get("Content-Type") || "application/json" }
+  });
+}
+
 async function handleSuggestCompare(request, env, origin) {
   const payload = await request.json().catch(() => ({}));
   const ctx = buildContext(payload);
@@ -274,6 +370,12 @@ export default {
       }
       if (request.method === "POST" && url.pathname === "/suggest-compare") {
         return await handleSuggestCompare(request, env, origin);
+      }
+      if (request.method === "POST" && url.pathname === "/dld-health") {
+        return await handleDldHealth(request, env, origin);
+      }
+      if (request.method === "POST" && url.pathname === "/dld-fetch") {
+        return await handleDldFetch(request, env, origin);
       }
       if (request.method === "GET" && url.pathname === "/") {
         return new Response("Exceed IRR Simulator AI Worker. POST /thesis or /chat.", {

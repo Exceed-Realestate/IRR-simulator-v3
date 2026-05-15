@@ -22,8 +22,14 @@ jobs:
 
       - name: Run scraper
         env:
-          DLD_API_KEY: ${{ secrets.DLD_API_KEY }}
-          DLD_API_SECRET: ${{ secrets.DLD_API_SECRET }}
+          # PROXY MODE: scraper calls the Cloudflare Worker (UAE-pinned via
+          # Smart Placement), which holds the actual DDA credentials.
+          DLD_PROXY_URL:    ${{ secrets.DLD_PROXY_URL }}
+          DLD_PROXY_SECRET: ${{ secrets.DLD_PROXY_SECRET }}
+          # Entity / dataset names (override here without editing the script)
+          DLD_ENTITY:       ${{ vars.DLD_ENTITY }}
+          DLD_TX_DATASET:   ${{ vars.DLD_TX_DATASET }}
+          DLD_RENT_DATASET: ${{ vars.DLD_RENT_DATASET }}
         run: |
           python3 scripts/scrape-dld.py --output live-areas.json
           echo "--- live-areas.json (head) ---"
