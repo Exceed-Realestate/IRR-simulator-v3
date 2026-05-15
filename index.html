@@ -4193,9 +4193,13 @@ function revertAiComparables() {
 // ============ AI ASSISTANT ============
 const AI_WORKER_KEY = "exceedAiWorkerUrl_v1";
 const AI_CHAT_HISTORY_KEY = "exceedAiChatHistory_v1";
+// Pre-wired Exceed Worker — agents don't need to paste anything to use AI features.
+// Override via the Settings tab in the AI Assistant if needed.
+const AI_WORKER_DEFAULT = "https://exceed-irr-ai.exceed-re.workers.dev";
 
 function aiGetWorkerUrl() {
-  return (localStorage.getItem(AI_WORKER_KEY) || "").trim();
+  const stored = (localStorage.getItem(AI_WORKER_KEY) || "").trim();
+  return stored || AI_WORKER_DEFAULT;
 }
 function aiSetWorkerUrl(url) {
   if (url) localStorage.setItem(AI_WORKER_KEY, url.trim());
