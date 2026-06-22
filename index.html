@@ -1778,6 +1778,21 @@
               <input type="number" id="serviceChargePsf" value="32.5" step="0.5">
             </div>
           </div>
+          <!-- GENIE_FEATURE_5 -->
+          <div class="field" id="gmUnitField" style="display:none;">
+            <label>
+              <span class="ja">GenieMap ユニットから自動入力</span>
+              <span class="en">Autofill from GenieMap unit</span>
+              <span id="gmUnitCount" style="display:inline-block;margin-left:6px;padding:1px 6px;background:var(--bg);color:var(--text-muted);border:1px solid var(--border);border-radius:10px;font-size:10px;font-weight:600;letter-spacing:0.3px;"></span>
+            </label>
+            <!-- GENIE_FIX_G3 --> Datalist-based picker replaces the old select. Searchable, keyboard-friendly.
+            <div style="display:flex;gap:6px;align-items:stretch;">
+              <input id="gmUnitPicker" list="unitPickerList" placeholder="-- Select a unit --" autocomplete="off" style="flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;font-family:inherit;background:#fff;width:100%;">
+              <button type="button" id="gmUnitRevert" style="display:none;padding:6px 10px;border:1px solid var(--border);border-radius:4px;background:#fff;font-size:11px;cursor:pointer;">Revert</button>
+            </div>
+            <datalist id="unitPickerList"></datalist>
+            <small id="gmUnitHint" style="font-size:11px;color:var(--text-muted);margin-top:4px;display:block;min-height:14px;"></small>
+          </div>
           <div class="field-row">
             <div class="field">
               <label><span class="ja">タイプ</span><span class="en">Type</span></label>
@@ -3885,6 +3900,45 @@ function updateCpAreaHint() {
 
 function escapeHtml(s) { return String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 
+// <!-- GENIE_FIX_G6 --> Alias table + tolerant matcher for curated areaKey -> GenieMap district lookups.
+// Real DLD names like "Marsa Dubai" never match "Dubai Marina" by string equality, so Features 3 + 4
+// silently lost their tiles. The matcher normalizes (lowercase, strip non-alphanumeric) and consults the
+// alias list per curated key.
+var DLD_AREA_ALIASES = {
+  dubaiMarina:       ["Marsa Dubai", "Dubai Marina", "Marina"],
+  palmJumeirah:      ["Palm Jumeirah", "Palm Jumeirah Island", "Palm"],
+  downtownDubai:     ["Burj Khalifa", "Downtown Dubai", "Downtown"],
+  businessBay:       ["Business Bay"],
+  jvc:               ["Jumeirah Village Circle", "JVC"],
+  jvt:               ["Jumeirah Village Triangle", "JVT"],
+  jlt:               ["Jumeirah Lake Towers", "JLT"],
+  arjan:             ["Al Barsha South Fourth", "Arjan"],
+  dubaiHills:        ["Hadaeq Sheikh Mohammed Bin Rashid", "Dubai Hills Estate", "Dubai Hills"],
+  emiratesHills:     ["Emirates Hills First", "Emirates Hills"],
+  arabianRanches:    ["Wadi Al Safa 6", "Arabian Ranches"],
+  mirdif:            ["Mirdif"],
+  damac:             ["DAMAC Hills"],
+  meydan:            ["Meydan", "Nad Al Sheba"],
+  dubaiSouth:        ["Dubai South"],
+  dubaiCreekHarbour: ["The Lagoons", "Dubai Creek Harbour"],
+  bluewatersIsland:  ["Bluewaters Island", "Bluewaters"],
+  cityWalk:          ["Al Wasl", "City Walk"],
+  sobhaHartland:     ["Mohammed Bin Rashid City", "Sobha Hartland"]
+};
+function gmNormalizeDistrict(s) { return String(s == null ? "" : s).toLowerCase().replace(/[^a-z0-9]/g, ""); }
+function gmDistrictMatches(entryName, cand, areaKey) {
+  if (entryName == null || cand == null) return false;
+  if (entryName === cand) return true;
+  var en = gmNormalizeDistrict(entryName), cn = gmNormalizeDistrict(cand);
+  if (en && cn && en === cn) return true;
+  var aliases = (areaKey && DLD_AREA_ALIASES[areaKey]) || [];
+  for (var i = 0; i < aliases.length; i++) {
+    var an = gmNormalizeDistrict(aliases[i]);
+    if (an && (an === en || an === cn)) return true;
+  }
+  return false;
+}
+
 function renderAreaCard(areaKey) {
   console.log("[v3] renderAreaCard ←", areaKey, "(areasData loaded:", !!areasData, ")");
   currentAreaKey = areaKey;
@@ -3956,6 +4010,65 @@ function renderAreaCard(areaKey) {
   stats += tile('<span class="ja">利回り (Apt)</span><span class="en">Yield (Apt)</span>', yieldApt, 'avgRentalYieldPct.apartment', { suffix: '%' });
   stats += tile('<span class="ja">利回り (Villa)</span><span class="en">Yield (Villa)</span>', yieldVilla, 'avgRentalYieldPct.villa', { suffix: '%', skipIfStartsWith: 'projected' });
   stats += tile('<span class="ja">過去12ヶ月の取引数</span><span class="en">Tx Last 12mo</span>', a.txCount12mo, 'txCount12mo');
+  // <!-- GENIE_FEATURE_3 -->
+  // === GenieMap Primary vs Secondary PSF benchmark (feature 3) ===
+  try {
+    if (window.GENIEMAP_DATA && window.GENIEMAP_DATA.byDistrict) {
+      var gm3_areaJoin = window.GENIEMAP_DATA.areaJoin || {};
+      var gm3_byDistrict = window.GENIEMAP_DATA.byDistrict || {};
+      var gm3_districtSlug = null;
+      if (gm3_byDistrict[currentAreaKey]) gm3_districtSlug = currentAreaKey;
+      if (!gm3_districtSlug) {
+        var gm3_candidates = [];
+        if (window.__currentGenieMapProject && window.__currentGenieMapProject.district && window.__currentGenieMapProject.district.name) {
+          gm3_candidates.push(window.__currentGenieMapProject.district.name);
+        }
+        if (a.geniemapDistrict) gm3_candidates.push(a.geniemapDistrict);
+        if (a.dldArea) gm3_candidates.push(a.dldArea);
+        if (a.name) gm3_candidates.push(a.name);
+        for (var ci=0; ci<gm3_candidates.length; ci++) {
+          var cand = gm3_candidates[ci];
+          if (!cand) continue;
+          for (var dk in gm3_byDistrict) {
+            if (!gm3_byDistrict.hasOwnProperty(dk)) continue;
+            var entry = gm3_byDistrict[dk];
+            // <!-- GENIE_FIX_G6 (feature 3) --> tolerant match via alias / normalized compare
+            if (entry && (gmDistrictMatches(entry.nameEN, cand, currentAreaKey) || gmDistrictMatches(entry.dldAreaNameEN, cand, currentAreaKey))) { gm3_districtSlug = dk; break; }
+          }
+          if (gm3_districtSlug) break;
+        }
+      }
+      if (gm3_districtSlug && gm3_byDistrict[gm3_districtSlug]) {
+        var d = gm3_byDistrict[gm3_districtSlug];
+        var prim = d.primaryPsf || {};
+        var sec  = d.secondaryPsf || {};
+        var pAvg = (prim && isFinite(prim.avg) && prim.avg>0) ? Math.round(prim.avg) : null;
+        var sAvg = (sec  && isFinite(sec.avg)  && sec.avg>0)  ? Math.round(sec.avg)  : null;
+        var pCt = (prim && Number(prim.count))||0;
+        var sCt = (sec  && Number(sec.count))||0;
+        function gm3_fmtAed(n){ return n==null ? '-' : 'AED ' + n.toLocaleString('en-US'); }
+        var deltaHtml = '';
+        if (pAvg && sAvg) {
+          var pct = ((pAvg - sAvg) / sAvg) * 100;
+          var sign = pct >= 0 ? '+' : '';
+          deltaHtml = '<div class="area-stat-verified" style="color:' + (pct>=0?'#0a7':'#b45309') + ';">Primary ' + sign + pct.toFixed(1) + '% vs resale</div>';
+        }
+        stats += '<div class="area-stat" style="grid-column:span 2;background:rgba(10,119,119,0.04);border-color:rgba(10,119,119,0.2);">' +
+          '<div class="area-stat-label">' +
+            '<span class="ja">プライマリ vs セカンダリ AED/sqft</span>' +
+            '<span class="en">Primary vs Secondary AED/sqft</span>' +
+            ' <span style="background:#0a7;color:#fff;font-size:10px;padding:1px 5px;border-radius:3px;margin-left:4px;">GenieMap</span>' +
+          '</div>' +
+          '<div class="area-stat-value" style="font-size:13px;line-height:1.5;font-weight:500;">' +
+            '<div>Primary: <strong>' + gm3_fmtAed(pAvg) + '</strong> <span style="font-size:10px;color:var(--text-muted);">(' + pCt + ' off-plan units)</span></div>' +
+            '<div>Resale: <strong>' + gm3_fmtAed(sAvg) + '</strong> <span style="font-size:10px;color:var(--text-muted);">(' + sCt + ' resale units)</span></div>' +
+          '</div>' +
+          deltaHtml +
+        '</div>';
+      }
+    }
+  } catch(e) { console.log('[GenieMap primary-vs-secondary] failed:', e && e.message); }
+  
   if (a.transactionVolume) {
     const isVerified = !!vf['transactionVolume'];
     const verifiedDate = vf['transactionVolume'] || "";
@@ -4010,7 +4123,86 @@ function renderAreaCard(areaKey) {
       '</ul></div>';
   }
 
-  // Infrastructure pipeline (upcoming, dated)
+
+  // <!-- GENIE_FEATURE_4 -->
+  // === GenieMap Supply Pipeline (feature 4) ===
+  let gmSupplyPipelineBlock = '';
+  try {
+    if (window.GENIEMAP_DATA && window.GENIEMAP_DATA.byDistrict) {
+      var gm4_by = window.GENIEMAP_DATA.byDistrict;
+      var gm4_slug = null;
+      if (gm4_by[currentAreaKey]) gm4_slug = currentAreaKey;
+      if (!gm4_slug) {
+        var gm4_candidates = [];
+        if (window.__currentGenieMapProject && window.__currentGenieMapProject.district && window.__currentGenieMapProject.district.name) {
+          gm4_candidates.push(window.__currentGenieMapProject.district.name);
+        }
+        if (a.geniemapDistrict) gm4_candidates.push(a.geniemapDistrict);
+        if (a.dldArea) gm4_candidates.push(a.dldArea);
+        if (a.name) gm4_candidates.push(a.name);
+        for (var ci=0; ci<gm4_candidates.length; ci++) {
+          var cand = gm4_candidates[ci];
+          if (!cand) continue;
+          for (var dk in gm4_by) {
+            if (!gm4_by.hasOwnProperty(dk)) continue;
+            var entry = gm4_by[dk];
+            // <!-- GENIE_FIX_G6 (feature 4) --> tolerant match via alias / normalized compare
+            if (entry && (gmDistrictMatches(entry.nameEN, cand, currentAreaKey) || gmDistrictMatches(entry.dldAreaNameEN, cand, currentAreaKey))) { gm4_slug = dk; break; }
+          }
+          if (gm4_slug) break;
+        }
+      }
+      // <!-- GENIE_FIX_G7 --> Fall back to aggregating from GENIEMAP_DATA.projects when the precomputed
+      // byDistrict[slug].pipeline is missing or empty (slim builds often skip it entirely).
+      var __gm4_rawPipeline = (gm4_slug && gm4_by[gm4_slug] && Array.isArray(gm4_by[gm4_slug].pipeline)) ? gm4_by[gm4_slug].pipeline : [];
+      var __gm4_pipeline = __gm4_rawPipeline.length
+        ? __gm4_rawPipeline.slice(0, 12)
+        : (function(){
+            try {
+              var bucket = {};
+              var projs = (window.GENIEMAP_DATA && Array.isArray(window.GENIEMAP_DATA.projects)) ? window.GENIEMAP_DATA.projects : [];
+              for (var i = 0; i < projs.length; i++) {
+                var p = projs[i];
+                if (!p) continue;
+                var dSlug = (p.district && p.district.slug) || '';
+                if (dSlug !== gm4_slug) continue;
+                var ho = String(p.handover || '');
+                var m = /^(\d{4}).*?Q?([1-4])/.exec(ho);
+                if (!m) continue;
+                var key = m[1] + '-Q' + m[2];
+                bucket[key] = (bucket[key] || 0) + (Number(p.unitCount) || 0);
+              }
+              return Object.keys(bucket).sort().slice(0, 12).map(function(k){ return { quarter: k, units: bucket[k] }; });
+            } catch(e) { return []; }
+          })();
+      if (gm4_slug && __gm4_pipeline.length) {
+        var pipeline = __gm4_pipeline;
+        var totalUnits = pipeline.reduce(function(s,r){ return s + (Number(r.units)||0); }, 0);
+        var maxUnits = Math.max.apply(null, pipeline.map(function(x){return Number(x.units)||0;}));
+        var pipelineRows = pipeline.map(function(r){
+          var qLabel = r.quarter || '?';
+          var u = Number(r.units)||0;
+          var bar = maxUnits>0 ? Math.round((u/maxUnits) * 100) : 0;
+          return '<li style="display:grid;grid-template-columns:80px 1fr auto;align-items:center;gap:8px;padding:4px 0;">' +
+            '<span style="font-variant-numeric:tabular-nums;font-weight:600;font-size:12px;">' + qLabel + '</span>' +
+            '<span style="background:rgba(10,119,119,0.08);height:8px;border-radius:4px;position:relative;display:block;">' +
+              '<span style="position:absolute;left:0;top:0;height:100%;width:' + bar + '%;background:#0a7;border-radius:4px;"></span>' +
+            '</span>' +
+            '<span style="font-variant-numeric:tabular-nums;font-size:12px;color:var(--text-muted);">' + u.toLocaleString('en-US') + ' units</span>' +
+          '</li>';
+        }).join('');
+        gmSupplyPipelineBlock = '<div class="area-block area-pipeline">' +
+          '<h4>* <span class="ja">供給パイプライン</span><span class="en">Supply Pipeline</span>' +
+          ' <span style="background:#0a7;color:#fff;font-size:10px;padding:1px 5px;border-radius:3px;margin-left:6px;font-weight:400;">GenieMap</span>' +
+          ' <span style="font-size:11px;color:var(--text-muted);font-weight:400;margin-left:8px;">' + totalUnits.toLocaleString('en-US') + ' off-plan units across ' + pipeline.length + ' quarters</span>' +
+          '</h4>' +
+          '<ul style="list-style:none;padding:0;margin:8px 0 0 0;">' + pipelineRows + '</ul>' +
+          '</div>';
+      }
+    }
+  } catch(e) { console.log('[GenieMap supply pipeline] failed:', e && e.message); }
+
+    // Infrastructure pipeline (upcoming, dated)
   let pipelineBlock = '';
   if (Array.isArray(a.infrastructurePipeline) && a.infrastructurePipeline.length) {
     pipelineBlock = '<div class="area-block area-pipeline"><h4>🚧 <span class="ja">今後の開発・インフラ</span><span class="en">Upcoming Pipeline</span></h4><ul class="pipeline-list">' +
@@ -4018,6 +4210,14 @@ function renderAreaCard(areaKey) {
       '</ul></div>';
   }
 
+    // <!-- GENIE_FEATURE_2 --> <!-- GENIE_FIX_G5 (block A) -->
+  // === GenieMap Real Comparables (feature 2) ===
+  // NOTE: actual call moved to a deterministic post-innerHTML hook at the bottom of renderAreaCard
+  // (search for GENIE_FIX_G5 (block B)). The old queueMicrotask scheduling was racy because
+  // renderAreaCard's final innerHTML write happens AFTER this block, so the microtask sometimes
+  // ran against a stale or absent #areaComparables. This try/catch is now a no-op kept for the
+  // benefit of GENIE_FEATURE_2 anchor stability.
+  try { /* no-op — see GENIE_FIX_G5 (block B) at the bottom of renderAreaCard */ } catch(e){}
   // Comparables — prefer AI-generated (property-specific) over area-level curated
   const aiCompKey = aiCompCacheKey();
   const aiComps = aiCompKey ? aiLoadComparables(aiCompKey) : null;
@@ -4075,10 +4275,13 @@ function renderAreaCard(areaKey) {
     rentsBlock + tenantBlock +
     '<div id="unitInsights"></div>' +
     mapBlock +
-    infra + pipelineBlock + comps + talks + citations;
+    infra + pipelineBlock + /* GENIE_FEATURE_4_RENDER */ gmSupplyPipelineBlock + comps + talks + citations;
 
   renderUnitInsights();
   initAreaMap();
+  // <!-- GENIE_FIX_G5 (block B) --> Deterministic post-render hook: now that #areaComparables exists
+  // in the DOM, paint GenieMap REAL comparables into its sub-div. Replaces the racy queueMicrotask above.
+  try { if (typeof window.renderGenieMapComparables === "function") window.renderGenieMapComparables(); } catch(e){}
 }
 
 // Initialize the embedded Leaflet map for the current area
@@ -5634,6 +5837,93 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+
+// <!-- GENIE_DATA_FETCH -->
+// === GenieMap data bootstrap ===
+// Loads the slim GenieMap dataset (projects index + by-district rollups) for features 1-5.
+// Graceful: any failure leaves window.GENIEMAP_DATA undefined and features no-op silently.
+(function geniemap_bootstrap() {
+  try {
+    if (window.GENIEMAP_DATA) return;
+    var GM_BASE = './data/geniemap';
+    var loadedIndex = null;
+    var loadedByDistrict = null;
+    var loadedAreaJoin = null;
+    var loadedMeta = null;
+    function fetchJson(url) {
+      return fetch(url, { cache: 'force-cache' })
+        .then(function(r){ return r.ok ? r.json() : null; })
+        .catch(function(){ return null; });
+    }
+    Promise.all([
+      fetchJson(GM_BASE + '/index.json'),
+      fetchJson(GM_BASE + '/by-district.json'),
+      fetchJson(GM_BASE + '/area-join.json'),
+      fetchJson(GM_BASE + '/_meta.json'),
+    ]).then(function(results) {
+      loadedIndex = results[0];
+      loadedByDistrict = results[1];
+      loadedAreaJoin = results[2];
+      loadedMeta = results[3];
+      if (!loadedIndex) { console.log('[GenieMap] index.json not available — features 1-5 disabled'); return; }
+      // <!-- GENIE_FIX_G1 --> Normalize slim index rows: developer/district may be strings in /data/index.json;
+      // downstream code expects {name, slug} objects, so coerce while keeping originals as developerStr/districtStr.
+      loadedIndex = (loadedIndex || []).map(function(p){
+        if (!p || typeof p !== 'object') return p;
+        var devStr = (typeof p.developer === 'string') ? p.developer : ((p.developer && p.developer.name) || '');
+        var distStr = (typeof p.district === 'string') ? p.district : ((p.district && p.district.name) || '');
+        var distSlug = (p.district_slug || p.districtSlug || (p.district && typeof p.district === 'object' && p.district.slug)) || '';
+        p.developerStr = devStr;
+        p.districtStr = distStr;
+        p.developer = { name: devStr };
+        p.district = { name: distStr, slug: distSlug };
+        return p;
+      });
+      // Project lookup cache for shards
+      var projectCache = {};
+      var unitCache = {};
+      window.GENIEMAP_DATA = {
+        projects: loadedIndex,           // canonical: array of slim project rows (id, name, district, price, etc.)
+        byDistrict: loadedByDistrict || {},
+        areaJoin: loadedAreaJoin || {},
+        meta: loadedMeta || {},
+        // Lazy shard loader for full project detail (paymentPlans, configurations, places, etc.)
+        loadProject: function(projectId) {
+          if (projectCache[projectId]) return Promise.resolve(projectCache[projectId]);
+          return fetchJson(GM_BASE + '/projects/' + projectId + '.json').then(function(p) {
+            if (p) projectCache[projectId] = p;
+            return p;
+          });
+        },
+        // Lazy shard loader for per-project units (feature 5)
+        loadUnits: function(projectId) {
+          if (unitCache[projectId]) return Promise.resolve(unitCache[projectId]);
+          return fetchJson(GM_BASE + '/units/' + projectId + '.json').then(function(u) {
+            if (u) unitCache[projectId] = u;
+            return u;
+          });
+        },
+      };
+      // Also expose a flat array alias for features that just want the list
+      window.GENIEMAP_UNIT_COUNTS = {};
+      (loadedIndex || []).forEach(function(p) {
+        if (p && p.id != null && typeof p.unitCount === 'number') {
+          window.GENIEMAP_UNIT_COUNTS[p.id] = p.unitCount;
+        }
+      });
+      console.log('[GenieMap] loaded ' + (loadedIndex.length || 0) + ' projects, ' + Object.keys(loadedByDistrict || {}).length + ' districts');
+      // Notify features (picker, etc.) that data is now available
+      try { if (typeof window.__initGenieMapPicker === 'function') window.__initGenieMapPicker(); } catch(e){}
+      try { if (typeof window.renderGenieMapComparables === 'function' && document.getElementById('areaComparables')) window.renderGenieMapComparables(); } catch(e){}
+      try { if (typeof window.geniemap_renderPrimaryVsSecondary === 'function') window.geniemap_renderPrimaryVsSecondary(); } catch(e){}
+      try { if (typeof window.geniemap_renderSupplyPipeline === 'function') window.geniemap_renderSupplyPipeline(); } catch(e){}
+    }).catch(function(err) {
+      console.log('[GenieMap] bootstrap failed silently:', err && err.message);
+    });
+  } catch (e) {
+    console.log('[GenieMap] bootstrap threw:', e && e.message);
+  }
+})();
 loadCustomProps();
 rebuildCustomPresetGroup();
 fetchAreasData();
@@ -6966,6 +7256,724 @@ function drawYearOutlines(chartEl, purchaseQuarter, totalHoldQuarters) {
     }
   }
 }
+
+
+// <!-- GENIE_FEATURE_1 -->
+// =============== GenieMap Project Picker (feature 1) ===============
+(function geniemap_initProjectPicker() {
+  try {
+    if (!document.getElementById('gm-picker-style')) {
+      var st = document.createElement('style');
+      st.id = 'gm-picker-style';
+      st.textContent =
+        '.gm-picker-field { position: relative; }' +
+        '.gm-picker-count { display: inline-block; margin-left: 6px; padding: 1px 6px; background: var(--bg); color: var(--text-muted); border: 1px solid var(--border); border-radius: 10px; font-size: 10px; font-weight: 600; letter-spacing: 0.3px; }' +
+        '.gm-picker-wrap { position: relative; }' +
+        '.gm-picker-input { padding: 8px 28px 8px 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px; font-family: inherit; background: #fff; width: 100%; min-width: 0; }' +
+        '.gm-picker-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(201, 169, 97, 0.2); }' +
+        '.gm-picker-clear { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; border: 0; background: transparent; color: var(--text-muted); font-size: 18px; line-height: 1; cursor: pointer; padding: 0; display: none; }' +
+        '.gm-picker-clear:hover { color: var(--text); }' +
+        '.gm-picker-input:not(:placeholder-shown) + .gm-picker-clear { display: block; }' +
+        '.gm-picker-list { position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 50; max-height: 280px; overflow-y: auto; background: #fff; border: 1px solid var(--border); border-radius: 6px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12); margin: 0; padding: 4px 0; list-style: none; }' +
+        '.gm-picker-item { padding: 8px 10px; cursor: pointer; font-size: 13px; border-bottom: 1px solid #f1f3f5; display: flex; flex-direction: column; gap: 2px; }' +
+        '.gm-picker-item:last-child { border-bottom: 0; }' +
+        '.gm-picker-item:hover, .gm-picker-item.gm-active { background: rgba(201, 169, 97, 0.12); }' +
+        '.gm-picker-item-name { font-weight: 600; color: var(--text); line-height: 1.25; }' +
+        '.gm-picker-item-meta { font-size: 11px; color: var(--text-muted); display: flex; flex-wrap: wrap; gap: 4px 8px; }' +
+        '.gm-picker-item-meta b { color: var(--accent-dark); font-weight: 600; }' +
+        '.gm-picker-item mark { background: rgba(201, 169, 97, 0.35); color: inherit; padding: 0 1px; border-radius: 2px; }' +
+        '.gm-picker-empty { padding: 10px; font-size: 12px; color: var(--text-muted); text-align: center; }' +
+        '.gm-picker-hint { font-size: 11px; color: var(--text-muted); margin-top: 4px; min-height: 14px; }' +
+        '.gm-picker-hint.gm-ok { color: var(--accent-dark); }' +
+        '.gm-picker-hint.gm-warn { color: #b45309; }';
+      document.head.appendChild(st);
+    }
+
+    function getProjects() {
+      var gm = window.GENIEMAP_DATA;
+      if (!gm) return null;
+      var list = Array.isArray(gm) ? gm : (Array.isArray(gm.projects) ? gm.projects : null);
+      return (list && list.length) ? list : null;
+    }
+
+    function ensureDom() {
+      var field = document.getElementById('gmPickerField');
+      if (field) return field;
+      var presetSelect = document.getElementById('preset');
+      if (!presetSelect) return null;
+      var presetField = presetSelect.closest('.field') || presetSelect.parentElement;
+      if (!presetField || !presetField.parentElement) return null;
+      field = document.createElement('div');
+      field.className = 'field gm-picker-field';
+      field.id = 'gmPickerField';
+      field.style.display = 'none';
+      var lbl = document.createElement('label');
+      var ja = document.createElement('span'); ja.className='ja'; ja.textContent='GenieMap プロジェクトから自動入力';
+      var en = document.createElement('span'); en.className='en'; en.textContent='Autofill from GenieMap project';
+      var cnt = document.createElement('span'); cnt.id='gmPickerCount'; cnt.className='gm-picker-count';
+      lbl.appendChild(ja); lbl.appendChild(en); lbl.appendChild(cnt);
+      var wrap = document.createElement('div'); wrap.className='gm-picker-wrap';
+      var inp = document.createElement('input');
+      inp.type='text'; inp.id='gmPickerInput'; inp.className='gm-picker-input';
+      inp.autocomplete='off'; inp.spellcheck=false;
+      inp.placeholder='Type project, developer or district…';
+      inp.setAttribute('aria-label','GenieMap project search');
+      inp.setAttribute('aria-autocomplete','list');
+      inp.setAttribute('aria-controls','gmPickerList');
+      inp.setAttribute('aria-expanded','false');
+      var btn = document.createElement('button');
+      btn.type='button'; btn.id='gmPickerClear'; btn.className='gm-picker-clear';
+      btn.setAttribute('aria-label','Clear'); btn.tabIndex=-1; btn.textContent='×';
+      var ul = document.createElement('ul');
+      ul.id='gmPickerList'; ul.className='gm-picker-list';
+      ul.setAttribute('role','listbox'); ul.hidden=true;
+      wrap.appendChild(inp); wrap.appendChild(btn); wrap.appendChild(ul);
+      var hint = document.createElement('small'); hint.id='gmPickerHint'; hint.className='gm-picker-hint';
+      field.appendChild(lbl); field.appendChild(wrap); field.appendChild(hint);
+      presetField.insertAdjacentElement('afterend', field);
+      return field;
+    }
+
+    var DLD_TO_CURATED = {
+      'palm jumeirah': 'palmJumeirah', 'marsa dubai': 'dubaiMarina',
+      'burj khalifa': 'downtown', 'business bay': 'businessBay',
+      'jumeirah village circle': 'jvc', 'jumeirah village triangle': 'jvt',
+      'al barsha south fourth': 'jvc', 'hadaeq sheikh mohammed bin rashid': 'dubaiHills',
+      "za'abeel second": 'zaabeel', 'zaabeel second': 'zaabeel',
+      'wadi al safa 3': 'arjan', 'wadi al safa 5': 'arjan',
+      'al thanyah fifth': 'jlt', 'al thanyah third': 'emiratesHills',
+      'mirdif': 'mirdif', 'dubai creek harbour': 'creekHarbour',
+      'dubai south': 'dubaiSouth', 'dubai islands': 'dubaiIslands',
+      'saadiyat island': 'saadiyat', 'yas island': 'yasIsland'
+    };
+    var KEYWORD_TO_CURATED = [
+      ['palm jumeirah', 'palmJumeirah'], ['palm jebel', 'palmJebelAli'],
+      ['dubai marina', 'dubaiMarina'], ['jbr', 'jbr'], ['bluewaters', 'bluewatersIsland'],
+      ['dubai harbour', 'dubaiHarbour'], ['downtown', 'downtown'], ['business bay', 'businessBay'],
+      ['creek harbour', 'creekHarbour'], ['mbr city', 'mbrCity1'], ['mohammed bin rashid city', 'mbrCity1'],
+      ['sobha hartland', 'sobhaHartland'], ['dubai hills', 'dubaiHills'], ['damac hills', 'damacHills'],
+      ['jvc', 'jvc'], ['jumeirah village circle', 'jvc'], ['jvt', 'jvt'],
+      ['jumeirah village triangle', 'jvt'], ['jlt', 'jlt'], ['jumeirah lake towers', 'jlt'],
+      ['arjan', 'arjan'], ["za'abeel", 'zaabeel'], ['zaabeel', 'zaabeel'],
+      ['dubai south', 'dubaiSouth'], ['dubai islands', 'dubaiIslands'],
+      ['fahid', 'fahidIsland'], ['saadiyat', 'saadiyat'], ['yas island', 'yasIsland']
+    ];
+
+    function resolveAreaKey(project) {
+      var districtName = (project && project.district && (project.district.name || project.district)) || '';
+      var n = String(districtName).toLowerCase().trim().replace(/['`]/g, "'");
+      if (!n) return null;
+      if (DLD_TO_CURATED[n]) return DLD_TO_CURATED[n];
+      for (var i = 0; i < KEYWORD_TO_CURATED.length; i++) {
+        if (n.indexOf(KEYWORD_TO_CURATED[i][0]) !== -1) return KEYWORD_TO_CURATED[i][1];
+      }
+      return null;
+    }
+    function setVal(id, value) {
+      var el = document.getElementById(id);
+      if (!el || value === undefined || value === null || value === '') return false;
+      el.value = value;
+      return true;
+    }
+    function parseHandover(h) {
+      if (!h || typeof h !== 'string') return null;
+      var m = h.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (!m) return null;
+      var year = parseInt(m[1], 10), month = parseInt(m[2], 10);
+      if (!year || !month) return null;
+      return { year: year, quarter: Math.min(4, Math.max(1, Math.ceil(month / 3))) };
+    }
+    function pickPrice(project) {
+      var p = project.price;
+      if (!p) return null;
+      if (typeof p.min === 'number' && typeof p.max === 'number' && p.max > 0) return Math.round((p.min + p.max) / 2);
+      return p.min || p.max || null;
+    }
+    function pickSqft(project) {
+      var s = project.square;
+      if (!s) return null;
+      if (typeof s.min === 'number' && typeof s.max === 'number' && s.max > 0) return Math.round((s.min + s.max) / 2);
+      return s.min || s.max || null;
+    }
+    function pickServiceCharge(project) {
+      var sc = project.serviceCharge;
+      return (typeof sc === 'number' && sc > 0) ? sc : null;
+    }
+    function pickLatLng(project) {
+      var p = project.point4326;
+      if (!p) return null;
+      var lat = parseFloat(p.lat), lon = parseFloat(p.lon);
+      if (!isFinite(lat) || !isFinite(lon)) return null;
+      return { lat: lat, lng: lon };
+    }
+    function pickMode(project) {
+      if (project.isLaunch || project.hasOffPlan) return 'offplan';
+      if (project.hasResale) return 'ready';
+      return null;
+    }
+
+    // <!-- GENIE_FIX_G2 (helper) --> Re-run the field updates that depend on data only present
+    // in the full project shard (serviceCharge from metrics/configurations, etc.).
+    function reapplyAfterEnrich(project) {
+      try {
+        var svc = pickServiceCharge(project);
+        if (svc !== null && typeof setVal === 'function') setVal('serviceChargePsf', svc);
+      } catch(e){}
+      try { if (typeof syncReadyMode === 'function') syncReadyMode(); } catch(e){}
+      try { if (typeof syncPaymentPlanVisibility === 'function') syncPaymentPlanVisibility(); } catch(e){}
+      try { if (typeof render === 'function') render(); } catch(e){}
+    }
+    function applyProject(project) {
+      var applied = [], skipped = [];
+      var price = pickPrice(project);
+      if (price && setVal('price', price)) applied.push('price');
+      var sqft = pickSqft(project);
+      if (sqft && setVal('sqft', sqft)) applied.push('sqft');
+      var svc = pickServiceCharge(project);
+      if (svc !== null && setVal('serviceChargePsf', svc)) applied.push('svc/sqft');
+      var mode = pickMode(project);
+      if (mode && setVal('purchaseMode', mode)) applied.push('mode');
+      var ho = parseHandover(project.handover);
+      if (ho) {
+        var setY = setVal('completionYear', ho.year);
+        var setQ = setVal('completionQuarter', 'Q' + ho.quarter) || setVal('completionQuarter', ho.quarter);
+        if (setY || setQ) applied.push('handover');
+      } else if (project.handover) { skipped.push('handover'); }
+      var ll = pickLatLng(project);
+      if (ll) {
+        setVal('propLat', ll.lat);
+        setVal('propLng', ll.lng);
+        var presetEl = document.getElementById('preset');
+        if (presetEl) { presetEl.dataset.gmLat = String(ll.lat); presetEl.dataset.gmLng = String(ll.lng); }
+        applied.push('lat/lng');
+      }
+      var developer = (project.developer && (project.developer.name || project.developer)) || '';
+      var district = (project.district && (project.district.name || project.district)) || '';
+      if (developer) {
+        setVal('propDeveloper', developer);
+        var pe = document.getElementById('preset'); if (pe) pe.dataset.gmDeveloper = developer;
+        applied.push('developer');
+      }
+      if (district) {
+        setVal('propDistrict', district);
+        var pe2 = document.getElementById('preset'); if (pe2) pe2.dataset.gmDistrict = district;
+        applied.push('district');
+      }
+      window.__currentGenieMapProject = project;
+      // <!-- GENIE_FIX_G2 --> Lazy-enrich slim project rows. /data/index.json carries only scalar fields,
+      // but applyProject + Feature 5 (units) need configurations / metrics / serviceCharge from the
+      // per-project shard. Fire-and-forget: re-run dependent updates once full data is present.
+      try {
+        if (project && project.configurations === undefined && window.GENIEMAP_DATA && typeof window.GENIEMAP_DATA.loadProject === 'function') {
+          window.GENIEMAP_DATA.loadProject(project.id).then(function(full){
+            if (!full) return;
+            try { Object.assign(project, full); } catch(e){}
+            window.__currentGenieMapProject = project;
+            try { if (typeof reapplyAfterEnrich === 'function') reapplyAfterEnrich(project); } catch(e){}
+            try { window.dispatchEvent(new CustomEvent('gm:projectEnriched', { detail: project })); } catch(e){}
+          }).catch(function(){ /* network errors should not break applyProject */ });
+        } else {
+          // Already-enriched project (or no loader): emit the enrich event anyway so Feature 5 listeners fire on selection.
+          try { window.dispatchEvent(new CustomEvent('gm:projectEnriched', { detail: project })); } catch(e){}
+        }
+      } catch(e){}
+      var areaKey = resolveAreaKey(project);
+      if (areaKey) {
+        try {
+          if (typeof renderAreaCard === 'function') { renderAreaCard(areaKey); }
+          else if (typeof window.currentAreaKey !== 'undefined') { window.currentAreaKey = areaKey; }
+          applied.push('area->' + areaKey);
+        } catch(e){}
+      } else if (district) {
+        skipped.push('area (no curated match)');
+      }
+      var presetEl2 = document.getElementById('preset');
+      if (presetEl2 && presetEl2.value !== 'custom') { presetEl2.value = 'custom'; }
+      try { if (typeof syncReadyMode === 'function') syncReadyMode(); } catch(e){}
+      try { if (typeof syncScenarioToggles === 'function') syncScenarioToggles(); } catch(e){}
+      try { if (typeof syncPaymentPlanVisibility === 'function') syncPaymentPlanVisibility(); } catch(e){}
+      try { if (typeof updateCustomPresetActions === 'function') updateCustomPresetActions('custom'); } catch(e){}
+      try { if (typeof render === 'function') render(); } catch(e){}
+      try { if (typeof window.geniemap_renderUnitDropdown === 'function') window.geniemap_renderUnitDropdown(project); } catch(e){}
+      return { applied: applied, skipped: skipped };
+    }
+
+    function normalizeStr(s) { return (s || '').toString().toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, ''); }
+    function buildSearchHaystack(p) {
+      var dev = (p.developer && (p.developer.name || p.developer)) || '';
+      var dist = (p.district && (p.district.name || p.district)) || '';
+      return normalizeStr([p.name, dev, dist].filter(Boolean).join(' • '));
+    }
+    function scoreMatch(haystack, name, terms) {
+      if (!terms.length) return 1;
+      var score = 0;
+      for (var i = 0; i < terms.length; i++) {
+        var t = terms[i];
+        var idx = haystack.indexOf(t);
+        if (idx === -1) return 0;
+        score += (name.indexOf(t) !== -1 ? 4 : 1);
+        if (idx === 0 || haystack[idx - 1] === ' ') score += 2;
+      }
+      return score;
+    }
+    function escapeHtmlGm(s) {
+      return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+    function highlight(text, terms) {
+      if (!terms.length) return escapeHtmlGm(text);
+      var t = escapeHtmlGm(text), lower = t.toLowerCase(), ranges = [];
+      for (var i = 0; i < terms.length; i++) {
+        var term = terms[i], from = 0, hit;
+        while ((hit = lower.indexOf(term, from)) !== -1) { ranges.push([hit, hit + term.length]); from = hit + term.length; }
+      }
+      if (!ranges.length) return t;
+      ranges.sort(function(a,b){ return a[0]-b[0]; });
+      var merged = [ranges[0]];
+      for (var j = 1; j < ranges.length; j++) {
+        var last = merged[merged.length - 1];
+        if (ranges[j][0] <= last[1]) last[1] = Math.max(last[1], ranges[j][1]);
+        else merged.push(ranges[j]);
+      }
+      var out = '', cursor = 0;
+      for (var k = 0; k < merged.length; k++) {
+        out += t.slice(cursor, merged[k][0]) + '<mark>' + t.slice(merged[k][0], merged[k][1]) + '</mark>';
+        cursor = merged[k][1];
+      }
+      out += t.slice(cursor);
+      return out;
+    }
+
+    function renderResults(state, results, terms) {
+      var list = document.getElementById('gmPickerList');
+      var input = document.getElementById('gmPickerInput');
+      if (!list || !input) return;
+      if (!results.length) {
+        list.innerHTML = '<li class="gm-picker-empty">No matches. Try project name, developer or district.</li>';
+        list.hidden = false; input.setAttribute('aria-expanded', 'true'); return;
+      }
+      var MAX = 50, shown = results.slice(0, MAX);
+      list.innerHTML = shown.map(function(p, idx) {
+        var dev = (p.developer && (p.developer.name || p.developer)) || '';
+        var dist = (p.district && (p.district.name || p.district)) || '';
+        var priceM = (pickPrice(p) || 0) / 1e6;
+        var sqft = pickSqft(p);
+        var handover = parseHandover(p.handover);
+        var tags = [];
+        if (p.isLaunch) tags.push('Launch');
+        else if (p.hasOffPlan) tags.push('Off-plan');
+        else if (p.hasResale) tags.push('Resale');
+        var metaParts = [];
+        if (dev) metaParts.push('<b>' + escapeHtmlGm(dev) + '</b>');
+        if (dist) metaParts.push(escapeHtmlGm(dist));
+        if (priceM > 0) metaParts.push('AED ' + priceM.toFixed(priceM >= 10 ? 0 : 1) + 'M');
+        if (sqft) metaParts.push(sqft.toLocaleString() + ' sqft');
+        if (handover) metaParts.push('HO ' + handover.year + ' Q' + handover.quarter);
+        if (tags.length) metaParts.push(tags.join(' · '));
+        return '<li class="gm-picker-item' + (idx === state.activeIndex ? ' gm-active' : '') + '" role="option" data-pid="' + escapeHtmlGm(p.id) + '" aria-selected="' + (idx === state.activeIndex ? 'true' : 'false') + '">' +
+          '<span class="gm-picker-item-name">' + highlight(p.name || ('Project #' + p.id), terms) + '</span>' +
+          '<span class="gm-picker-item-meta">' + metaParts.join(' · ') + '</span></li>';
+      }).join('');
+      if (results.length > MAX) {
+        list.insertAdjacentHTML('beforeend', '<li class="gm-picker-empty">+ ' + (results.length - MAX) + ' more — refine your search</li>');
+      }
+      list.hidden = false; input.setAttribute('aria-expanded', 'true');
+    }
+    function hideResults(state) {
+      var list = document.getElementById('gmPickerList');
+      var input = document.getElementById('gmPickerInput');
+      if (list) { list.hidden = true; list.innerHTML = ''; }
+      if (input) input.setAttribute('aria-expanded', 'false');
+      state.activeIndex = -1; state.currentResults = [];
+    }
+    function setHint(msg, kind) {
+      var el = document.getElementById('gmPickerHint');
+      if (!el) return;
+      el.textContent = msg || '';
+      el.classList.remove('gm-ok','gm-warn');
+      if (kind === 'ok') el.classList.add('gm-ok');
+      else if (kind === 'warn') el.classList.add('gm-warn');
+    }
+
+    function init() {
+      try {
+        var projects = getProjects();
+        var field = ensureDom();
+        if (!field) return;
+        if (!projects) return;
+        field.style.display = '';
+        var input = document.getElementById('gmPickerInput');
+        var list = document.getElementById('gmPickerList');
+        var clearBtn = document.getElementById('gmPickerClear');
+        var countEl = document.getElementById('gmPickerCount');
+        if (!input || !list) return;
+        if (countEl) countEl.textContent = projects.length + ' projects';
+        var index = projects.map(function(p) { return { project: p, name: normalizeStr(p.name), hay: buildSearchHaystack(p) }; });
+        var state = { activeIndex: -1, currentResults: [], debounceId: 0 };
+        function runSearch(raw) {
+          var q = normalizeStr(raw).trim();
+          if (!q) {
+            var browse = index.slice().sort(function(a,b){ return a.name.localeCompare(b.name); }).slice(0, 50).map(function(r){ return r.project; });
+            state.currentResults = browse;
+            state.activeIndex = browse.length ? 0 : -1;
+            renderResults(state, browse, []); return;
+          }
+          var terms = q.split(/\s+/).filter(Boolean);
+          var scored = [];
+          for (var i = 0; i < index.length; i++) {
+            var s = scoreMatch(index[i].hay, index[i].name, terms);
+            if (s > 0) scored.push([s, index[i].project]);
+          }
+          scored.sort(function(a,b){ return b[0]-a[0]; });
+          var results = scored.map(function(x){ return x[1]; });
+          state.currentResults = results;
+          state.activeIndex = results.length ? 0 : -1;
+          renderResults(state, results, terms);
+        }
+        function commit(project) {
+          if (!project) return;
+          var res = applyProject(project);
+          input.value = project.name || ('Project #' + project.id);
+          hideResults(state);
+          var okBits = res.applied.length ? 'Filled: ' + res.applied.join(', ') : 'Nothing to fill';
+          var warnBits = res.skipped.length ? ' · Skipped: ' + res.skipped.join(', ') : '';
+          setHint(okBits + warnBits, res.skipped.length ? 'warn' : 'ok');
+        }
+        input.addEventListener('input', function() {
+          clearTimeout(state.debounceId);
+          state.debounceId = setTimeout(function(){ runSearch(input.value); }, 80);
+        });
+        input.addEventListener('focus', function(){ runSearch(input.value); });
+        input.addEventListener('keydown', function(e) {
+          var results = state.currentResults;
+          if (e.key === 'ArrowDown') { e.preventDefault(); if (!results.length) return;
+            state.activeIndex = (state.activeIndex + 1) % results.length;
+            renderResults(state, results, normalizeStr(input.value).split(/\s+/).filter(Boolean));
+          } else if (e.key === 'ArrowUp') { e.preventDefault(); if (!results.length) return;
+            state.activeIndex = (state.activeIndex - 1 + results.length) % results.length;
+            renderResults(state, results, normalizeStr(input.value).split(/\s+/).filter(Boolean));
+          } else if (e.key === 'Enter') {
+            if (state.activeIndex >= 0 && results[state.activeIndex]) { e.preventDefault(); commit(results[state.activeIndex]); }
+          } else if (e.key === 'Escape') { hideResults(state); input.blur(); }
+        });
+        list.addEventListener('mousedown', function(e) {
+          var li = e.target.closest('li.gm-picker-item');
+          if (!li) return;
+          e.preventDefault();
+          var pid = li.getAttribute('data-pid');
+          var project = projects.find(function(p){ return String(p.id) === String(pid); });
+          if (project) commit(project);
+        });
+        document.addEventListener('click', function(e) {
+          if (!field.contains(e.target)) hideResults(state);
+        });
+        if (clearBtn) {
+          clearBtn.addEventListener('click', function() {
+            input.value = ''; setHint(''); runSearch(''); input.focus();
+          });
+        }
+      } catch(e) { console.log('[GenieMap picker] init failed silently:', e && e.message); }
+    }
+    window.__initGenieMapPicker = init;
+    if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); }
+    else { init(); }
+  } catch(e) { console.log('[GenieMap picker] bootstrap failed:', e && e.message); }
+})();
+// =============== /GenieMap Project Picker ===============
+
+// <!-- GENIE_FEATURE_2_FN -->
+// =============== GenieMap Real Comparables (feature 2) ===============
+(function() {
+  try {
+    function gmNorm(s) { return String(s||"").toLowerCase().replace(/['`]/g,"").replace(/\s+/g," ").trim(); }
+    function gmEsc(s) { return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+    function gmSubjectInputs() {
+      try {
+        var p = Number((document.getElementById("price")||{}).value) || 0;
+        var s = Number((document.getElementById("sqft")||{}).value) || 0;
+        var psf = s>0 ? p/s : 0;
+        var districtName = null;
+        if (window.__currentGenieMapProject && window.__currentGenieMapProject.district && window.__currentGenieMapProject.district.name) {
+          districtName = window.__currentGenieMapProject.district.name;
+        }
+        if (!districtName && typeof areasData !== "undefined" && areasData && currentAreaKey) {
+          var ar = areasData[currentAreaKey];
+          if (ar) districtName = ar.geniemapDistrict || ar.dldArea || ar.name || null;
+        }
+        return { priceAed: p, sizeSqft: s, psf: psf, districtName: districtName };
+      } catch(e) { return { priceAed:0, sizeSqft:0, psf:0, districtName:null }; }
+    }
+    function gmProjectPsf(p) {
+      if (!p) return 0;
+      var m = p.metrics && Number(p.metrics.avgPricePerSquare);
+      if (m && isFinite(m) && m>0) return m;
+      var pr = p.price && Number(p.price.min);
+      var sq = p.square && Number(p.square.min);
+      return (pr>0 && sq>0) ? pr/sq : 0;
+    }
+    function gmProjectSize(p) {
+      if (!p || !p.square) return 0;
+      var lo = Number(p.square.min)||0, hi = Number(p.square.max)||0;
+      if (lo>0 && hi>0) return (lo+hi)/2;
+      return lo || hi || 0;
+    }
+    function gmFormatHandover(h) {
+      if (!h) return "-";
+      var m = String(h).match(/^(\d{4})-(\d{2})/);
+      return m ? (m[1]+"-"+m[2]) : String(h);
+    }
+    function gmFormatAed(n) { return "AED " + Math.round(n).toLocaleString("en-US"); }
+    function gmFilter(subject, tolSize, tolPsf) {
+      var data = window.GENIEMAP_DATA;
+      if (!data) return null;
+      var list = Array.isArray(data) ? data : (Array.isArray(data.projects) ? data.projects : null);
+      if (!list || !list.length) return [];
+      var districtN = gmNorm(subject.districtName);
+      if (!districtN) return [];
+      var sizeLo = subject.sizeSqft * (1 - tolSize);
+      var sizeHi = subject.sizeSqft * (1 + tolSize);
+      var psfLo  = subject.psf * (1 - tolPsf);
+      var psfHi  = subject.psf * (1 + tolPsf);
+      var haveSize = subject.sizeSqft > 0;
+      var havePsf  = subject.psf > 0;
+      var out = [];
+      for (var i=0;i<list.length;i++) {
+        var p = list[i];
+        if (!p) continue;
+        var pDistrict = (p.district && (p.district.name||p.district)) || "";
+        if (gmNorm(pDistrict) !== districtN) continue;
+        var projPsf = gmProjectPsf(p);
+        var projSize = gmProjectSize(p);
+        if (haveSize && projSize>0 && (projSize<sizeLo || projSize>sizeHi)) continue;
+        if (havePsf  && projPsf>0  && (projPsf<psfLo  || projPsf>psfHi))  continue;
+        var sd = haveSize && projSize>0 ? Math.abs(projSize - subject.sizeSqft)/subject.sizeSqft : 0;
+        var pd = havePsf  && projPsf>0  ? Math.abs(projPsf  - subject.psf)/subject.psf : 0;
+        out.push({ project: p, psf: projPsf, size: projSize, score: sd + pd });
+      }
+      out.sort(function(a,b){ return a.score - b.score; });
+      return out.slice(0, 6);
+    }
+    function gmRowHtml(item) {
+      var p = item.project;
+      var dev = (p.developer && (p.developer.name||p.developer)) || "-";
+      var handover = gmFormatHandover(p.handover);
+      var units = null;
+      if (window.GENIEMAP_UNIT_COUNTS && p.id != null) {
+        var n = Number(window.GENIEMAP_UNIT_COUNTS[p.id]);
+        if (isFinite(n) && n>0) units = n;
+      }
+      if (units == null && typeof p.unitCount === "number") units = p.unitCount;
+      var unitsStr = units != null ? (units + " units") : "units n/a";
+      var psf = item.psf>0 ? gmFormatAed(item.psf) : "-";
+      var name = gmEsc(p.name || ("Project #" + p.id));
+      return '<div class="gm-comp-row" style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:rgba(0,0,0,0.03);border:1px solid var(--border);border-radius:6px;gap:12px;">' +
+        '<div class="gm-comp-main" style="min-width:0;flex:1;">' +
+          '<div class="gm-comp-name" style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + name + '</div>' +
+          '<div class="gm-comp-sub" style="font-size:11px;color:var(--text-muted);margin-top:2px;">' + gmEsc(dev) + ' · Handover ' + gmEsc(handover) + ' · ' + unitsStr + '</div>' +
+        '</div>' +
+        '<div class="gm-comp-price" style="font-weight:600;font-size:13px;white-space:nowrap;font-variant-numeric:tabular-nums;">' + psf + ' <span style="font-weight:400;font-size:10px;color:var(--text-muted);">/sqft</span></div>' +
+      '</div>';
+    }
+    window.renderGenieMapComparables = function() {
+      // <!-- GENIE_FIX_G4 --> Write into a sub-div so we don't blow away the AI badge + Find with AI / Revert buttons
+      // (and the area-curated fallback list) that renderAreaCard placed inside #areaComparables.
+      var host = document.getElementById("areaComparables");
+      if (!host) return;
+      if (!window.GENIEMAP_DATA) return;
+      var subject = gmSubjectInputs();
+      if (!subject.districtName) return;
+      var items = gmFilter(subject, 0.20, 0.25);
+      var widened = false;
+      if (Array.isArray(items) && items.length===0) {
+        items = gmFilter(subject, 0.35, 0.40);
+        widened = items && items.length > 0;
+      }
+      if (!items || items.length === 0) return;
+      var tolLabel = widened ? "+/-35% size / +/-40% AED/sqft (widened)" : "+/-20% size / +/-25% AED/sqft";
+      var sub = host.querySelector("#gmRealCompList");
+      if (!sub) {
+        sub = document.createElement("div");
+        sub.id = "gmRealCompList";
+        sub.style.marginBottom = "8px";
+        host.insertBefore(sub, host.firstChild);
+      }
+      sub.innerHTML =
+        '<div class="gm-comp-meta" style="font-size:11px;color:var(--text-muted);margin-bottom:8px;">' +
+          '<span class="gm-comp-badge" style="background:#0a7;color:#fff;padding:2px 6px;border-radius:4px;font-size:10px;letter-spacing:0.04em;margin-right:6px;">REAL - GenieMap</span>' +
+          gmEsc(subject.districtName) + ' - ' + tolLabel +
+        '</div>' +
+        '<div class="gm-comp-list" style="display:flex;flex-direction:column;gap:6px;">' + items.map(gmRowHtml).join('') + '</div>';
+    };
+    ["price","sqft"].forEach(function(id){
+      var el = document.getElementById(id);
+      if (el) el.addEventListener("change", function(){ if (document.getElementById("areaComparables")) try { window.renderGenieMapComparables(); } catch(e){} });
+    });
+  } catch(e) { console.log("[GenieMap comparables] init failed:", e && e.message); }
+})();
+// =============== /GenieMap Real Comparables ===============
+
+// <!-- GENIE_FIX_G3 (datalist) --> Feature 5: per-unit IRR — event-driven, no polling.
+// =============== GenieMap Per-Unit IRR (feature 5) ===============
+(function() {
+  try {
+    function gm5_esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+    function gm5_field()    { return document.getElementById("gmUnitField"); }
+    function gm5_picker()   { return document.getElementById("gmUnitPicker"); }
+    function gm5_datalist() { return document.getElementById("unitPickerList"); }
+    function gm5_revertBtn(){ return document.getElementById("gmUnitRevert"); }
+    function gm5_hint()     { return document.getElementById("gmUnitHint"); }
+    function gm5_count()    { return document.getElementById("gmUnitCount"); }
+    function gm5_setHint(msg, ok) {
+      var el = gm5_hint(); if (!el) return;
+      el.textContent = msg || "";
+      el.style.color = ok ? "var(--accent-dark)" : "var(--text-muted)";
+    }
+    // Snapshot taken on first override per project so Revert can restore exactly.
+    var gm5_snapshot = null;     // { price: str, sqft: str }
+    var gm5_currentUnits = [];   // last loaded list, indexed by display label
+    var gm5_byLabel = {};        // label -> unit
+    var gm5_currentProjectId = null;
+
+    function gm5_buildLabel(u) {
+      var sqft  = Number(u.sqft) || 0;
+      var price = Number(u.priceAed) || 0;
+      var psf   = (price>0 && sqft>0) ? Math.round(price/sqft) : 0;
+      var tag   = u.resale ? "RESALE" : "OFF-PLAN";
+      return (u.layoutName || "Unit") +
+             (u.number ? (" #" + u.number) : "") +
+             (u.floor ? (" / F" + u.floor) : "") +
+             (sqft>0  ? (" — " + sqft.toLocaleString() + " sqft") : "") +
+             (price>0 ? (" — AED " + (Math.round(price/1e5)/10) + "M") : "") +
+             (psf>0   ? (" — " + psf.toLocaleString() + "/sqft") : "") +
+             " — " + tag;
+    }
+
+    function gm5_resetUI() {
+      var dl = gm5_datalist(); if (dl) dl.innerHTML = "";
+      var p  = gm5_picker();   if (p)  p.value = "";
+      var rb = gm5_revertBtn();if (rb) rb.style.display = "none";
+      var cnt= gm5_count();    if (cnt) cnt.textContent = "";
+      var fld= gm5_field();    if (fld) fld.style.display = "none";
+      gm5_setHint("");
+      gm5_snapshot = null;
+      gm5_currentUnits = [];
+      gm5_byLabel = {};
+    }
+
+    function gm5_takeSnapshotIfNeeded() {
+      if (gm5_snapshot) return;
+      var pe = document.getElementById("price");
+      var se = document.getElementById("sqft");
+      gm5_snapshot = {
+        price: pe ? pe.value : "",
+        sqft:  se ? se.value : ""
+      };
+      var rb = gm5_revertBtn(); if (rb) rb.style.display = "";
+    }
+
+    function gm5_applyUnit(u) {
+      if (!u) return;
+      gm5_takeSnapshotIfNeeded();
+      var price = Number(u.priceAed) || 0;
+      var sqft  = Number(u.sqft) || 0;
+      var applied = [];
+      if (price > 0) {
+        var pe = document.getElementById("price");
+        if (pe) { pe.value = Math.round(price); applied.push("price"); try { pe.dispatchEvent(new Event("change", {bubbles:true})); } catch(e){} }
+      }
+      if (sqft > 0) {
+        var se = document.getElementById("sqft");
+        if (se) { se.value = Math.round(sqft); applied.push("sqft"); try { se.dispatchEvent(new Event("change", {bubbles:true})); } catch(e){} }
+      }
+      try { if (typeof render === "function") render(); } catch(e){}
+      gm5_setHint("Filled " + applied.join(", ") + " from " + (u.layoutName || "unit") + (u.number ? (" #" + u.number) : ""), true);
+    }
+
+    function gm5_revert() {
+      if (!gm5_snapshot) return;
+      var pe = document.getElementById("price");
+      var se = document.getElementById("sqft");
+      if (pe) { pe.value = gm5_snapshot.price; try { pe.dispatchEvent(new Event("change", {bubbles:true})); } catch(e){} }
+      if (se) { se.value = gm5_snapshot.sqft;  try { se.dispatchEvent(new Event("change", {bubbles:true})); } catch(e){} }
+      try { if (typeof render === "function") render(); } catch(e){}
+      var picker = gm5_picker(); if (picker) picker.value = "";
+      var rb = gm5_revertBtn(); if (rb) rb.style.display = "none";
+      gm5_snapshot = null;
+      gm5_setHint("Reverted to previous price + sqft.", true);
+    }
+
+    function gm5_loadUnitsForProject(project) {
+      try {
+        if (!project) { gm5_resetUI(); gm5_currentProjectId = null; return; }
+        if (gm5_currentProjectId === project.id) return; // already loaded
+        gm5_currentProjectId = project.id;
+        if (!window.GENIEMAP_DATA || typeof window.GENIEMAP_DATA.loadUnits !== "function") {
+          gm5_resetUI();
+          var field = gm5_field();
+          if (field) { field.style.display = ""; gm5_setHint("Unit-level data not available for this build.", false); }
+          return;
+        }
+        gm5_resetUI();
+        gm5_currentProjectId = project.id; // resetUI does not touch this; re-affirm
+        var field = gm5_field();
+        if (field) { field.style.display = ""; gm5_setHint("Loading units…", false); }
+        window.GENIEMAP_DATA.loadUnits(project.id).then(function(units){
+          if (!units) { gm5_setHint("No units file for project #" + project.id, false); return; }
+          var list = Array.isArray(units) ? units : (units.units || []);
+          if (!list.length) { gm5_setHint("No units listed for this project.", false); return; }
+          // Sort: layout asc, sqft asc
+          list = list.slice().sort(function(a,b){
+            var la = String(a.layoutName||""), lb = String(b.layoutName||"");
+            if (la !== lb) return la.localeCompare(lb);
+            var sa = Number(a.sqft)||0, sb = Number(b.sqft)||0;
+            return sa - sb;
+          });
+          gm5_currentUnits = list;
+          gm5_byLabel = {};
+          var dl = gm5_datalist();
+          if (dl) {
+            var html = [];
+            for (var i = 0; i < list.length; i++) {
+              var u = list[i];
+              if (!u) continue;
+              var label = gm5_buildLabel(u);
+              gm5_byLabel[label] = u;
+              html.push('<option value="' + gm5_esc(label) + '"></option>');
+            }
+            dl.innerHTML = html.join("");
+          }
+          var cnt = gm5_count(); if (cnt) cnt.textContent = list.length + " units";
+          gm5_setHint(list.length + " units loaded — start typing to filter, then pick one.", true);
+        }).catch(function(err){
+          gm5_setHint("Failed to load units: " + (err && err.message), false);
+        });
+      } catch(e) { console.log("[GenieMap units] failed:", e && e.message); }
+    }
+
+    // Wire input + revert button once
+    var picker = gm5_picker();
+    if (picker && !picker.__gmWired) {
+      picker.__gmWired = true;
+      picker.addEventListener("change", function(){
+        var val = picker.value;
+        if (!val) return;
+        var u = gm5_byLabel[val];
+        if (u) gm5_applyUnit(u);
+      });
+    }
+    var revertBtn = gm5_revertBtn();
+    if (revertBtn && !revertBtn.__gmWired) {
+      revertBtn.__gmWired = true;
+      revertBtn.addEventListener("click", gm5_revert);
+    }
+
+    // Subscribe to enrich event. Also legacy handle: expose loader on window for any callers.
+    window.addEventListener("gm:projectEnriched", function(e){ gm5_loadUnitsForProject(e && e.detail); });
+    window.geniemap_loadUnitsForProject = gm5_loadUnitsForProject;
+  } catch(e) { console.log("[GenieMap per-unit] init failed:", e && e.message); }
+})();
+// =============== /GenieMap Per-Unit IRR ===============
+
+
 
 document.getElementById("preset").addEventListener("change", (e) => {
   const key = e.target.value;
