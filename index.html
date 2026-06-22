@@ -7429,8 +7429,29 @@ function drawYearOutlines(chartEl, purchaseQuarter, totalHoldQuarters) {
       if (price && setVal('price', price)) applied.push('price');
       var sqft = pickSqft(project);
       if (sqft && setVal('sqft', sqft)) applied.push('sqft');
-      var svc = pickServiceCharge(project);
-      if (svc !== null && setVal('serviceChargePsf', svc)) applied.push('svc/sqft');
+      // <!-- F1V2_E6_START --> auto_fill_service_charge
+      // Fill #serviceChargePsf from project.serviceCharge (AED/sqft).
+      // pickServiceCharge() returns null when missing / non-numeric / <= 0,
+      // and setVal() no-ops on null - so a missing value leaves the field
+      // at its current value rather than blanking it.
+      (function fillServiceChargePsf() {
+        try {
+          var svc = pickServiceCharge(project);
+          if (svc === null) {
+            if (project && 'serviceCharge' in project) {
+              skipped.push('svc/sqft');
+            }
+            return;
+          }
+          var num = Number(svc);
+          if (!isFinite(num) || num <= 0) {
+            skipped.push('svc/sqft');
+            return;
+          }
+          if (setVal('serviceChargePsf', num)) applied.push('svc/sqft');
+        } catch (e) { /* no-op: never block applyProject on E6 */ }
+      })();
+      // <!-- F1V2_E6_END -->
       var mode = pickMode(project);
       if (mode && setVal('purchaseMode', mode)) applied.push('mode');
       var ho = parseHandover(project.handover);
@@ -7494,6 +7515,267 @@ function drawYearOutlines(chartEl, purchaseQuarter, totalHoldQuarters) {
       try { if (typeof syncPaymentPlanVisibility === 'function') syncPaymentPlanVisibility(); } catch(e){}
       try { if (typeof updateCustomPresetActions === 'function') updateCustomPresetActions('custom'); } catch(e){}
       try { if (typeof render === 'function') render(); } catch(e){}
+      <!-- F1V2_E2_START -->
+      // E2: Auto-select Type (Branded / Standard / Villa)
+      try {
+        var typeEl = document.getElementById('propertyType');
+        if (typeEl) {
+          var detectedType = null;
+
+          // (a) Villa detection via unitTypes / unit.type
+          var villaRe = /villa/i;
+          var unitTypesArr = [];
+          if (project && Array.isArray(project.unitTypes)) {
+            unitTypesArr = project.unitTypes.slice();
+          } else if (project && project.unitTypes && typeof project.unitTypes === 'string') {
+            unitTypesArr = [project.unitTypes];
+          }
+          if (project && Array.isArray(project.units)) {
+            for (var ui = 0; ui < project.units.length; ui++) {
+              var ut = project.units[ui] && project.units[ui].type;
+              if (ut) unitTypesArr.push(String(ut));
+            }
+          }
+          for (var ti = 0; ti < unitTypesArr.length; ti++) {
+            if (villaRe.test(String(unitTypesArr[ti] || ''))) {
+              detectedType = 'villa';
+              break;
+            }
+          }
+
+          // (b) Branded detection via project name regex
+          if (!detectedType) {
+            var brandedRe = /Cavalli|Bvlgari|Bulgari|Armani|Trump|Versace|St\.? Regis|Bugatti|Pagani|Lamborghini|Mercedes|Karl Lagerfeld|Dorchester|Aman|Six Senses|W Residences|Mandarin Oriental|Cipriani|Roberto Cavalli|Missoni|Fendi|Baccarat|Elie Saab|Bentley/i;
+            var pname = (project && project.name) ? String(project.name) : '';
+            if (pname && brandedRe.test(pname)) {
+              detectedType = 'branded';
+            }
+          }
+
+          // (c) Default
+          if (!detectedType) detectedType = 'standard';
+
+          if (setVal('propertyType', detectedType)) {
+            applied.push('Type=' + detectedType);
+          } else {
+            skipped.push('Type');
+          }
+        } else {
+          skipped.push('Type(no-el)');
+        }
+      } catch (e) {
+        skipped.push('Type(err)');
+      }
+      <!-- F1V2_E2_END -->
+      <!-- F1V2_E3_START -->
+      // E3: auto_set_mode_offplan_or_ready
+      // Flag-based Mode detection. Runs AFTER pickMode() autofill so explicit project
+      // flags (isLaunch / hasOffPlan / hasResale) override whatever pickMode inferred.
+      // No-ops silently if all three flags are absent/falsy.
+      try {
+        (function E3_autoSetMode() {
+          if (!project || typeof project !== 'object') return;
+
+          var hasIsLaunch   = Object.prototype.hasOwnProperty.call(project, 'isLaunch');
+          var hasOffPlanKey = Object.prototype.hasOwnProperty.call(project, 'hasOffPlan');
+          var hasResaleKey  = Object.prototype.hasOwnProperty.call(project, 'hasResale');
+
+          if (!hasIsLaunch && !hasOffPlanKey && !hasResaleKey) {
+            skipped.push('Mode (E3: no flags on project)');
+            return;
+          }
+
+          var isLaunch   = !!project.isLaunch;
+          var hasOffPlan = !!project.hasOffPlan;
+          var hasResale  = !!project.hasResale;
+
+          var nextMode;
+          if (isLaunch || hasOffPlan)      nextMode = 'offplan';
+          else if (hasResale)              nextMode = 'secondary';
+          else                             nextMode = 'ready';
+
+          var modeEl = document.getElementById('purchaseMode');
+          if (!modeEl) { skipped.push('Mode (E3: #purchaseMode not found)'); return; }
+
+          var hasOpt = false;
+          for (var i = 0; i < modeEl.options.length; i++) {
+            if (modeEl.options[i].value === nextMode) { hasOpt = true; break; }
+          }
+          if (!hasOpt) { skipped.push('Mode (E3: option missing)'); return; }
+
+          if (modeEl.value !== nextMode) {
+            modeEl.value = nextMode;
+            try { modeEl.dispatchEvent(new Event('change', { bubbles: true })); } catch (_e) {}
+            applied.push('Mode -> ' + nextMode + ' (E3: launch=' + isLaunch + ', offplan=' + hasOffPlan + ', resale=' + hasResale + ')');
+          } else {
+            applied.push('Mode = ' + nextMode + ' (E3: already correct)');
+          }
+        })();
+      } catch (e) {
+        try { console.warn('[F1V2_E3] auto_set_mode failed:', e); } catch(_) {}
+        skipped.push('Mode (E3: threw)');
+      }
+      <!-- F1V2_E3_END -->
+      <!-- F1V2_E4_START -->
+      // E4: auto_set_completion_year_quarter
+      // Parse project.handover into year + quarter and set #completionYear / #completionQuarter.
+      // Idempotent and graceful: no-ops if handover missing or DOM fields absent.
+      try {
+        (function E4_setCompletion() {
+          var ho = project && project.handover;
+          if (!ho) { skipped.push('completion (no handover)'); return; }
+
+          var year = null, quarter = null;
+
+          if (typeof ho === 'object' && !(ho instanceof Date)) {
+            if (ho.year)    year    = parseInt(ho.year, 10);
+            if (ho.quarter) quarter = parseInt(String(ho.quarter).replace(/^Q/i, ''), 10);
+          }
+          else if (ho instanceof Date && !isNaN(ho.getTime())) {
+            year    = ho.getFullYear();
+            quarter = Math.ceil((ho.getMonth() + 1) / 3);
+          }
+          else if (typeof ho === 'string') {
+            var m = ho.match(/^\s*(\d{4})[-\/\.](\d{1,2})(?:[-\/\.]\d{1,2})?\s*$/);
+            if (m) {
+              year = parseInt(m[1], 10);
+              var month = parseInt(m[2], 10);
+              if (month >= 1 && month <= 12) {
+                quarter = Math.ceil(month / 3);
+              }
+            }
+          }
+
+          if (!year || !quarter || quarter < 1 || quarter > 4) {
+            skipped.push('completion (unparseable handover: ' + ho + ')');
+            return;
+          }
+
+          var yEl = document.getElementById('completionYear');
+          if (yEl) {
+            var hasYearOption = false;
+            for (var i = 0; i < yEl.options.length; i++) {
+              if (parseInt(yEl.options[i].value, 10) === year) { hasYearOption = true; break; }
+            }
+            if (hasYearOption) {
+              if (typeof setVal === 'function') {
+                setVal('completionYear', String(year));
+              } else {
+                yEl.value = String(year);
+                yEl.dispatchEvent(new Event('change', { bubbles: true }));
+              }
+              applied.push('completionYear=' + year);
+            } else {
+              skipped.push('completionYear ' + year + ' (out of range)');
+            }
+          }
+
+          var qEl = document.getElementById('completionQuarter');
+          if (qEl) {
+            if (typeof setVal === 'function') {
+              setVal('completionQuarter', String(quarter));
+            } else {
+              qEl.value = String(quarter);
+              qEl.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            applied.push('completionQuarter=Q' + quarter + '/' + year);
+          }
+        })();
+      } catch (e) {
+        try { skipped.push('completion (error: ' + (e && e.message || e) + ')'); } catch(_) {}
+      }
+      <!-- F1V2_E4_END -->
+      <!-- F1V2_E5_START -->
+      // E5: auto-pull payment plan milestones from GenieMap project
+      try {
+        var _plans = (project && Array.isArray(project.paymentPlans)) ? project.paymentPlans : null;
+        if (_plans && _plans.length > 0) {
+          if (_plans.length > 1) {
+            try {
+              var _altNames = _plans.slice(1).map(function(p, i){
+                return (p && (p.name || p.label)) ? (p.name || p.label) : ('plan#' + (i+2));
+              });
+              console.log('[E5] Project has ' + _plans.length + ' payment plans. Using first ("' +
+                ((_plans[0] && (_plans[0].name || _plans[0].label)) || 'plan#1') +
+                '"). Alternatives: ' + _altNames.join(', '));
+            } catch(_logErr){}
+          }
+
+          var _firstPlan = _plans[0];
+          var _milestones = (_firstPlan && Array.isArray(_firstPlan.milestones)) ? _firstPlan.milestones : [];
+
+          if (_milestones.length > 0) {
+            var _triggerMap = {
+              'booking':        'booking',
+              'on-booking':     'booking',
+              'reservation':    'booking',
+              'dld':            'booking',
+              'construction':   'construction',
+              'during-construction': 'construction',
+              'milestone':      'construction',
+              'handover':       'handover',
+              'on-handover':    'handover',
+              'completion':     'handover',
+              'post-handover':  'post-handover',
+              'posthandover':   'post-handover',
+              'after-handover': 'post-handover'
+            };
+
+            var _mapTrigger = function(m){
+              if (!m) return 'handover';
+              var raw = (m.trigger || m.phase || m.when || '').toString().toLowerCase().trim();
+              if (raw && _triggerMap[raw]) return _triggerMap[raw];
+              if (m.date) return 'handover';
+              return raw || 'handover';
+            };
+
+            var _buildLabel = function(m, idx){
+              if (m && m.label) return String(m.label);
+              if (m && m.date)  return 'Installment ' + (idx+1) + ' (' + m.date + ')';
+              if (m && m.trigger) return String(m.trigger);
+              return 'Installment ' + (idx+1);
+            };
+
+            var _newRows = _milestones.map(function(m, idx){
+              var pct = (m && (m.percent != null ? m.percent : m.pct));
+              pct = (typeof pct === 'number' && isFinite(pct)) ? pct : parseFloat(pct);
+              if (!isFinite(pct)) { pct = 0; }
+              return {
+                label: _buildLabel(m, idx),
+                at:    _mapTrigger(m),
+                pct:   pct
+              };
+            });
+
+            try {
+              if (typeof paymentPlan !== 'undefined' && Array.isArray(paymentPlan)) {
+                paymentPlan.length = 0;
+                for (var _i = 0; _i < _newRows.length; _i++) {
+                  paymentPlan.push(_newRows[_i]);
+                }
+              } else if (window.paymentPlan && Array.isArray(window.paymentPlan)) {
+                window.paymentPlan.length = 0;
+                for (var _j = 0; _j < _newRows.length; _j++) {
+                  window.paymentPlan.push(_newRows[_j]);
+                }
+              }
+            } catch(_assignErr){
+              try { console.warn('[E5] could not write to paymentPlan array', _assignErr); } catch(_){}
+            }
+
+            try { if (typeof renderPpRows === 'function') renderPpRows(); } catch(_renderErr){}
+            try { if (typeof syncPaymentPlanVisibility === 'function') syncPaymentPlanVisibility(); } catch(_visErr){}
+
+            applied.push('paymentPlan(' + _newRows.length + ' milestones)');
+          } else {
+            skipped.push('paymentPlan(empty milestones)');
+          }
+        }
+      } catch(_e5Err){
+        try { console.warn('[E5] paymentPlan autofill failed', _e5Err); } catch(_){}
+        skipped.push('paymentPlan(error)');
+      }
+      <!-- F1V2_E5_END -->
       try { if (typeof window.geniemap_renderUnitDropdown === 'function') window.geniemap_renderUnitDropdown(project); } catch(e){}
       return { applied: applied, skipped: skipped };
     }
@@ -7972,6 +8254,279 @@ function drawYearOutlines(chartEl, purchaseQuarter, totalHoldQuarters) {
   } catch(e) { console.log("[GenieMap per-unit] init failed:", e && e.message); }
 })();
 // =============== /GenieMap Per-Unit IRR ===============
+<!-- F1V2_E1_START -->
+// =============== F1V2 E1: Layout + Unit cascading split ===============
+// Replaces Feature 5's single combined picker with two side-by-side <select>s:
+//   left  = Layout (Studio / 1BR / 2BR / ...) derived from unique unit.layoutName
+//   right = Unit Number, filtered by selected Layout
+// On unit pick: overrides #price + #sqft (same behavior as the original gm5_applyUnit).
+// Implemented as an additive overlay so the original Feature 5 IIFE remains untouched.
+(function(){
+  try {
+    var WRAP_ID   = "gmUnitField";
+    var COUNT_ID  = "gmUnitCount";
+    var HINT_ID   = "gmUnitHint";
+    var REVERT_ID = "gmUnitRevert";
+    var LAYOUT_SEL_ID = "gmLayoutPicker";
+    var UNIT_SEL_ID   = "gmUnitPicker";
+
+    var wrap = document.getElementById(WRAP_ID);
+    if (!wrap) { console.log("[F1V2_E1] #gmUnitField not present — skipping"); return; }
+
+    var label    = wrap.querySelector("label");
+    var hint     = document.getElementById(HINT_ID);
+    var revertBt = document.getElementById(REVERT_ID);
+
+    var keep = [];
+    if (label)    keep.push(label);
+
+    var row = document.createElement("div");
+    row.style.cssText = "display:flex;gap:6px;align-items:stretch;";
+    row.setAttribute("data-f1v2-e1", "row");
+
+    var layoutSel = document.createElement("select");
+    layoutSel.id = LAYOUT_SEL_ID;
+    layoutSel.style.cssText = "flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;font-family:inherit;background:#fff;min-width:0;";
+    layoutSel.disabled = true;
+    var optL0 = document.createElement("option"); optL0.value = ""; optL0.textContent = "-- Layout --";
+    layoutSel.appendChild(optL0);
+
+    var unitSel = document.createElement("select");
+    unitSel.id = UNIT_SEL_ID;
+    unitSel.style.cssText = "flex:1.4;padding:8px 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;font-family:inherit;background:#fff;min-width:0;";
+    unitSel.disabled = true;
+    var optU0 = document.createElement("option"); optU0.value = ""; optU0.textContent = "-- Unit # --";
+    unitSel.appendChild(optU0);
+
+    var revertBtn;
+    if (revertBt) {
+      revertBtn = revertBt;
+      if (revertBtn.parentNode) revertBtn.parentNode.removeChild(revertBtn);
+    } else {
+      revertBtn = document.createElement("button");
+      revertBtn.type = "button";
+      revertBtn.id = REVERT_ID;
+      revertBtn.textContent = "Revert";
+      revertBtn.style.cssText = "padding:6px 10px;border:1px solid var(--border);border-radius:4px;background:#fff;font-size:11px;cursor:pointer;";
+    }
+    revertBtn.style.display = "none";
+
+    row.appendChild(layoutSel);
+    row.appendChild(unitSel);
+    row.appendChild(revertBtn);
+
+    if (!hint) {
+      hint = document.createElement("small");
+      hint.id = HINT_ID;
+      hint.style.cssText = "font-size:11px;color:var(--text-muted);margin-top:4px;display:block;min-height:14px;";
+    } else if (hint.parentNode) {
+      hint.parentNode.removeChild(hint);
+    }
+
+    while (wrap.firstChild) wrap.removeChild(wrap.firstChild);
+    keep.forEach(function(n){ wrap.appendChild(n); });
+    wrap.appendChild(row);
+    wrap.appendChild(hint);
+
+    var state = {
+      byLayout: {},
+      lastProjectId: null,
+      snapshot: null,
+      applied: false
+    };
+    window.__f1v2_e1 = state;
+
+    function setHint(msg, ok) {
+      if (!hint) return;
+      hint.textContent = msg || "";
+      hint.style.color = ok ? "var(--accent-dark)" : "var(--text-muted)";
+    }
+    function setCount(n) {
+      var c = document.getElementById(COUNT_ID);
+      if (c) c.textContent = (n > 0) ? (n + " units") : "";
+    }
+
+    function unitLabel(u) {
+      var sqft  = Number(u.sqft) || 0;
+      var price = Number(u.priceAed) || 0;
+      var psf   = (price>0 && sqft>0) ? Math.round(price/sqft) : 0;
+      var tag   = u.resale ? "RESALE" : "OFF-PLAN";
+      return "#" + (u.number || "?") +
+             (u.floor ? (" / F" + u.floor) : "") +
+             (sqft>0  ? (" — " + sqft.toLocaleString() + " sqft") : "") +
+             (price>0 ? (" — AED " + (Math.round(price/1e5)/10) + "M") : "") +
+             (psf>0   ? (" — " + psf.toLocaleString() + "/sqft") : "") +
+             " — " + tag;
+    }
+
+    function takeSnapshotIfNeeded() {
+      if (state.snapshot) return;
+      var pe = document.getElementById("price");
+      var se = document.getElementById("sqft");
+      state.snapshot = { price: pe ? pe.value : "", sqft: se ? se.value : "" };
+      revertBtn.style.display = "";
+    }
+
+    function applyUnit(u) {
+      if (!u) return;
+      takeSnapshotIfNeeded();
+      var price = Number(u.priceAed) || 0;
+      var sqft  = Number(u.sqft)  || 0;
+      var applied = [];
+      if (price > 0) {
+        var pe = document.getElementById("price");
+        if (pe) { pe.value = Math.round(price); applied.push("price"); try { pe.dispatchEvent(new Event("change", {bubbles:true})); } catch(e){} }
+      }
+      if (sqft > 0) {
+        var se = document.getElementById("sqft");
+        if (se) { se.value = Math.round(sqft); applied.push("sqft"); try { se.dispatchEvent(new Event("change", {bubbles:true})); } catch(e){} }
+      }
+      try { if (typeof render === "function") render(); } catch(e){}
+      state.applied = true;
+      setHint("Filled " + applied.join(", ") + " from " + (u.layoutName || "Unit") + (u.number ? (" #" + u.number) : ""), true);
+    }
+
+    function revert() {
+      if (!state.snapshot) return;
+      var pe = document.getElementById("price");
+      var se = document.getElementById("sqft");
+      if (pe) { pe.value = state.snapshot.price; try { pe.dispatchEvent(new Event("change", {bubbles:true})); } catch(e){} }
+      if (se) { se.value = state.snapshot.sqft;  try { se.dispatchEvent(new Event("change", {bubbles:true})); } catch(e){} }
+      try { if (typeof render === "function") render(); } catch(e){}
+      unitSel.value = "";
+      revertBtn.style.display = "none";
+      state.snapshot = null;
+      state.applied = false;
+      setHint("Reverted to previous price + sqft.", true);
+    }
+
+    function resetUI() {
+      while (layoutSel.firstChild) layoutSel.removeChild(layoutSel.firstChild);
+      var o = document.createElement("option"); o.value=""; o.textContent="-- Layout --"; layoutSel.appendChild(o);
+      layoutSel.disabled = true;
+      while (unitSel.firstChild) unitSel.removeChild(unitSel.firstChild);
+      var o2 = document.createElement("option"); o2.value=""; o2.textContent="-- Unit # --"; unitSel.appendChild(o2);
+      unitSel.disabled = true;
+      revertBtn.style.display = "none";
+      setCount(0);
+      setHint("");
+      state.byLayout = {};
+      state.snapshot = null;
+      state.applied = false;
+    }
+
+    function populateLayouts() {
+      while (layoutSel.firstChild) layoutSel.removeChild(layoutSel.firstChild);
+      var o0 = document.createElement("option"); o0.value=""; o0.textContent="-- Layout --"; layoutSel.appendChild(o0);
+      var layouts = Object.keys(state.byLayout).sort(function(a,b){ return a.localeCompare(b); });
+      for (var i = 0; i < layouts.length; i++) {
+        var name = layouts[i];
+        var count = state.byLayout[name].length;
+        var opt = document.createElement("option");
+        opt.value = name;
+        opt.textContent = name + " (" + count + ")";
+        layoutSel.appendChild(opt);
+      }
+      layoutSel.disabled = layouts.length === 0;
+      if (layouts.length === 1) {
+        layoutSel.value = layouts[0];
+        populateUnitsForLayout(layouts[0]);
+      }
+    }
+
+    function populateUnitsForLayout(layoutName) {
+      var units = layoutName ? (state.byLayout[layoutName] || []) : [];
+      units = units.slice().sort(function(a,b){
+        var na = parseFloat(a.number), nb = parseFloat(b.number);
+        if (!isNaN(na) && !isNaN(nb) && na !== nb) return na - nb;
+        var sa = String(a.number||""), sb = String(b.number||"");
+        if (sa !== sb) return sa.localeCompare(sb);
+        return (Number(a.sqft)||0) - (Number(b.sqft)||0);
+      });
+      while (unitSel.firstChild) unitSel.removeChild(unitSel.firstChild);
+      var o0 = document.createElement("option"); o0.value=""; o0.textContent="-- Unit # --"; unitSel.appendChild(o0);
+      for (var i = 0; i < units.length; i++) {
+        var opt = document.createElement("option");
+        opt.value = String(i);
+        opt.textContent = unitLabel(units[i]);
+        unitSel.appendChild(opt);
+      }
+      unitSel.disabled = units.length === 0;
+      unitSel.__units = units;
+    }
+
+    if (!layoutSel.__f1v2Wired) {
+      layoutSel.__f1v2Wired = true;
+      layoutSel.addEventListener("change", function(){
+        populateUnitsForLayout(layoutSel.value);
+        setHint(layoutSel.value ? ("Showing " + (state.byLayout[layoutSel.value]||[]).length + " " + layoutSel.value + " units — pick one.") : "", true);
+      });
+    }
+    if (!unitSel.__f1v2Wired) {
+      unitSel.__f1v2Wired = true;
+      unitSel.addEventListener("change", function(){
+        var idx = unitSel.value;
+        if (idx === "" || idx == null) return;
+        var u = (unitSel.__units || [])[Number(idx)];
+        if (u) applyUnit(u);
+      });
+    }
+    if (!revertBtn.__f1v2Wired) {
+      revertBtn.__f1v2Wired = true;
+      revertBtn.addEventListener("click", revert);
+    }
+
+    function loadUnitsForProject(project) {
+      try {
+        if (!project) { resetUI(); state.lastProjectId = null; wrap.style.display = "none"; return; }
+        if (state.lastProjectId === project.id) return;
+        state.lastProjectId = project.id;
+
+        if (!window.GENIEMAP_DATA || typeof window.GENIEMAP_DATA.loadUnits !== "function") {
+          resetUI();
+          wrap.style.display = "";
+          setHint("Unit-level data not available for this build.", false);
+          return;
+        }
+
+        resetUI();
+        wrap.style.display = "";
+        setHint("Loading units…", false);
+
+        window.GENIEMAP_DATA.loadUnits(project.id).then(function(units){
+          if (!units) { setHint("No units file for project #" + project.id, false); return; }
+          var list = Array.isArray(units) ? units : (units.units || []);
+          if (!list.length) { setHint("No units listed for this project.", false); return; }
+
+          var byLayout = {};
+          for (var i = 0; i < list.length; i++) {
+            var u = list[i]; if (!u) continue;
+            var key = (u.layoutName && String(u.layoutName).trim()) || "Default";
+            if (!byLayout[key]) byLayout[key] = [];
+            byLayout[key].push(u);
+          }
+          state.byLayout = byLayout;
+          setCount(list.length);
+          populateLayouts();
+          var layoutKeys = Object.keys(byLayout);
+          setHint(list.length + " units across " + layoutKeys.length + " layout" + (layoutKeys.length===1?"":"s") + " — pick a layout, then a unit.", true);
+        }).catch(function(err){
+          setHint("Failed to load units: " + (err && err.message), false);
+        });
+      } catch(e) { console.log("[F1V2_E1] loadUnitsForProject failed:", e && e.message); }
+    }
+
+    window.geniemap_loadUnitsForProject = loadUnitsForProject;
+    window.addEventListener("gm:projectEnriched", function(e){ loadUnitsForProject(e && e.detail); });
+
+    try {
+      if (window.GENIEMAP_LAST_PROJECT) loadUnitsForProject(window.GENIEMAP_LAST_PROJECT);
+    } catch(e) {}
+
+  } catch(e) { console.log("[F1V2_E1] init failed:", e && e.message); }
+})();
+// =============== /F1V2 E1 ===============
+<!-- F1V2_E1_END -->
 
 
 
