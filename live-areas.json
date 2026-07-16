@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "lastUpdated": "2026-07-15T05:12:47+00:00",
+    "lastUpdated": "2026-07-16T05:23:25+00:00",
     "mode": "mock",
     "source": "mock (set DLD_PROXY_URL+SECRET to go live)",
     "schemaVersion": 2,
@@ -20,7 +20,7 @@
       "villa": 4.7
     },
     "txCount12mo": 1742,
-    "lastComputed": "2026-07-15T05:12:47+00:00"
+    "lastComputed": "2026-07-16T05:23:25+00:00"
   },
   "dubaiCreekHarbour": {
     "avgPriceSqftAed": {
@@ -32,7 +32,7 @@
       "apartment": 6.8
     },
     "txCount12mo": 3924,
-    "lastComputed": "2026-07-15T05:12:47+00:00"
+    "lastComputed": "2026-07-16T05:23:25+00:00"
   },
   "zaabeel": {
     "avgPriceSqftAed": {
@@ -44,7 +44,7 @@
       "apartment": 5.6
     },
     "txCount12mo": 187,
-    "lastComputed": "2026-07-15T05:12:47+00:00"
+    "lastComputed": "2026-07-16T05:23:25+00:00"
   },
   "palmJebelAli": {
     "avgPriceSqftAed": {
@@ -52,7 +52,7 @@
     },
     "priceSqftYoYPct": 32.5,
     "txCount12mo": 2105,
-    "lastComputed": "2026-07-15T05:12:47+00:00"
+    "lastComputed": "2026-07-16T05:23:25+00:00"
   },
   "dubaiHills": {
     "avgPriceSqftAed": {
@@ -66,7 +66,7 @@
       "villa": 4.5
     },
     "txCount12mo": 5320,
-    "lastComputed": "2026-07-15T05:12:47+00:00"
+    "lastComputed": "2026-07-16T05:23:25+00:00"
   },
   "businessBay": {
     "avgPriceSqftAed": {
@@ -78,7 +78,7 @@
       "apartment": 7.2
     },
     "txCount12mo": 5687,
-    "lastComputed": "2026-07-15T05:12:47+00:00"
+    "lastComputed": "2026-07-16T05:23:25+00:00"
   },
   "downtownDubai": {
     "avgPriceSqftAed": {
@@ -90,7 +90,7 @@
       "apartment": 5.7
     },
     "txCount12mo": 4108,
-    "lastComputed": "2026-07-15T05:12:47+00:00"
+    "lastComputed": "2026-07-16T05:23:25+00:00"
   },
   "dubaiMarina": {
     "avgPriceSqftAed": {
@@ -102,7 +102,7 @@
       "apartment": 6.6
     },
     "txCount12mo": 6320,
-    "lastComputed": "2026-07-15T05:12:47+00:00"
+    "lastComputed": "2026-07-16T05:23:25+00:00"
   },
   "jvc": {
     "avgPriceSqftAed": {
@@ -116,7 +116,7 @@
       "villa": 5.9
     },
     "txCount12mo": 11240,
-    "lastComputed": "2026-07-15T05:12:47+00:00"
+    "lastComputed": "2026-07-16T05:23:25+00:00"
   },
   "jbr": {
     "avgPriceSqftAed": {
@@ -128,7 +128,7 @@
       "apartment": 6.0
     },
     "txCount12mo": 1685,
-    "lastComputed": "2026-07-15T05:12:47+00:00"
+    "lastComputed": "2026-07-16T05:23:25+00:00"
   },
   "damacHills": {
     "avgPriceSqftAed": {
@@ -142,7 +142,7 @@
       "villa": 5.4
     },
     "txCount12mo": 2780,
-    "lastComputed": "2026-07-15T05:12:47+00:00"
+    "lastComputed": "2026-07-16T05:23:25+00:00"
   },
   "bluewatersIsland": {
     "avgPriceSqftAed": {
@@ -154,7 +154,7 @@
       "apartment": 6.1
     },
     "txCount12mo": 372,
-    "lastComputed": "2026-07-15T05:12:47+00:00"
+    "lastComputed": "2026-07-16T05:23:25+00:00"
   },
   "difc": {
     "avgPriceSqftAed": {
@@ -166,7 +166,7 @@
       "apartment": 5.7
     },
     "txCount12mo": 218,
-    "lastComputed": "2026-07-15T05:12:47+00:00"
+    "lastComputed": "2026-07-16T05:23:25+00:00"
   },
   "sobhaHartland": {
     "avgPriceSqftAed": {
@@ -180,7 +180,7 @@
       "villa": 4.8
     },
     "txCount12mo": 3450,
-    "lastComputed": "2026-07-15T05:12:47+00:00"
+    "lastComputed": "2026-07-16T05:23:25+00:00"
   },
   "mbrCity1": {
     "avgPriceSqftAed": {
@@ -194,7 +194,7 @@
       "villa": 4.5
     },
     "txCount12mo": 4180,
-    "lastComputed": "2026-07-15T05:12:47+00:00"
+    "lastComputed": "2026-07-16T05:23:25+00:00"
   },
   "dubaiHarbour": {
     "avgPriceSqftAed": {
@@ -206,7 +206,7 @@
       "apartment": 6.3
     },
     "txCount12mo": 1220,
-    "lastComputed": "2026-07-15T05:12:47+00:00"
+    "lastComputed": "2026-07-16T05:23:25+00:00"
   },
   "minaRashid": {
     "avgPriceSqftAed": {
@@ -218,7 +218,7 @@
       "apartment": 6.7
     },
     "txCount12mo": 1790,
-    "lastComputed": "2026-07-15T05:12:47+00:00"
+    "lastComputed": "2026-07-16T05:23:25+00:00"
   },
   "tilalAlGhaf": {
     "avgPriceSqftAed": {
@@ -232,6 +232,6 @@
       "villa": 5.0
     },
     "txCount12mo": 2480,
-    "lastComputed": "2026-07-15T05:12:47+00:00"
+    "lastComputed": "2026-07-16T05:23:25+00:00"
   }
 }
