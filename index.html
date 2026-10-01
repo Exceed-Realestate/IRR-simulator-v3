@@ -1538,12 +1538,16 @@
   #card-payment-plan .pp-preset-btn { padding:5px 11px; background:#fff; border:1px solid #cbd5e1; border-radius:5px; cursor:pointer; font-size:11.5px; font-weight:600; color:var(--text); transition:all 0.15s; }
   #card-payment-plan .pp-preset-btn:hover { background:#eff6ff; border-color:#3b82f6; color:#1e40af; }
   #card-payment-plan .pp-rows { display:flex; flex-direction:column; gap:8px; margin-bottom:12px; }
-  #card-payment-plan .pp-row { display:grid; grid-template-columns:1fr 130px 70px 30px; gap:8px; align-items:center; padding:6px 0; }
+  #card-payment-plan .pp-row { display:grid; grid-template-columns:1fr 190px 70px 30px; gap:8px; align-items:center; padding:6px 0; }
   #card-payment-plan .pp-row input, #card-payment-plan .pp-row select { padding:7px 9px; border:1px solid #cbd5e1; border-radius:5px; font-size:12.5px; min-width:0; box-sizing:border-box; width:100%; }
+  #card-payment-plan .pp-row .pp-at { display:flex; align-items:center; gap:4px; min-width:0; }
+  #card-payment-plan .pp-row .pp-at select { flex:1 1 auto; }
+  #card-payment-plan .pp-row .pp-at .pp-months { flex:0 0 56px; width:56px; text-align:right; }
+  #card-payment-plan .pp-row .pp-at .pp-unit { font-size:11px; color:var(--text-muted); white-space:nowrap; }
   #card-payment-plan .pp-row .pp-pct { text-align:right; font-family:monospace; font-weight:600; }
   #card-payment-plan .pp-row .pp-del { padding:0 4px; background:transparent; border:none; cursor:pointer; color:#94a3b8; font-size:14px; justify-self:center; }
   #card-payment-plan .pp-row .pp-del:hover { color:#dc2626; }
-  #card-payment-plan .pp-rows-header { display:grid; grid-template-columns:1fr 130px 70px 30px; gap:8px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; color:var(--text-muted); padding-bottom:6px; border-bottom:1px solid #eee; margin-bottom:6px; }
+  #card-payment-plan .pp-rows-header { display:grid; grid-template-columns:1fr 190px 70px 30px; gap:8px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; color:var(--text-muted); padding-bottom:6px; border-bottom:1px solid #eee; margin-bottom:6px; }
   #card-payment-plan .pp-rows-header > div:last-child { display:none; }
   #card-payment-plan .pp-footer { display:flex; justify-content:space-between; align-items:center; gap:14px; padding-top:12px; border-top:1px dashed #eee; flex-wrap:wrap; }
   #card-payment-plan .pp-add-btn { font-size:12px; padding:7px 14px; background:var(--accent); color:var(--primary); border:none; border-radius:6px; font-weight:700; cursor:pointer; }
@@ -1560,6 +1564,11 @@
     #card-payment-plan .pp-rows-header { display:none; }
   }
   /* Removed unused "%" suffix column slot */
+  /* Label on its own line, then timing / % / delete — fits the narrow left column */
+  #card-payment-plan .pp-row, #card-payment-plan .pp-rows-header { grid-template-columns:1fr 64px 26px; }
+  #card-payment-plan .pp-row > input[type="text"] { grid-column:1 / -1; }
+  #card-payment-plan .pp-rows-header > div:first-child { display:none; }
+  #card-payment-plan .pp-row { padding:8px 0; border-bottom:1px dashed #eee; }
 
   /* Header Tools dropdown */
   .nav-tools-wrap { position:relative; display:inline-block; }
@@ -5988,7 +5997,7 @@ function updatePpRow(idx, field, value) {
   else if (field === "label") paymentPlan[idx].label = value;
   else if (field === "at") {
     // "handover", "handover+12", or a number-of-months
-    if (value === "handover" || value === "handover+12" || value === "handover+24" || value === "handover+36") {
+    if (value === "handover" || /^handover\+\d+(\.\d+)?$/.test(value)) {
       paymentPlan[idx].at = value;
     } else {
       paymentPlan[idx].at = +value || 0;
@@ -5996,6 +6005,14 @@ function updatePpRow(idx, field, value) {
   }
   updatePpTotal();
   if (typeof render === "function") render();
+}
+
+// Timing = free number of months, counted from purchase or from handover.
+function updatePpTiming(idx, rowEl) {
+  const base = rowEl.querySelector(".pp-base").value;
+  const months = Math.max(0, +rowEl.querySelector(".pp-months").value || 0);
+  const value = base === "handover" ? (months ? "handover+" + months : "handover") : String(months);
+  updatePpRow(idx, "at", value);
 }
 
 function renderPpRows() {
@@ -6008,23 +6025,6 @@ function renderPpRows() {
   }
   const lang = document.body.getAttribute("data-lang") || "ja";
   const T = (ja, en) => lang === "ja" ? ja : en;
-  const atOptions = [
-    { v: 0,   l: T("購入時", "On booking") },
-    { v: 3,   l: T("+3ヶ月", "+3 months") },
-    { v: 6,   l: T("+6ヶ月", "+6 months") },
-    { v: 9,   l: T("+9ヶ月", "+9 months") },
-    { v: 12,  l: T("+12ヶ月", "+12 months") },
-    { v: 15,  l: T("+15ヶ月", "+15 months") },
-    { v: 18,  l: T("+18ヶ月", "+18 months") },
-    { v: 21,  l: T("+21ヶ月", "+21 months") },
-    { v: 24,  l: T("+24ヶ月", "+24 months") },
-    { v: 30,  l: T("+30ヶ月", "+30 months") },
-    { v: 36,  l: T("+36ヶ月", "+36 months") },
-    { v: "handover",     l: T("引渡し時", "On handover") },
-    { v: "handover+12",  l: T("引渡し +12ヶ月", "Handover +12mo") },
-    { v: "handover+24",  l: T("引渡し +24ヶ月", "Handover +24mo") },
-    { v: "handover+36",  l: T("引渡し +36ヶ月", "Handover +36mo") }
-  ];
   container.innerHTML =
     '<div class="pp-rows-header">' +
       '<div>' + T("ラベル", "Label") + '</div>' +
@@ -6033,13 +6033,18 @@ function renderPpRows() {
       '<div></div>' +
     '</div>' +
     paymentPlan.map((m, i) => {
-      const opts = atOptions.map(o => {
-        const sel = String(o.v) === String(m.at) ? " selected" : "";
-        return '<option value="' + o.v + '"' + sel + '>' + o.l + '</option>';
-      }).join("");
+      const fromHandover = typeof m.at === "string" && m.at.startsWith("handover");
+      const months = fromHandover ? (parseFloat(m.at.slice(9)) || 0) : (+m.at || 0);
       return '<div class="pp-row">' +
         '<input type="text" value="' + escapeHtml(m.label || "") + '" oninput="updatePpRow(' + i + ', \'label\', this.value)">' +
-        '<select onchange="updatePpRow(' + i + ', \'at\', this.value)">' + opts + '</select>' +
+        '<div class="pp-at">' +
+          '<select class="pp-base" onchange="updatePpTiming(' + i + ', this.closest(\'.pp-row\'))">' +
+            '<option value="purchase"' + (fromHandover ? '' : ' selected') + '>' + T("購入から", "From booking") + '</option>' +
+            '<option value="handover"' + (fromHandover ? ' selected' : '') + '>' + T("引渡しから", "From handover") + '</option>' +
+          '</select>' +
+          '<input type="number" class="pp-months" min="0" max="120" step="1" value="' + months + '" oninput="updatePpTiming(' + i + ', this.closest(\'.pp-row\'))">' +
+          '<span class="pp-unit">' + T("ヶ月", "mo") + '</span>' +
+        '</div>' +
         '<input type="number" class="pp-pct" min="0" max="100" step="0.5" value="' + (m.pct || 0) + '" oninput="updatePpRow(' + i + ', \'pct\', this.value)">' +
         '<button type="button" class="pp-del" onclick="deletePpRow(' + i + ')" title="Remove">✕</button>' +
       '</div>';
