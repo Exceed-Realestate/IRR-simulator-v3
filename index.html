@@ -2071,27 +2071,6 @@
           </div>
         </div>
 
-        <div class="sim-card" id="card-quick-metrics">
-          <h3>📊 <span class="ja">投資家クイック指標</span><span class="en">Quick Investor Metrics</span></h3>
-          <div class="qm-grid">
-            <div class="qm-tile">
-              <div class="qm-label"><span class="ja">キャッシュオンキャッシュ</span><span class="en">Cash-on-Cash</span></div>
-              <div class="qm-value" id="qmCashOnCash">—</div>
-              <div class="qm-sub"><span class="ja">年間ネット家賃 ÷ 初期手出し</span><span class="en">Annual net rent ÷ initial cash out</span></div>
-            </div>
-            <div class="qm-tile">
-              <div class="qm-label"><span class="ja">回収期間</span><span class="en">Payback Period</span></div>
-              <div class="qm-value" id="qmPayback">—</div>
-              <div class="qm-sub"><span class="ja">初期手出しを回収するまで</span><span class="en">Until cumulative cashflow ≥ 0</span></div>
-            </div>
-            <div class="qm-tile">
-              <div class="qm-label"><span class="ja">損益分岐売却価格</span><span class="en">Break-Even Sale Price</span></div>
-              <div class="qm-value" id="qmBreakEven">—</div>
-              <div class="qm-sub"><span class="ja">この価格で売却 = 損益ゼロ</span><span class="en">Sell at this price → zero gain / zero loss</span></div>
-            </div>
-          </div>
-        </div>
-
         <div class="sim-card">
           <h3><span class="count">5</span><span class="ja">シナリオ比較</span><span class="en">Scenario Comparison</span></h3>
           <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px;"><span class="ja">表示するシナリオを選択してください（複数選択可）：</span><span class="en">Select scenarios to display (multiple allowed):</span></p>
@@ -6622,7 +6601,24 @@ document.getElementById("extraCurrency")?.addEventListener("change", (e) => {
 
 let scenarioChart = null, cumulativeChart = null;
 
+// Loan unchecked -> rate reads 0% and loan fields are locked; ticking it again restores the old values.
+function syncMortgageFields() {
+  const on = document.getElementById("useMortgage").checked;
+  const rateEl = document.getElementById("mortgageRate");
+  const ids = ["ltv", "mortgageRate", "mortgageTerm", "wifMortgageRate"];
+  if (!on && !rateEl.disabled) {
+    rateEl.dataset.prev = rateEl.value;
+    rateEl.value = "0";
+  } else if (on && rateEl.disabled) {
+    rateEl.value = rateEl.dataset.prev && rateEl.dataset.prev !== "0" ? rateEl.dataset.prev : "6";
+  }
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.disabled = !on; el.style.opacity = on ? "" : "0.45"; }
+  });
+}
 function render() {
+  syncMortgageFields();
   const inp = getInputs();
   const r = calculate(inp);
   const fx = inp.fxRate;
