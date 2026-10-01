@@ -1776,6 +1776,15 @@
             <label><span class="ja">物件価格（AED）</span><span class="en">Price (AED)</span></label>
             <input type="number" id="price" value="13000000" step="100000">
           </div>
+          <div class="checkbox-field">
+            <input type="checkbox" id="addVat">
+            <label for="addVat"><span class="ja">物件価格にVATを加算（コマーシャル物件）</span><span class="en">Add VAT to price (commercial property)</span></label>
+          </div>
+          <div class="field" id="vatField" style="display:none;">
+            <label><span class="ja">VAT率 (%)</span><span class="en">VAT rate (%)</span></label>
+            <input type="number" id="vatPct" value="5" min="0" max="20" step="0.5">
+            <small id="vatAmount" style="font-size:11px;color:var(--text-muted);display:block;margin-top:4px;"></small>
+          </div>
           <div class="field-row">
             <div class="field">
               <label><span class="ja">面積（sqft）</span><span class="en">Size (sqft)</span></label>
@@ -3345,6 +3354,7 @@ function _executeReport(opts) {
   // Initial outlay rows
   const outlayRows = [
     [T("頭金", "Down payment"), r.cashDown, T("ローン控除後", "After loan deduction")],
+    ...(inp.addVat ? [[T(`物件VAT (${inp.vatPct}%)`, `Property VAT (${inp.vatPct}%)`), r.propertyVat, T("コマーシャル物件", "Commercial property")]] : []),
     [T("DLD登記料 (4% + AED 580)", "DLD registration (4% + AED 580)"), r.dld, T("物件価格×4%", "Price × 4%")],
     [T("Trustee / Title / Oqood", "Trustee / Title / Oqood"), r.trustee + r.titleDeed + r.oqood, T("各種登記", "Registration")],
     [T("NOC手数料", "NOC fee"), r.noc, T("業界平均", "Industry standard")],
@@ -5113,7 +5123,7 @@ function loadFromCompare(side) {
 // the recipient sees the same dashboard pre-filled — drag sliders, see the
 // numbers update.
 const SHARE_FIELDS = [
-  ["preset","p"], ["price","pr"], ["sqft","sq"], ["propertyType","tp"],
+  ["preset","p"], ["price","pr"], ["addVat","vat"], ["vatPct","vp"], ["sqft","sq"], ["propertyType","tp"],
   ["purchaseMode","mo"], ["completionYear","cy"], ["completionQuarter","cq"],
   ["grossYield","y"], ["appreciation","a"], ["appreciationMode","am"],
   ["furniture","f"], ["serviceChargePsf","sc"],
@@ -5597,6 +5607,7 @@ function openIrrBreakdown() {
       <h3 style="margin:0 0 10px; font-size:14px; color:var(--primary);">💰 <span class="ja">Step 1 — 初期手出し（Year 0）</span><span class="en">Step 1 — Initial outlay (Year 0)</span></h3>
       <table style="width:100%; font-size:12px;">
         <tr><td style="padding:3px 8px;">頭金 / Down payment</td><td style="text-align:right;font-family:monospace;">${fmtN(r.cashDown)} AED</td></tr>
+        ${inp.addVat ? `<tr><td style="padding:3px 8px;">物件VAT (${inp.vatPct}%)</td><td style="text-align:right;font-family:monospace;">${fmtN(r.propertyVat)} AED</td></tr>` : ''}
         <tr><td style="padding:3px 8px;">DLD登記料 (4% + 580)</td><td style="text-align:right;font-family:monospace;">${fmtN(r.dld)} AED</td></tr>
         <tr><td style="padding:3px 8px;">エージェント手数料 (2.1%)</td><td style="text-align:right;font-family:monospace;">${fmtN(r.agentFee)} AED</td></tr>
         <tr><td style="padding:3px 8px;">Trustee/Title/Oqood</td><td style="text-align:right;font-family:monospace;">${fmtN(r.trustee + r.titleDeed + r.oqood)} AED</td></tr>
@@ -6148,6 +6159,7 @@ const labels = {
   ja: {
     downPayment: "頭金（物件価格の自己資金部分）", downPaymentNote: "ローン控除後",
     dld: "DLD登記料（4% + AED 580）", dldNote: "物件価格×4%",
+    propertyVat: "物件VAT", propertyVatNote: "コマーシャル物件・購入時に支払い",
     trustee: "Trustee / Title / Oqood", trusteeNote: "各種登記",
     noc: "NOC手数料", nocNote: "業界平均・物件価格無関係",
     agentFee: "エージェント手数料（2% + VAT）", agentFeeNote: "物件価格 × 2% + VAT 5%",
@@ -6167,6 +6179,7 @@ const labels = {
   en: {
     downPayment: "Down payment (equity portion)", downPaymentNote: "After loan",
     dld: "DLD registration (4% + AED 580)", dldNote: "4% of price",
+    propertyVat: "Property VAT", propertyVatNote: "Commercial property, paid at purchase",
     trustee: "Trustee / Title / Oqood", trusteeNote: "Registrations",
     noc: "NOC fee", nocNote: "Industry average · same regardless of price",
     agentFee: "Agent fee (2% + VAT)", agentFeeNote: "2% + 5% VAT",
@@ -6228,9 +6241,11 @@ function calculate(inp) {
   const oqood = inp.purchaseMode === "offplan" ? 3000 : 0;
   const noc = 5000;
   const agentFee = p * 0.021;
+  // Commercial property: VAT on the purchase price is paid at purchase (the sale price is VAT-exclusive, VAT on sale passes through to the buyer)
+  const propertyVat = inp.addVat ? p * ((inp.vatPct || 0) / 100) : 0;
   const mortgageReg = inp.useMortgage ? loanAmount * 0.0025 + 290 : 0;
   const brokerFee = inp.useMortgage ? loanAmount * 0.01 : 0;
-  const initialCashAED = cashDown + dld + trustee + titleDeed + oqood + noc + agentFee + mortgageReg + brokerFee + inp.furniture;
+  const initialCashAED = cashDown + propertyVat + dld + trustee + titleDeed + oqood + noc + agentFee + mortgageReg + brokerFee + inp.furniture;
 
   const grossRent = p * (inp.grossYield / 100);
   const vacancyLoss = grossRent * (inp.vacancy / 100);
@@ -6420,7 +6435,7 @@ function calculate(inp) {
   const breakEvenSalePrice = (requiredNet + main.saleNOC + main.remainingLoan) / (1 - 0.021);
 
   return {
-    cashDown, loanAmount, dld, trustee, titleDeed, oqood, noc, agentFee, mortgageReg, brokerFee,
+    cashDown, loanAmount, propertyVat, dld, trustee, titleDeed, oqood, noc, agentFee, mortgageReg, brokerFee,
     furniture: inp.furniture, initialCashAED,
     grossRent, vacancyLoss, pmFee, serviceCharge, maintenance, annualLoanPayment: annualLoan, annualNetCF,
     salePrice: main.salePrice, saleAgentFee: main.saleAgentFee, saleNOC: main.saleNOC,
@@ -6440,6 +6455,8 @@ function calculate(inp) {
 function getInputs() {
   return {
     price: +document.getElementById("price").value || 0,
+    addVat: document.getElementById("addVat").checked,
+    vatPct: +document.getElementById("vatPct").value || 0,
     sqft: +document.getElementById("sqft").value || 0,
     serviceChargePsf: +document.getElementById("serviceChargePsf").value || 0,
     propertyType: document.getElementById("propertyType").value,
@@ -6622,8 +6639,16 @@ function syncMortgageFields() {
     if (el) { el.disabled = !on; el.style.opacity = on ? "" : "0.45"; }
   });
 }
+function syncVatField() {
+  const on = document.getElementById("addVat").checked;
+  document.getElementById("vatField").style.display = on ? "" : "none";
+  const price = +document.getElementById("price").value || 0;
+  const pct = +document.getElementById("vatPct").value || 0;
+  document.getElementById("vatAmount").textContent = on ? "VAT: AED " + Math.round(price * pct / 100).toLocaleString() : "";
+}
 function render() {
   syncMortgageFields();
+  syncVatField();
   const inp = getInputs();
   const r = calculate(inp);
   const fx = inp.fxRate;
@@ -6859,6 +6884,7 @@ function render() {
 
   const initRows = [
     [L("downPayment"), r.cashDown, L("downPaymentNote")],
+    ...(inp.addVat ? [[L("propertyVat") + " (" + inp.vatPct + "%)", r.propertyVat, L("propertyVatNote")]] : []),
     [L("dld"), r.dld, L("dldNote")],
     [L("trustee"), r.trustee + r.titleDeed + r.oqood, L("trusteeNote")],
     [L("noc"), r.noc, L("nocNote")],
