@@ -1060,6 +1060,22 @@
   #customReport .rpt-bd-value { font-size: 16px; font-weight: 700; color: #0a2540; margin-top: 2px; }
   #customReport .rpt-bd-sub   { font-size: 9px; color: #6b7280; margin-top: 2px; }
   #customReport .rpt-page-break { page-break-before: always; }
+  #customReport .rpt-pack-tbl { font-size: 9px; }
+  #customReport .rpt-pack-tbl td, #customReport .rpt-pack-tbl th { white-space: nowrap; text-align: right; padding: 3px 5px; }
+  #customReport .rpt-pack-tbl td:first-child, #customReport .rpt-pack-tbl th:first-child { text-align: left; white-space: normal; }
+  #customReport .rpt-pack-tbl .cell-sub { display: block; font-size: 8px; color: #6b7280; font-weight: 400; }
+  #customReport .rpt-pack-tbl td.neg { color: #b91c1c; }
+  #customReport .rpt-pack-tbl td.pos { color: #15803d; }
+  #customReport .rpt-pack-tbl tr.strong td { font-weight: 700; background: #fef9e7; }
+  #customReport .rpt-pack-tbl td.cell-best { outline: 2px solid #c9a961; outline-offset: -2px; }
+  #customReport .rpt-sched td:nth-child(2), #customReport .rpt-sched th:nth-child(2) { text-align: left; white-space: normal; }
+  #customReport .pack-note, #customReport .rpt-pack-note { font-size: 9px; color: #6b7280; margin: 6px 0 0; line-height: 1.5; }
+  #customReport .rpt-pack-risk { display: grid; gap: 6px; margin-top: 10px; font-size: 10px; line-height: 1.55; }
+  #customReport .rpt-pack-risk > div { background: #f8fafc; border-left: 3px solid #94a3b8; padding: 6px 10px; }
+  #customReport .rpt-pack-risk strong { display: block; }
+  #customReport .rpt-glossary .gloss-group { font-size: 10px; font-weight: 700; color: #a0814a; margin: 12px 0 4px; text-transform: uppercase; }
+  #customReport .rpt-glossary dt { font-weight: 700; font-size: 11px; margin-top: 6px; color: #0a2540; }
+  #customReport .rpt-glossary dd { margin: 2px 0 0; font-size: 10px; line-height: 1.55; }
   #customReport .rpt-footer {
     margin-top: 20px; padding-top: 10px;
     border-top: 1px solid #e5e7eb; font-size: 9px; color: #6b7280;
@@ -2994,9 +3010,39 @@
           </label>
         </li>
         <li class="rpt-cl-new">
+          <label><input type="checkbox" id="rpt-opt-plcf" checked>
+            <span class="rpt-cl-label"><span class="ja">年次収支明細（P/L・C/F） <span class="rpt-new-badge">NEW</span></span><span class="en">Annual P/L &amp; Cash Flow <span class="rpt-new-badge">NEW</span></span></span>
+            <span class="rpt-cl-sub"><span class="ja">賃料・費用・利息・元本・ローン残高を年ごと</span><span class="en">Rent, costs, interest, principal, loan balance by year</span></span>
+          </label>
+        </li>
+        <li class="rpt-cl-new">
+          <label><input type="checkbox" id="rpt-opt-schedule" checked>
+            <span class="rpt-cl-label"><span class="ja">支払スケジュール <span class="rpt-new-badge">NEW</span></span><span class="en">Payment Schedule <span class="rpt-new-badge">NEW</span></span></span>
+            <span class="rpt-cl-sub"><span class="ja">契約〜引渡し〜売却の時期と金額</span><span class="en">Dates and amounts from contract to handover to sale</span></span>
+          </label>
+        </li>
+        <li class="rpt-cl-new">
+          <label><input type="checkbox" id="rpt-opt-risk" checked>
+            <span class="rpt-cl-label"><span class="ja">リスク分析 <span class="rpt-new-badge">NEW</span></span><span class="en">Risk Analysis <span class="rpt-new-badge">NEW</span></span></span>
+            <span class="rpt-cl-sub"><span class="ja">値下がり・賃料下落・戦争リスク、損益分岐価格</span><span class="en">Price/rent falls, war risk, break-even price</span></span>
+          </label>
+        </li>
+        <li class="rpt-cl-new">
+          <label><input type="checkbox" id="rpt-opt-upside" checked>
+            <span class="rpt-cl-label"><span class="ja">上昇シナリオ <span class="rpt-new-badge">NEW</span></span><span class="en">Upside Scenarios <span class="rpt-new-badge">NEW</span></span></span>
+            <span class="rpt-cl-sub"><span class="ja">市場実績（REIDIN）と上昇率別IRR</span><span class="en">Market history (REIDIN) and IRR by growth rate</span></span>
+          </label>
+        </li>
+        <li class="rpt-cl-new">
           <label><input type="checkbox" id="rpt-opt-area" checked>
             <span class="rpt-cl-label"><span class="ja">エリア分析 <span class="rpt-new-badge">NEW</span></span><span class="en">Area Analysis <span class="rpt-new-badge">NEW</span></span></span>
             <span class="rpt-cl-sub"><span class="ja">坪単価・利回り・インフラ・類似物件・トークポイント</span><span class="en">Price/sqft, yield, infrastructure, comparables, talking points</span></span>
+          </label>
+        </li>
+        <li class="rpt-cl-new">
+          <label><input type="checkbox" id="rpt-opt-glossary" checked>
+            <span class="rpt-cl-label"><span class="ja">用語集（別紙） <span class="rpt-new-badge">NEW</span></span><span class="en">Glossary (separate page) <span class="rpt-new-badge">NEW</span></span></span>
+            <span class="rpt-cl-sub"><span class="ja">レポートに出てくる用語の説明</span><span class="en">Explains each term used in the report</span></span>
           </label>
         </li>
         <li class="locked">
@@ -3328,7 +3374,7 @@ window.addEventListener("afterprint", () => {
 // chooses "Save as PDF" or prints. Injects a landscape @page rule at runtime.
 // =========== REPORT CHECKLIST (v3) ===========
 const REPORT_OPTS_KEY = "exceedReportOptions";
-const DEFAULT_REPORT_OPTS = { terms: true, holding: true, timeline: true, outlay: true, cashflow: true, exit: true, area: true };
+const DEFAULT_REPORT_OPTS = { terms: true, holding: true, timeline: true, outlay: true, cashflow: true, exit: true, plcf: true, schedule: true, risk: true, upside: true, area: true, glossary: true };
 function loadReportOptions() {
   try {
     const stored = JSON.parse(localStorage.getItem(REPORT_OPTS_KEY) || "{}");
@@ -3359,13 +3405,38 @@ function closeReportChecklist() {
 }
 function executeReportFromChecklist() {
   const opts = {};
-  ["terms","holding","timeline","outlay","cashflow","exit","area"].forEach(k => {
+  ["terms","holding","timeline","outlay","cashflow","exit","plcf","schedule","risk","upside","area","glossary"].forEach(k => {
     const cb = document.getElementById("rpt-opt-" + k);
     if (cb) opts[k] = !!cb.checked;
   });
   if (document.getElementById("rpt-save-default")?.checked) saveReportOptions(opts);
   closeReportChecklist();
   setTimeout(() => _executeReport(opts), 80);
+}
+
+// Investor-pack sections (E–H) for the printed report: reuse the tables already
+// rendered on the page, so the PDF always shows the same numbers as the screen.
+function buildPackReportSections(opts, T) {
+  try { render(); } catch (e) {}
+  const tbl = (id, extra) => {
+    const el = document.getElementById(id);
+    return el && el.innerHTML ? `<table class="rpt-tbl rpt-tbl-bordered rpt-pack-tbl ${extra || ""}">${el.innerHTML}</table>` : "";
+  };
+  const note = (sel) => { const el = document.querySelector(sel); return el ? `<p class="rpt-pack-note">${el.innerHTML}</p>` : ""; };
+  let html = "";
+  if (opts.plcf) html += `<section class="rpt-section rpt-page-break"><h2>${T("年次収支明細（P/L・C/F）", "Annual P/L & Cash Flow")}</h2>${tbl("plcfTable")}${note("#card-plcf > .pack-note")}</section>`;
+  if (opts.schedule) html += `<section class="rpt-section"><h2>${T("契約〜引渡し・支払スケジュール", "Contract-to-Handover & Payment Schedule")}</h2>${tbl("scheduleTable", "rpt-sched")}${note("#card-schedule > .pack-note")}</section>`;
+  if (opts.risk) {
+    const rentLbl = riskRentLevel === 1 ? "" : ` — ${T("賃料", "rent")} ${Math.round(riskRentLevel * 100)}%`;
+    const notes = document.querySelector("#card-risk .pack-risk-notes");
+    html += `<section class="rpt-section rpt-page-break"><h2>${T("リスク分析（値下がり・賃料下落）", "Risk Analysis (Price & Rent Falls)")}${rentLbl}</h2>${tbl("riskTable")}${note("#card-risk > .pack-note")}${notes ? `<div class="rpt-pack-risk">${notes.innerHTML}</div>` : ""}</section>`;
+  }
+  if (opts.upside) {
+    const hist = document.getElementById("upsideHistory");
+    const histHtml = hist ? hist.innerHTML.replace(/class="data-table pack-table"/g, 'class="rpt-tbl rpt-tbl-bordered rpt-pack-tbl"') : "";
+    html += `<section class="rpt-section"><h2>${T("上昇シナリオ（市場実績ベース）", "Upside Scenarios (Based on Market History)")}</h2>${histHtml}<h4>${T("価格上昇率 × 賃料上昇率 別の年率IRR", "IRR by yearly price growth × yearly rent growth")}</h4>${tbl("upsideTable")}${note("#card-upside > .pack-note")}</section>`;
+  }
+  return html;
 }
 
 // Build the Area Analysis section HTML for the printed report (compact, A4-friendly).
@@ -3733,7 +3804,14 @@ function _executeReport(opts) {
       </table>
     </section>` : ""}
 
+    ${buildPackReportSections(opts, T)}
+
     ${opts.area ? buildAreaReportSection(T, lang) : ""}
+
+    ${opts.glossary ? `<section class="rpt-section rpt-page-break rpt-glossary">
+      <h2>${T("用語集", "Glossary")}</h2>
+      ${document.querySelector("#glossaryModal .modal-body").innerHTML}
+    </section>` : ""}
 
     <footer class="rpt-footer">
       <div class="rpt-disclaimer">
