@@ -1459,6 +1459,33 @@
   #card-tax .tax-table .country-flag { display:inline-block; width:18px; margin-right:6px; font-size:14px; }
 
   /* Objection accordion */
+  /* Investor pack cards E–H + glossary */
+  .pack-toolbar { display:flex; gap:6px; align-items:center; flex-wrap:wrap; font-size:12px; color:var(--text-muted); margin:0 0 10px; }
+  .pack-toolbar button { border:1px solid var(--border); background:#fff; color:var(--text); border-radius:14px; padding:3px 11px; font-size:12px; cursor:pointer; }
+  .pack-toolbar button.active { background:var(--primary); color:#fff; border-color:var(--primary); }
+  .pack-toolbar .pack-gloss-link { margin-left:auto; border-color:transparent; color:var(--primary); font-weight:600; }
+  .pack-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  table.pack-table { min-width:100%; font-size:12px; }
+  table.pack-table th, table.pack-table td { white-space:nowrap; }
+  table.pack-table td.lbl { position:sticky; left:0; background:#fff; z-index:1; }
+  table.pack-table tr.sub td { color:var(--text-muted); }
+  table.pack-table tr.strong td { font-weight:700; background:#fef9e7; }
+  table.pack-table tr.strong td.lbl { background:#fef9e7; }
+  table.pack-table td.neg { color:var(--negative); }
+  table.pack-table td.pos { color:var(--positive); }
+  table.pack-table td.cell-best { outline:2px solid var(--accent, #c9a961); outline-offset:-2px; }
+  table.pack-table .cell-sub { display:block; font-size:10.5px; color:var(--text-muted); font-weight:400; }
+  .pack-note { font-size:11px; color:var(--text-muted); margin:8px 0 0; line-height:1.5; }
+  .pack-sub { font-size:13px; margin:16px 0 8px; }
+  .pack-risk-notes { display:grid; gap:8px; margin-top:12px; font-size:12px; line-height:1.6; }
+  .pack-risk-notes > div { background:#f8fafc; border-left:3px solid #94a3b8; padding:8px 12px; border-radius:4px; }
+  .pack-risk-notes strong { display:block; margin-bottom:2px; }
+  .gloss-group { font-size:11px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; color:var(--accent-dark, #a0814a); margin:18px 0 6px; }
+  .gloss-group:first-child { margin-top:0; }
+  .gloss-list { margin:0; }
+  .gloss-list dt { font-weight:700; font-size:13.5px; margin-top:10px; color:var(--primary); }
+  .gloss-list dd { margin:3px 0 0; font-size:12.5px; line-height:1.65; color:var(--text); }
+  @media print { .pack-toolbar { display:none; } .pack-scroll { overflow:visible; } table.pack-table { font-size:9px; } }
   #card-objections .obj-accordion { display:flex; flex-direction:column; gap:8px; }
   #card-objections .obj-item { border:1px solid #e5e7eb; border-radius:8px; background:#fafafa; transition:border-color 0.15s; }
   #card-objections .obj-item[open] { border-color:var(--accent, #c9a961); background:#fffbeb; }
@@ -1701,6 +1728,9 @@
       <span class="ja">物件資料</span><span class="en">Brochures</span>
       <span class="count-badge">8</span>
     </button>
+    <button class="nav-brochure-btn" onclick="openGlossary()" style="margin-left:0;">
+      📖 <span class="ja">用語集</span><span class="en">Glossary</span>
+    </button>
   </div>
 </div>
 
@@ -1733,6 +1763,7 @@
             🧰 <span class="ja">ツール</span><span class="en">Tools</span> <span style="font-size:10px;opacity:0.8;">▾</span>
           </button>
           <div class="nav-tools-menu" id="navToolsMenu" onclick="event.stopPropagation()">
+            <button onclick="closeNavTools();openGlossary()">📖 <span class="ja">用語集</span><span class="en">Glossary</span></button>
             <button onclick="closeNavTools();openAiAssistant()">✨ <span class="ja">AI アシスタント</span><span class="en">AI Assistant</span></button>
             <button onclick="closeNavTools();openCompareModal()">⚖️ <span class="ja">2物件を比較</span><span class="en">Compare Two Properties</span></button>
             <button onclick="closeNavTools();openMortgageQualifier()">💰 <span class="ja">モーゲージ適格性</span><span class="en">Mortgage Eligibility</span></button>
@@ -2199,6 +2230,56 @@
           </table>
         </div>
 
+        <!-- ===== Investor pack (Shoya 2026-10-05): E P/L・C/F · F schedule · G risk · H upside ===== -->
+        <div class="sim-card pack-card" id="card-plcf">
+          <h3><span class="count">E</span><span class="ja">年次収支明細（P/L・C/F）</span><span class="en">Annual P/L &amp; Cash Flow Detail</span></h3>
+          <div class="pack-toolbar">
+            <span class="ja">表示通貨</span><span class="en">Show in</span>
+            <button type="button" class="pack-cur-btn active" data-packcur="AED" onclick="setPackCurrency('AED')">AED</button>
+            <button type="button" class="pack-cur-btn" data-packcur="CUR" onclick="setPackCurrency('CUR')"><span class="cur-label">HKD</span></button>
+            <button type="button" class="pack-gloss-link" onclick="openGlossary()">📖 <span class="ja">用語集</span><span class="en">Glossary</span></button>
+          </div>
+          <div class="pack-scroll"><table class="data-table pack-table" id="plcfTable"></table></div>
+          <p class="pack-note"><span class="ja">※ 賃料・費用は毎年一定（下のH欄で賃料上昇も試算可）。ローン返済は引渡し後に開始し、利息と元本に分けて表示。「年度収支」の合計がIRR計算と一致します。</span><span class="en">Rent and costs are flat each year (card H tests rent growth). Loan payments start at handover, split into interest and principal. The "Net cash flow" row is exactly what the IRR is calculated from.</span></p>
+        </div>
+
+        <div class="sim-card pack-card" id="card-schedule">
+          <h3><span class="count">F</span><span class="ja">契約〜引渡し・支払スケジュール</span><span class="en">Contract-to-Handover &amp; Payment Schedule</span></h3>
+          <div class="pack-scroll"><table class="data-table pack-table" id="scheduleTable"></table></div>
+          <p class="pack-note"><span class="ja">※ 日付は購入時期・完成時期・支払プランの入力から算出した目安です。実際の請求日はSPA（売買契約書）に従います。</span><span class="en">Dates are estimates from the purchase date, completion date and payment plan entered above. Actual due dates follow the SPA.</span></p>
+        </div>
+
+        <div class="sim-card pack-card" id="card-risk">
+          <h3><span class="count">G</span><span class="ja">リスク分析（値下がり・賃料下落）</span><span class="en">Risk Analysis (Price &amp; Rent Falls)</span></h3>
+          <div class="pack-toolbar">
+            <span class="ja">賃料水準</span><span class="en">Rent level</span>
+            <button type="button" class="pack-rent-btn active" data-rent="1" onclick="setRiskRent(1)">100%</button>
+            <button type="button" class="pack-rent-btn" data-rent="0.8" onclick="setRiskRent(0.8)">80% <span class="ja">(−20%)</span><span class="en">(−20%)</span></button>
+            <button type="button" class="pack-rent-btn" data-rent="0.6" onclick="setRiskRent(0.6)">60% <span class="ja">(−40%)</span><span class="en">(−40%)</span></button>
+          </div>
+          <div class="pack-scroll"><table class="data-table pack-table" id="riskTable"></table></div>
+          <p class="pack-note"><span class="ja">各セル＝購入から売却までの手残り合計（売却損益）と年率IRR。売却価格は購入価格に対する変化率。</span><span class="en">Each cell = total money made or lost from purchase to sale, and the IRR. Sale price change is versus the purchase price.</span></p>
+          <div class="pack-risk-notes">
+            <div><strong>📉 <span class="ja">値下がりリスク</span><span class="en">Price-fall risk</span></strong>
+              <span class="ja">不動産価格は下がることがあります。上の表は売却時に10〜30%下がった場合の結果です。保有期間が長いほど賃料収入が積み上がり、損益分岐の売却価格は下がります。</span>
+              <span class="en">Property prices can fall. The table shows the result if the sale price is 10–30% below purchase. The longer the hold, the more rent builds up and the lower the break-even sale price.</span></div>
+            <div><strong>🏚 <span class="ja">賃料下落・空室リスク</span><span class="en">Rent-fall &amp; vacancy risk</span></strong>
+              <span class="ja">賃料水準ボタンで賃料が20%・40%下がった場合を確認できます。サービスチャージ・ローン返済は賃料が下がっても続きます。</span>
+              <span class="en">Use the rent-level buttons to see rents 20% or 40% lower. Service charge and loan payments continue even when rent falls.</span></div>
+            <div><strong>⚔️ <span class="ja">戦争・地政学リスク</span><span class="en">War &amp; geopolitical risk</span></strong>
+              <span class="ja">中東地域で紛争が起きた場合、一時的に買い手が減り、価格・賃料が下がる可能性があります。売り急がずに保有を続けられるか（手元資金・ローン比率）が重要です。上の表の下落シナリオで、その場合の損益を事前に確認してください。</span>
+              <span class="en">A conflict in the region could pause buyers and push prices and rents down for a time. What matters is whether the client can keep holding instead of selling in a hurry (cash reserves, loan size). Use the fall scenarios above to see the outcome in advance.</span></div>
+          </div>
+        </div>
+
+        <div class="sim-card pack-card" id="card-upside">
+          <h3><span class="count">H</span><span class="ja">上昇シナリオ（市場実績ベース）</span><span class="en">Upside Scenarios (Based on Market History)</span></h3>
+          <div id="upsideHistory"></div>
+          <h4 class="pack-sub"><span class="ja">価格上昇率 × 賃料上昇率 別の年率IRR</span><span class="en">IRR by yearly price growth × yearly rent growth</span></h4>
+          <div class="pack-scroll"><table class="data-table pack-table" id="upsideTable"></table></div>
+          <p class="pack-note"><span class="ja">各セル＝年率IRR（下段は売却までの手残り合計）。保有期間・ローン等は上で入力した条件のまま。◎＝現在の入力（上のIRRと同じ値）。</span><span class="en">Each cell = IRR (below: total money made by the sale). Hold, loan etc. are as entered above. ◎ = the current inputs (same as the headline IRR).</span></p>
+        </div>
+
         <div class="sim-card" id="card-tax">
           <details class="card-collapsible">
             <summary>
@@ -2316,6 +2397,84 @@
 
 </div>
 
+</div>
+
+<!-- ============ GLOSSARY MODAL ============ -->
+<div class="modal-overlay" id="glossaryModal" onclick="if(event.target===this)closeGlossary()">
+  <div class="modal" style="max-width:760px">
+    <div class="modal-header">
+      <div>
+        <h2>📖 <span class="ja">用語集</span><span class="en">Glossary</span></h2>
+        <div class="subtitle"><span class="ja">シミュレーターに出てくる用語の説明</span><span class="en">What each term in the simulator means</span></div>
+      </div>
+      <button class="modal-close" onclick="closeGlossary()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="gloss-group"><span class="ja">リターン指標</span><span class="en">Return measures</span></div>
+      <dl class="gloss-list">
+        <dt>IRR <span class="ja">（内部収益率）</span><span class="en">(Internal Rate of Return)</span></dt>
+        <dd><span class="ja">投資したお金が、保有期間を通じて毎年平均何%で増えたかを表す数字。支払いと受取りの「時期」も考慮するため、異なる物件・期間を公平に比較できます。</span><span class="en">The average yearly growth rate of the money invested, over the whole hold. It accounts for when each payment and receipt happens, so different properties and periods can be compared fairly.</span></dd>
+        <dt><span class="ja">倍率（マルチプル）</span><span class="en">Multiple</span></dt>
+        <dd><span class="ja">受け取った総額 ÷ 支払った総額。2.0×なら投資額が2倍になったという意味です。</span><span class="en">Total money received ÷ total money paid. 2.0× means the money invested doubled.</span></dd>
+        <dt><span class="ja">キャピタルゲイン／インカムゲイン</span><span class="en">Capital gain / Income gain</span></dt>
+        <dd><span class="ja">キャピタルゲイン＝売却価格と購入価格の差による利益。インカムゲイン＝保有中の賃料から費用を引いた利益。</span><span class="en">Capital gain = profit from selling above the purchase price. Income gain = rent minus costs while holding.</span></dd>
+        <dt><span class="ja">損益分岐売却価格</span><span class="en">Break-even sale price</span></dt>
+        <dd><span class="ja">この価格で売れば、それまでの賃料収入と合わせて損も得もしない売却価格。</span><span class="en">The sale price at which, together with the rent already received, the investor neither gains nor loses.</span></dd>
+      </dl>
+      <div class="gloss-group"><span class="ja">賃料・運営</span><span class="en">Rent &amp; operating</span></div>
+      <dl class="gloss-list">
+        <dt><span class="ja">表面利回り（グロス利回り）</span><span class="en">Gross yield</span></dt>
+        <dd><span class="ja">年間賃料 ÷ 物件価格。費用を引く前の利回り。</span><span class="en">Yearly rent ÷ property price, before any costs.</span></dd>
+        <dt><span class="ja">空室率</span><span class="en">Vacancy</span></dt>
+        <dd><span class="ja">1年のうち入居者がいない期間の割合。その分の賃料は入りません。</span><span class="en">Share of the year with no tenant. No rent comes in for that time.</span></dd>
+        <dt><span class="ja">PM費（管理委託料）</span><span class="en">PM fee (property management)</span></dt>
+        <dd><span class="ja">管理会社に払う手数料。実際に入った賃料の○%。</span><span class="en">Fee paid to the management company, a % of the rent actually collected.</span></dd>
+        <dt><span class="ja">サービスチャージ（SC）</span><span class="en">Service charge</span></dt>
+        <dd><span class="ja">建物共用部の管理費（日本の管理費・修繕積立金に相当）。面積(sqft)×単価で毎年かかります。</span><span class="en">Yearly building fee for common areas and upkeep (sqft × rate). Paid every year whether or not the unit is rented.</span></dd>
+        <dt><span class="ja">修繕・保守</span><span class="en">Maintenance</span></dt>
+        <dd><span class="ja">室内の修理・交換費用の見込み（物件価格の○%）。</span><span class="en">Expected repair and replacement cost inside the unit (a % of price).</span></dd>
+        <dt><span class="ja">NOI（営業純収益）</span><span class="en">NOI (net operating income)</span></dt>
+        <dd><span class="ja">賃料から空室・PM費・SC・修繕を引いた金額。ローン返済前の利益。</span><span class="en">Rent minus vacancy, PM fee, service charge and maintenance. Profit before loan payments.</span></dd>
+        <dt><span class="ja">年度収支（ネットCF）</span><span class="en">Net cash flow</span></dt>
+        <dd><span class="ja">その年に実際に手元に残る（または出ていく）お金。NOI − ローン返済 − 物件代金の支払い ＋ 売却手取り。</span><span class="en">Money actually kept (or paid out) that year: NOI − loan payments − property payments + sale proceeds.</span></dd>
+      </dl>
+      <div class="gloss-group"><span class="ja">ローン</span><span class="en">Loan</span></div>
+      <dl class="gloss-list">
+        <dt>LTV <span class="ja">（融資比率）</span><span class="en">(Loan-to-value)</span></dt>
+        <dd><span class="ja">物件価格のうちローンで借りる割合。LTV 50%なら半分を借入。</span><span class="en">Share of the price borrowed. LTV 50% = half is a loan.</span></dd>
+        <dt><span class="ja">支払利息／元本返済</span><span class="en">Interest / Principal</span></dt>
+        <dd><span class="ja">毎月のローン返済の内訳。利息は銀行への費用、元本返済は借入残高を減らす部分です。</span><span class="en">The two parts of each loan payment. Interest is the bank's charge; principal reduces the loan balance.</span></dd>
+        <dt><span class="ja">ローン残高</span><span class="en">Loan balance</span></dt>
+        <dd><span class="ja">まだ返していない借入額。売却時に売却代金から一括返済します。</span><span class="en">The amount still owed. It is repaid from the sale price when the property is sold.</span></dd>
+      </dl>
+      <div class="gloss-group"><span class="ja">購入・売却の費用（ドバイ）</span><span class="en">Purchase &amp; sale costs (Dubai)</span></div>
+      <dl class="gloss-list">
+        <dt>DLD <span class="ja">登録料</span><span class="en">registration fee</span></dt>
+        <dd><span class="ja">ドバイ土地局（Dubai Land Department）への登録料。物件価格の4%＋AED 580。日本の不動産取得税・登録免許税に相当。</span><span class="en">Fee to the Dubai Land Department: 4% of price + AED 580.</span></dd>
+        <dt>Oqood</dt>
+        <dd><span class="ja">オフプラン（未完成物件）の売買を仮登記する手続き。AED 3,000程度。</span><span class="en">Provisional registration of an off-plan sale. About AED 3,000.</span></dd>
+        <dt>NOC <span class="ja">（異議なし証明書）</span><span class="en">(No Objection Certificate)</span></dt>
+        <dd><span class="ja">デベロッパーが「売買に異議なし」と出す証明書。転売時などに必要。</span><span class="en">Developer's certificate that it has no objection to the transfer. Needed for resale.</span></dd>
+        <dt>Trustee</dt>
+        <dd><span class="ja">DLD公認の登記代行事務所の手数料。</span><span class="en">Fee of the DLD-approved registration office that processes the transfer.</span></dd>
+        <dt><span class="ja">仲介手数料</span><span class="en">Agent fee</span></dt>
+        <dd><span class="ja">不動産会社への手数料。2%＋VAT 5%＝2.1%。</span><span class="en">Brokerage fee: 2% + 5% VAT = 2.1%.</span></dd>
+      </dl>
+      <div class="gloss-group"><span class="ja">オフプラン</span><span class="en">Off-plan</span></div>
+      <dl class="gloss-list">
+        <dt><span class="ja">オフプラン</span><span class="en">Off-plan</span></dt>
+        <dd><span class="ja">完成前の物件を購入すること。工事の進み具合に合わせて分割で支払います。</span><span class="en">Buying before the building is finished, paying in instalments as construction progresses.</span></dd>
+        <dt><span class="ja">支払プラン（ペイメントプラン）</span><span class="en">Payment plan</span></dt>
+        <dd><span class="ja">物件代金を「契約時○%・工事中○%・引渡し時○%」のように分けて払うスケジュール。</span><span class="en">The schedule splitting the price, e.g. X% at booking, X% during construction, X% at handover.</span></dd>
+        <dt><span class="ja">引渡し（ハンドオーバー）</span><span class="en">Handover</span></dt>
+        <dd><span class="ja">完成した物件の鍵を受け取る時点。ここから賃貸・ローン返済が始まります。</span><span class="en">When the finished unit's keys are handed over. Renting and loan payments start here.</span></dd>
+        <dt><span class="ja">エスクロー</span><span class="en">Escrow</span></dt>
+        <dd><span class="ja">購入者の支払金を保管する専用口座。工事の進捗に応じてのみデベロッパーに支払われます（RERAの規制）。</span><span class="en">Ring-fenced account holding buyers' payments, released to the developer only as construction progresses (RERA rule).</span></dd>
+        <dt>SPA</dt>
+        <dd><span class="ja">売買契約書（Sale and Purchase Agreement）。支払日や引渡し時期が記載されます。</span><span class="en">Sale and Purchase Agreement: sets the payment dates and handover timing.</span></dd>
+      </dl>
+    </div>
+  </div>
 </div>
 
 <!-- ============ BROCHURE MODAL ============ -->
@@ -6329,13 +6488,21 @@ function calculate(inp) {
       cf.push(-initialCashAED);
     }
 
+    // rows[] keeps the per-year detail for the Annual P/L・C/F card.
+    const rows = [];
+    const rentGrowth = (inp.rentGrowth || 0) / 100;
     for (let yi = 0; yi < numRows; yi++) {
       const yStart = anchorQ + yi * 4;
       const yEnd = Math.min(yStart + 3, saleQabs);
       const overlap = Math.max(0, Math.min(yEnd, saleQabs) - Math.max(yStart, handoverQabs) + 1);
-      let value = (overlap / 4) * annualNetCF;
+      // Rent grows once per full year after handover (0% = flat, the default)
+      const rentFactor = Math.pow(1 + rentGrowth, Math.max(0, Math.floor((yStart - handoverQabs) / 4)));
+      const rentNet = (effRent - pmFee) * rentFactor;
+      let value = (overlap / 4) * (rentNet - serviceCharge - maintenance - annualLoan);
+      const milestone = usePP ? (milestoneByYear.get(yi + 1) || 0) : 0;
       // Add any milestones bucketed into year (yi+1)
-      if (usePP) value += (milestoneByYear.get(yi + 1) || 0);
+      value += milestone;
+      rows.push({ yStart, yEnd, opFrac: overlap / 4, rentFactor, milestone });
       cf.push(value);
       // Time at end of this row, in years from anchor. For all but the last
       // row this is (yi+1) full years. For the last row, we use the actual
@@ -6368,7 +6535,9 @@ function calculate(inp) {
     const net = salePrice - saleAgentFee - saleNOC - remainingLoan;
     if (cf.length > 1) cf[cf.length-1] += net;
     else cf.push(net);
-    return { cf, times, salePrice, saleAgentFee, saleNOC, remainingLoan, netSaleProceeds: net, operatingYears: opMonths / 12, saleYr: saleYrLocal, totalMonths, usePP };
+    return { cf, times, salePrice, saleAgentFee, saleNOC, remainingLoan, netSaleProceeds: net, operatingYears: opMonths / 12, saleYr: saleYrLocal, totalMonths, usePP,
+      rows, anchorQ, saleQabs, opMonths, initialOut: cf.length ? (usePP ? -upfrontFees + (milestoneByYear.get(0) || 0) : -initialCashAED) : 0,
+      handoverMonthsFromAnchor };
   }
 
   // Fix #5: include holdMonths in totalYearsHeld so annual→cumulative compounds
@@ -6440,7 +6609,8 @@ function calculate(inp) {
     grossRent, vacancyLoss, pmFee, serviceCharge, maintenance, annualLoanPayment: annualLoan, annualNetCF,
     salePrice: main.salePrice, saleAgentFee: main.saleAgentFee, saleNOC: main.saleNOC,
     remainingLoan: main.remainingLoan, netSaleProceeds: main.netSaleProceeds,
-    irr: mainIrr, multiple, cashflowSeries: main.cf,
+    irr: mainIrr, multiple, cashflowSeries: main.cf, cashflowTimes: main.times, mainDetail: main,
+    effRent, monthlyLoan, handoverQabs, purchaseQabs,
     constructionYears, operatingYears: main.operatingYears,
     cashOnCashPct, paybackYears, breakEvenSalePrice,
     scenarios: {
@@ -7019,6 +7189,241 @@ function render() {
   drawScenarioChart(r.scenarios);
   drawCumulativeChart(r.cashflowSeries);
   renderUnitInsights();
+  try { renderInvestorPack(inp, r); } catch (e) { console.error("investor pack", e); }
+}
+
+// ============ Investor pack: E P/L・C/F · F schedule · G risk · H upside ============
+// Requested by Shoya 2026-10-05. Every figure here comes from calculate(), so the
+// tables always agree with the headline IRR.
+let packCurrency = "AED";   // "AED" or "CUR" (the currency picked in the simulator)
+let riskRentLevel = 1;      // 1 / 0.8 / 0.6
+
+// Market history for card H. Filled from sourced data only; an empty array hides the table.
+// REIDIN Dubai all-residential sales & rent indices, December-on-December change
+// (reidin.com monthly "UAE Residential Property Price Report", Dec 2021–Dec 2025).
+const DUBAI_MARKET_HISTORY = [
+  { year: 2021, price: 9.25,  rent: 8.25 },
+  { year: 2022, price: 9.53,  rent: 26.88 },
+  { year: 2023, price: 20.14, rent: 18.93 },
+  { year: 2024, price: 18.03, rent: 15.67 },
+  { year: 2025, price: 12.88, rent: 6.15 }
+];
+const DUBAI_MARKET_HISTORY_SOURCE = {
+  ja: "REIDIN UAE Residential Property Price Report（各年12月号、ドバイ全住宅の価格指数・賃料指数の前年同月比）。※2015〜2020年は価格が毎年下落していました（BIS UAE住宅価格指数：2015年 −9.7%、2018年 −7.8%、2020年 −5.1%など）。直近5年の上昇が今後も続く保証はありません。",
+  en: "REIDIN UAE Residential Property Price Report (each December issue; Dubai all-residential sales and rent indices, year on year). Note: prices fell every year from 2015 to 2020 (BIS UAE residential price index: 2015 −9.7%, 2018 −7.8%, 2020 −5.1% etc.). The last 5 years of growth are not guaranteed to continue."
+};
+
+function setPackCurrency(c) {
+  packCurrency = c;
+  document.querySelectorAll(".pack-cur-btn").forEach(b => b.classList.toggle("active", b.dataset.packcur === c));
+  render();
+}
+function setRiskRent(level) {
+  riskRentLevel = level;
+  document.querySelectorAll(".pack-rent-btn").forEach(b => b.classList.toggle("active", +b.dataset.rent === level));
+  render();
+}
+function openGlossary() {
+  document.getElementById("glossaryModal").classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+function closeGlossary() {
+  document.getElementById("glossaryModal").classList.remove("open");
+  document.body.style.overflow = "";
+}
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeGlossary(); });
+
+// Remaining balance after k monthly payments (same formula as calculate()).
+function loanBalanceAfter(loan, annualRatePct, termYears, k) {
+  if (loan <= 0) return 0;
+  const r = annualRatePct / 100 / 12, n = termYears * 12;
+  const b = r > 0 ? loan * (Math.pow(1 + r, n) - Math.pow(1 + r, k)) / (Math.pow(1 + r, n) - 1) : loan * (1 - k / n);
+  return Math.max(0, b);
+}
+
+function renderInvestorPack(inp, r) {
+  const lang = document.body.getAttribute("data-lang") || "ja";
+  const T = (ja, en) => lang === "ja" ? ja : en;
+  const mult = packCurrency === "AED" ? 1 : (inp.fxRate || 1);
+  const unit = packCurrency === "AED" ? "AED" : inp.currency;
+  const money = (n) => fmt(n * mult);
+  const cls = (n) => n < -0.5 ? "neg" : (n > 0.5 ? "pos" : "");
+  const monthName = (absMonth) => {
+    const y = Math.floor(absMonth / 12), m = absMonth % 12;
+    return lang === "ja" ? `${y}年${m + 1}月` : `${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][m]} ${y}`;
+  };
+  const yrLabel = (i) => lang === "ja" ? `${i}年目` : `Yr ${i}`;
+
+  // ----- E: Annual P/L・C/F -----
+  (function paintPlcf() {
+    const el = document.getElementById("plcfTable");
+    if (!el) return;
+    const d = r.mainDetail;
+    const cf = r.cashflowSeries;
+    const N = d.rows.length;
+    const handoverOffsetQ = r.handoverQabs - d.anchorQ;
+    const lines = { rent: [0], vac: [0], pm: [0], sc: [0], mnt: [0], noi: [0], int: [0], prin: [0], pay: [cf[0]], sale: [0], net: [cf[0]], cum: [cf[0]], bal: [inp.useMortgage && !d.usePP ? r.loanAmount : 0] };
+    let cum = cf[0];
+    for (let i = 0; i < N; i++) {
+      const row = d.rows[i];
+      const f = row.opFrac, g = row.rentFactor;
+      const rent = r.grossRent * f * g, vac = -r.vacancyLoss * f * g, pm = -r.pmFee * f * g;
+      const sc = -r.serviceCharge * f, mnt = -r.maintenance * f;
+      const noi = rent + vac + pm + sc + mnt;
+      // Loan months elapsed since handover at the start of this year
+      const k0 = Math.max(0, (row.yStart - r.handoverQabs) * 3);
+      const nMonths = Math.round(f * 12);
+      let prin = 0, int = 0, balEnd = 0;
+      if (inp.useMortgage && r.loanAmount > 0) {
+        const b0 = loanBalanceAfter(r.loanAmount, inp.mortgageRate, inp.mortgageTerm, k0);
+        balEnd = loanBalanceAfter(r.loanAmount, inp.mortgageRate, inp.mortgageTerm, k0 + nMonths);
+        const paid = r.monthlyLoan * nMonths;
+        prin = -(b0 - balEnd);
+        int = -(paid + prin);
+        // Before handover the loan has not been drawn yet
+        if (row.yEnd < r.handoverQabs) balEnd = d.usePP ? 0 : r.loanAmount;
+      }
+      const isLast = i === N - 1;
+      const sale = isLast ? d.netSaleProceeds + d.remainingLoan : 0;   // gross of loan payoff; payoff shown in principal
+      if (isLast && d.remainingLoan > 0) { prin -= d.remainingLoan; balEnd = 0; }
+      const net = cf[i + 1];
+      const pay = net - (noi + int + prin + sale);   // payment-plan instalments, loan drawdown
+      lines.rent.push(rent); lines.vac.push(vac); lines.pm.push(pm); lines.sc.push(sc); lines.mnt.push(mnt); lines.noi.push(noi);
+      lines.int.push(int); lines.prin.push(prin); lines.pay.push(Math.abs(pay) < 0.5 ? 0 : pay); lines.sale.push(sale);
+      lines.net.push(net); cum += net; lines.cum.push(cum); lines.bal.push(balEnd);
+    }
+    const head = `<thead><tr><th>${T("項目", "Item")} (${unit})</th><th class="num">${T("購入時", "Purchase")}</th>` +
+      d.rows.map((row, i) => `<th class="num">${yrLabel(i + 1)}<span class="cell-sub">${Math.floor(row.yStart / 4)} Q${row.yStart % 4 + 1}</span></th>`).join("") + `</tr></thead>`;
+    const showPay = lines.pay.some((v, i) => i > 0 && Math.abs(v) > 0.5);
+    const showLoan = inp.useMortgage && r.loanAmount > 0;
+    const defs = [
+      ["rent", T("賃料収入", "Rent"), ""],
+      ["vac", T("空室損", "Vacancy"), "sub"],
+      ["pm", T("PM費", "PM fee"), "sub"],
+      ["sc", T("サービスチャージ", "Service charge"), "sub"],
+      ["mnt", T("修繕・保守", "Maintenance"), "sub"],
+      ["noi", T("NOI（営業純収益）", "NOI (net operating income)"), "strong"],
+      ...(showLoan ? [["int", T("支払利息", "Loan interest"), "sub"], ["prin", T("元本返済（売却時の一括返済含む）", "Loan principal (incl. payoff at sale)"), "sub"]] : []),
+      [ "pay", showPay ? T("物件代金の支払い／ローン実行", "Property payments / loan drawdown") : T("初期手出し", "Initial outlay"), "sub"],
+      ["sale", T("売却代金（手数料控除後）", "Sale proceeds (after fees)"), ""],
+      ["net", T("年度収支（ネットCF）", "Net cash flow"), "strong"],
+      ["cum", T("累計収支", "Cumulative"), ""],
+      ...(showLoan ? [["bal", T("ローン残高（年末）", "Loan balance (year-end)"), "sub"]] : [])
+    ];
+    const body = defs.map(([key, label, rc]) => `<tr class="${rc}"><td class="lbl">${label}</td>` +
+      lines[key].map(v => `<td class="num ${key === "bal" ? "" : cls(v)}">${Math.abs(v) < 0.5 ? "—" : money(v)}</td>`).join("") + `</tr>`).join("");
+    el.innerHTML = head + `<tbody>${body}</tbody>`;
+  })();
+
+  // ----- F: Contract-to-handover & payment schedule -----
+  (function paintSchedule() {
+    const el = document.getElementById("scheduleTable");
+    if (!el) return;
+    const d = r.mainDetail;
+    const purchaseM = r.purchaseQabs * 3;
+    const handoverM = r.handoverQabs * 3;
+    const saleM = (d.saleQabs + 1) * 3 - 1;
+    const p = inp.price;
+    const ev = [];
+    const fees = r.initialCashAED - r.cashDown;
+    if (d.usePP) {
+      ev.push({ m: purchaseM, ja: "契約・登録費用（DLD 4%、仲介手数料など）", en: "Contract & registration costs (DLD 4%, agent fee etc.)", amt: -fees });
+      paymentPlan.forEach(ms => {
+        let m;
+        if (typeof ms.at === "number") m = purchaseM + ms.at;
+        else if (ms.at === "handover") m = handoverM;
+        else m = handoverM + (parseInt(String(ms.at).slice(9)) || 0);
+        const lbl = escapeHtml(ms.label || "");
+        ev.push({ m, ja: `支払い：${lbl}`, en: `Payment: ${lbl}`, pct: ms.pct, amt: -(ms.pct / 100) * p });
+      });
+      if (inp.useMortgage && r.loanAmount > 0)
+        ev.push({ m: handoverM, ja: `ローン実行（LTV ${inp.ltv}%、銀行が支払い）`, en: `Loan drawdown (LTV ${inp.ltv}%, paid by the bank)`, amt: r.loanAmount, order: 1 });
+    } else {
+      ev.push({ m: purchaseM, ja: inp.useMortgage ? `頭金（ローン ${inp.ltv}% を除く）＋諸費用` : "物件代金＋諸費用", en: inp.useMortgage ? `Down payment (excl. ${inp.ltv}% loan) + costs` : "Purchase price + costs", amt: -r.initialCashAED });
+    }
+    if (inp.purchaseMode === "offplan")
+      ev.push({ m: handoverM, ja: "引渡し（鍵の受け取り）", en: "Handover (keys)", amt: 0, order: 2 });
+    ev.push({ m: Math.max(handoverM, purchaseM), ja: "賃貸開始" + (inp.useMortgage && r.loanAmount > 0 ? `・ローン返済開始（月 ${fmt(r.monthlyLoan * mult)} ${unit}）` : ""), en: "Rent starts" + (inp.useMortgage && r.loanAmount > 0 ? ` · loan payments start (${fmt(r.monthlyLoan * mult)} ${unit}/month)` : ""), amt: 0, order: 3 });
+    ev.push({ m: saleM, ja: "売却（想定）— ローン返済後の手取り", en: "Sale (assumed) — proceeds after loan payoff", amt: d.netSaleProceeds, order: 4 });
+    ev.sort((a, b) => (a.m - b.m) || ((a.order || 0) - (b.order || 0)));
+    let paid = 0;
+    const rows = ev.map(e => {
+      // Own cash only: the bank's loan drawdown reduces what the client pays themselves
+      if (e.amt < 0) paid += -e.amt; else if (e.order === 1) paid -= e.amt;
+      return `<tr><td>${monthName(e.m)}</td><td>${lang === "ja" ? e.ja : e.en}</td>` +
+        `<td class="num">${e.pct != null ? e.pct + "%" : ""}</td>` +
+        `<td class="num ${cls(e.amt)}">${e.amt ? money(e.amt) : "—"}</td>` +
+        `<td class="num">${e.order === 4 ? "" : money(paid)}</td></tr>`;
+    }).join("");
+    el.innerHTML = `<thead><tr><th>${T("時期（目安）", "When (approx.)")}</th><th>${T("内容", "What")}</th><th class="num">%</th><th class="num">${T("金額", "Amount")} (${unit})</th><th class="num">${T("自己資金の累計", "Own cash paid so far")}</th></tr></thead><tbody>${rows}</tbody>`;
+  })();
+
+  // Re-run the real engine with overrides; returns { irr, profit, breakEven }.
+  const runCase = (over) => {
+    const c = calculate(Object.assign({}, inp, over));
+    const profit = c.cashflowSeries.reduce((s, v) => s + v, 0);
+    return { irr: c.irr, profit, breakEven: c.breakEvenSalePrice };
+  };
+  const holdTotal = (inp.holdYears || 0) + (inp.holdMonths || 0) / 12;
+
+  // ----- G: Risk analysis -----
+  (function paintRisk() {
+    const el = document.getElementById("riskTable");
+    if (!el) return;
+    const holds = [...new Set([Math.round(holdTotal * 12) / 12, 5, 10, 15])].filter(h => h >= 1).sort((a, b) => a - b).slice(0, 4);
+    const drops = [0, -10, -20, -30];
+    const holdLbl = (h) => {
+      const y = Math.floor(h), m = Math.round((h - y) * 12);
+      const base = lang === "ja" ? (m ? `${y}年${m}ヶ月` : `${y}年`) : (m ? `${y}y ${m}mo` : `${y} years`);
+      return Math.abs(h - holdTotal) < 0.01 ? base + T("（現在の入力）", " (current)") : base;
+    };
+    const caseFor = (h, drop) => runCase({
+      holdYears: Math.floor(h), holdMonths: Math.round((h - Math.floor(h)) * 12),
+      appreciationMode: "cumulative", appreciation: drop, grossYield: inp.grossYield * riskRentLevel
+    });
+    const head = `<thead><tr><th>${T("売却価格の変化", "Sale price change")}</th>` + holds.map(h => `<th class="num">${T("保有", "Hold")} ${holdLbl(h)}</th>`).join("") + `</tr></thead>`;
+    const body = drops.map(drop => `<tr${drop === 0 ? ' class="sub"' : ""}><td class="lbl">${drop === 0 ? T("±0%（購入価格で売却）", "±0% (sold at purchase price)") : drop + "%"}<span class="cell-sub">${money(inp.price * (1 + drop / 100))} ${unit}</span></td>` +
+      holds.map(h => { const c = caseFor(h, drop); return `<td class="num ${cls(c.profit)}"><strong>${money(c.profit)}</strong><span class="cell-sub">IRR ${fmtPct(c.irr)}</span></td>`; }).join("") + `</tr>`).join("");
+    const be = `<tr class="strong"><td class="lbl">${T("損益分岐の売却価格", "Break-even sale price")}</td>` + holds.map(h => {
+      const c = caseFor(h, 0);
+      const pct = inp.price > 0 ? (c.breakEven / inp.price - 1) * 100 : 0;
+      return `<td class="num">${c.breakEven <= 0 ? T("賃料のみで回収", "covered by rent") : money(c.breakEven)}<span class="cell-sub">${c.breakEven > 0 ? (pct >= 0 ? "+" : "") + pct.toFixed(1) + "%" : ""}</span></td>`;
+    }).join("") + `</tr>`;
+    el.innerHTML = head + `<tbody>${body}${be}</tbody>`;
+  })();
+
+  // ----- H: Upside scenarios -----
+  (function paintUpside() {
+    const hist = document.getElementById("upsideHistory");
+    if (hist) {
+      if (!DUBAI_MARKET_HISTORY.length) hist.innerHTML = "";
+      else {
+        const avg = (k) => DUBAI_MARKET_HISTORY.reduce((s, x) => s + x[k], 0) / DUBAI_MARKET_HISTORY.length;
+        hist.innerHTML = `<h4 class="pack-sub" style="margin-top:0">${T("ドバイ住宅市場の実績（前年比）", "Dubai residential market history (year on year)")}</h4>` +
+          `<div class="pack-scroll"><table class="data-table pack-table"><thead><tr><th></th>${DUBAI_MARKET_HISTORY.map(x => `<th class="num">${x.year}</th>`).join("")}<th class="num">${T("平均", "Average")}</th></tr></thead><tbody>` +
+          `<tr><td class="lbl">${T("物件価格", "Sale prices")}</td>${DUBAI_MARKET_HISTORY.map(x => `<td class="num ${cls(x.price)}">${x.price > 0 ? "+" : ""}${x.price.toFixed(1)}%</td>`).join("")}<td class="num"><strong>${avg("price").toFixed(1)}%</strong></td></tr>` +
+          `<tr><td class="lbl">${T("賃料", "Rents")}</td>${DUBAI_MARKET_HISTORY.map(x => `<td class="num ${cls(x.rent)}">${x.rent > 0 ? "+" : ""}${x.rent.toFixed(1)}%</td>`).join("")}<td class="num"><strong>${avg("rent").toFixed(1)}%</strong></td></tr>` +
+          `</tbody></table></div><p class="pack-note">${T("出典", "Source")}: ${lang === "ja" ? DUBAI_MARKET_HISTORY_SOURCE.ja : DUBAI_MARKET_HISTORY_SOURCE.en}</p>`;
+      }
+    }
+    const el = document.getElementById("upsideTable");
+    if (!el) return;
+    // Fixed columns plus the agent's own growth input, so the ◎ cell equals the headline IRR
+    const curPrice = inp.appreciationMode === "annual" ? inp.appreciation
+      : (holdTotal > 0 ? (Math.pow(1 + inp.appreciation / 100, 1 / holdTotal) - 1) * 100 : 0);
+    const curRounded = Math.round(curPrice * 100) / 100;
+    const priceG = [...new Set([0, 3, 5, 8, curRounded])].sort((a, b) => a - b), rentG = [0, 2, 4];
+    const bestP = curRounded, bestR = 0;
+    const colLbl = (g) => (g === 0 ? "±0%" : (g > 0 ? "+" : "") + (Number.isInteger(g) ? g : g.toFixed(2)) + "%") + (g === curRounded ? `<span class="cell-sub" style="color:inherit;opacity:.8">${T("現在の入力", "current input")}</span>` : "");
+    const head = `<thead><tr><th>${T("賃料上昇率／年 ＼ 価格上昇率／年", "Rent growth/yr ＼ Price growth/yr")}</th>` + priceG.map(g => `<th class="num">${colLbl(g)}</th>`).join("") + `</tr></thead>`;
+    const body = rentG.map(rg => `<tr><td class="lbl">${rg === 0 ? T("±0%（賃料据え置き）", "±0% (flat rent)") : "+" + rg + "%"}</td>` +
+      priceG.map(g => {
+        const c = runCase({ appreciationMode: "annual", appreciation: g === curRounded ? curPrice : g, rentGrowth: rg });
+        const best = g === bestP && rg === bestR ? " cell-best" : "";
+        return `<td class="num ${cls(c.profit)}${best}"><strong>${best ? "◎ " : ""}${fmtPct(c.irr)}</strong><span class="cell-sub">${money(c.profit)} ${unit}</span></td>`;
+      }).join("") + `</tr>`).join("");
+    el.innerHTML = head + `<tbody>${body}</tbody>`;
+  })();
 }
 
 function drawScenarioChart(s) {
