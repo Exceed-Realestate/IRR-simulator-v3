@@ -1479,6 +1479,8 @@
   .pack-toolbar { display:flex; gap:6px; align-items:center; flex-wrap:wrap; font-size:12px; color:var(--text-muted); margin:0 0 10px; }
   .pack-toolbar button { border:1px solid var(--border); background:#fff; color:var(--text); border-radius:14px; padding:3px 11px; font-size:12px; cursor:pointer; }
   .pack-toolbar button.active { background:var(--primary); color:#fff; border-color:var(--primary); }
+  .pack-toolbar .pack-num { width:64px; padding:3px 6px; border:1px solid var(--border); border-radius:6px; font-size:12px; text-align:right; }
+  .pack-toolbar .pack-free { display:inline-flex; gap:4px; align-items:center; margin-left:6px; }
   .pack-toolbar .pack-gloss-link { margin-left:auto; border-color:transparent; color:var(--primary); font-weight:600; }
   .pack-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; }
   table.pack-table { min-width:100%; font-size:12px; }
@@ -2272,16 +2274,27 @@
             <button type="button" class="pack-rent-btn active" data-rent="1" onclick="setRiskRent(1)">100%</button>
             <button type="button" class="pack-rent-btn" data-rent="0.8" onclick="setRiskRent(0.8)">80% <span class="ja">(−20%)</span><span class="en">(−20%)</span></button>
             <button type="button" class="pack-rent-btn" data-rent="0.6" onclick="setRiskRent(0.6)">60% <span class="ja">(−40%)</span><span class="en">(−40%)</span></button>
+            <span class="pack-free"><span class="ja">自由入力</span><span class="en">Custom</span>
+              <input type="number" id="riskRentInput" class="pack-num" value="100" min="0" max="300" step="5" oninput="setRiskRentInput(this.value)">%</span>
+          </div>
+          <div class="pack-toolbar">
+            <span class="ja">売却価格の変化</span><span class="en">Sale price change</span>
+            <input type="number" class="pack-num risk-drop" value="0" step="1" oninput="setRiskDrops()">
+            <input type="number" class="pack-num risk-drop" value="-10" step="1" oninput="setRiskDrops()">
+            <input type="number" class="pack-num risk-drop" value="-20" step="1" oninput="setRiskDrops()">
+            <input type="number" class="pack-num risk-drop" value="-30" step="1" oninput="setRiskDrops()">
+            <span>%</span>
+            <button type="button" onclick="resetRiskInputs()"><span class="ja">リセット</span><span class="en">Reset</span></button>
           </div>
           <div class="pack-scroll"><table class="data-table pack-table" id="riskTable"></table></div>
           <p class="pack-note"><span class="ja">各セル＝購入から売却までの手残り合計（売却損益）と年率IRR。売却価格は購入価格に対する変化率。</span><span class="en">Each cell = total money made or lost from purchase to sale, and the IRR. Sale price change is versus the purchase price.</span></p>
           <div class="pack-risk-notes">
             <div><strong>📉 <span class="ja">値下がりリスク</span><span class="en">Price-fall risk</span></strong>
-              <span class="ja">不動産価格は下がることがあります。上の表は売却時に10〜30%下がった場合の結果です。保有期間が長いほど賃料収入が積み上がり、損益分岐の売却価格は下がります。</span>
-              <span class="en">Property prices can fall. The table shows the result if the sale price is 10–30% below purchase. The longer the hold, the more rent builds up and the lower the break-even sale price.</span></div>
+              <span class="ja">不動産価格は下がることがあります。上の表は、入力した変化率で売却した場合の結果です（初期値は −10〜−30%）。保有期間が長いほど賃料収入が積み上がり、損益分岐の売却価格は下がります。</span>
+              <span class="en">Property prices can fall. The table shows the result at the sale-price changes entered above (default −10 to −30%). The longer the hold, the more rent builds up and the lower the break-even sale price.</span></div>
             <div><strong>🏚 <span class="ja">賃料下落・空室リスク</span><span class="en">Rent-fall &amp; vacancy risk</span></strong>
-              <span class="ja">賃料水準ボタンで賃料が20%・40%下がった場合を確認できます。サービスチャージ・ローン返済は賃料が下がっても続きます。</span>
-              <span class="en">Use the rent-level buttons to see rents 20% or 40% lower. Service charge and loan payments continue even when rent falls.</span></div>
+              <span class="ja">賃料水準（ボタンまたは自由入力）で、賃料が下がった場合を確認できます。サービスチャージ・ローン返済は賃料が下がっても続きます。</span>
+              <span class="en">Use the rent-level buttons or type any level to see lower rents. Service charge and loan payments continue even when rent falls.</span></div>
             <div><strong>⚔️ <span class="ja">戦争・地政学リスク</span><span class="en">War &amp; geopolitical risk</span></strong>
               <span class="ja">中東地域で紛争が起きた場合、一時的に買い手が減り、価格・賃料が下がる可能性があります。売り急がずに保有を続けられるか（手元資金・ローン比率）が重要です。上の表の下落シナリオで、その場合の損益を事前に確認してください。</span>
               <span class="en">A conflict in the region could pause buyers and push prices and rents down for a time. What matters is whether the client can keep holding instead of selling in a hurry (cash reserves, loan size). Use the fall scenarios above to see the outcome in advance.</span></div>
@@ -7274,7 +7287,8 @@ function render() {
 // Requested by Shoya 2026-10-05. Every figure here comes from calculate(), so the
 // tables always agree with the headline IRR.
 let packCurrency = "AED";   // "AED" or "CUR" (the currency picked in the simulator)
-let riskRentLevel = 1;      // 1 / 0.8 / 0.6
+let riskRentLevel = 1;      // share of the entered rent, e.g. 0.8 = rent 20% lower
+let riskDrops = [0, -10, -20, -30];   // sale price change rows, % vs purchase price
 
 // Market history for card H. Filled from sourced data only; an empty array hides the table.
 // REIDIN Dubai all-residential sales & rent indices, December-on-December change
@@ -7298,8 +7312,27 @@ function setPackCurrency(c) {
 }
 function setRiskRent(level) {
   riskRentLevel = level;
+  const inp = document.getElementById("riskRentInput");
+  if (inp) inp.value = Math.round(level * 100);
   document.querySelectorAll(".pack-rent-btn").forEach(b => b.classList.toggle("active", +b.dataset.rent === level));
   render();
+}
+function setRiskRentInput(v) {
+  const pct = +v;
+  if (!isFinite(pct) || v === "" || pct < 0) return;
+  riskRentLevel = pct / 100;
+  document.querySelectorAll(".pack-rent-btn").forEach(b => b.classList.toggle("active", Math.abs(+b.dataset.rent - riskRentLevel) < 1e-9));
+  render();
+}
+function setRiskDrops() {
+  const vals = [...document.querySelectorAll(".risk-drop")].map(el => el.value === "" ? NaN : +el.value);
+  riskDrops = vals.filter(v => isFinite(v) && v > -100);
+  render();
+}
+function resetRiskInputs() {
+  [0, -10, -20, -30].forEach((v, i) => { const el = document.querySelectorAll(".risk-drop")[i]; if (el) el.value = v; });
+  riskDrops = [0, -10, -20, -30];
+  setRiskRent(1);
 }
 function openGlossary() {
   document.getElementById("glossaryModal").classList.add("open");
@@ -7449,7 +7482,7 @@ function renderInvestorPack(inp, r) {
     const el = document.getElementById("riskTable");
     if (!el) return;
     const holds = [...new Set([Math.round(holdTotal * 12) / 12, 5, 10, 15])].filter(h => h >= 1).sort((a, b) => a - b).slice(0, 4);
-    const drops = [0, -10, -20, -30];
+    const drops = riskDrops.length ? riskDrops : [0];
     const holdLbl = (h) => {
       const y = Math.floor(h), m = Math.round((h - y) * 12);
       const base = lang === "ja" ? (m ? `${y}年${m}ヶ月` : `${y}年`) : (m ? `${y}y ${m}mo` : `${y} years`);
@@ -7460,7 +7493,7 @@ function renderInvestorPack(inp, r) {
       appreciationMode: "cumulative", appreciation: drop, grossYield: inp.grossYield * riskRentLevel
     });
     const head = `<thead><tr><th>${T("売却価格の変化", "Sale price change")}</th>` + holds.map(h => `<th class="num">${T("保有", "Hold")} ${holdLbl(h)}</th>`).join("") + `</tr></thead>`;
-    const body = drops.map(drop => `<tr${drop === 0 ? ' class="sub"' : ""}><td class="lbl">${drop === 0 ? T("±0%（購入価格で売却）", "±0% (sold at purchase price)") : drop + "%"}<span class="cell-sub">${money(inp.price * (1 + drop / 100))} ${unit}</span></td>` +
+    const body = drops.map(drop => `<tr${drop === 0 ? ' class="sub"' : ""}><td class="lbl">${drop === 0 ? T("±0%（購入価格で売却）", "±0% (sold at purchase price)") : (drop > 0 ? "+" : "") + drop + "%"}<span class="cell-sub">${money(inp.price * (1 + drop / 100))} ${unit}</span></td>` +
       holds.map(h => { const c = caseFor(h, drop); return `<td class="num ${cls(c.profit)}"><strong>${money(c.profit)}</strong><span class="cell-sub">IRR ${fmtPct(c.irr)}</span></td>`; }).join("") + `</tr>`).join("");
     const be = `<tr class="strong"><td class="lbl">${T("損益分岐の売却価格", "Break-even sale price")}</td>` + holds.map(h => {
       const c = caseFor(h, 0);
