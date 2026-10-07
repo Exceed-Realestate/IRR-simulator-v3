@@ -1476,6 +1476,9 @@
 
   /* Objection accordion */
   /* Investor pack cards E–H + glossary */
+  .kpi-metric-switch { display:inline-flex; gap:2px; background:rgba(0,0,0,0.12); border-radius:12px; padding:2px; }
+  .kpi-metric-switch button { border:none; background:transparent; color:inherit; font:inherit; font-size:10px; font-weight:700; letter-spacing:0.05em; padding:2px 9px; border-radius:10px; cursor:pointer; opacity:0.65; }
+  .kpi-metric-switch button.active { background:#fff; color:var(--primary); opacity:1; }
   .pack-toolbar { display:flex; gap:6px; align-items:center; flex-wrap:wrap; font-size:12px; color:var(--text-muted); margin:0 0 10px; }
   .pack-toolbar button { border:1px solid var(--border); background:#fff; color:var(--text); border-radius:14px; padding:3px 11px; font-size:12px; cursor:pointer; }
   .pack-toolbar button.active { background:var(--primary); color:#fff; border-color:var(--primary); }
@@ -2090,9 +2093,14 @@
             <div class="kpi-sub" id="kpiHoldRange">—</div>
           </div>
           <div class="kpi accent" style="position:relative;">
-            <div class="kpi-label"><span class="ja">IRR</span><span class="en">IRR</span></div>
-            <div class="kpi-value" id="kpiIrr">—</div>
-            <div class="kpi-sub" id="kpiMultiple">× —</div>
+            <div class="kpi-label kpi-metric-switch">
+              <button type="button" data-metric="roi" onclick="setHeadlineMetric('roi')">ROI</button>
+              <button type="button" data-metric="irr" onclick="setHeadlineMetric('irr')">IRR</button>
+            </div>
+            <div class="kpi-value" id="kpiHeadline">—</div>
+            <div class="kpi-sub" id="kpiHeadlineSub">—</div>
+            <!-- kept for existing code paths; the visible figures are kpiHeadline/kpiHeadlineSub -->
+            <div id="kpiIrr" hidden>—</div><div id="kpiMultiple" hidden>× —</div>
             <button type="button" onclick="openIrrBreakdown()" title="IRR計算の詳細" style="position:absolute; top:8px; right:8px; background:rgba(255,255,255,0.2); color:var(--primary); border:none; border-radius:4px; padding:3px 8px; font-size:10px; font-weight:700; cursor:pointer; letter-spacing:0.05em;">
               <span class="ja">📊 計算詳細</span><span class="en">📊 Details</span>
             </button>
@@ -2443,6 +2451,8 @@
       <dl class="gloss-list">
         <dt>IRR <span class="ja">（内部収益率）</span><span class="en">(Internal Rate of Return)</span></dt>
         <dd><span class="ja">投資したお金が、保有期間を通じて毎年平均何%で増えたかを表す数字。支払いと受取りの「時期」も考慮するため、異なる物件・期間を公平に比較できます。</span><span class="en">The average yearly growth rate of the money invested, over the whole hold. It accounts for when each payment and receipt happens, so different properties and periods can be compared fairly.</span></dd>
+        <dt>ROI <span class="ja">（投資利益率）</span><span class="en">(Return on investment)</span></dt>
+        <dd><span class="ja">売却までに得た利益の合計 ÷ 投じた自己資金の合計。期間の長さは考慮しないので、IRR（年率）とあわせて見ると分かりやすいです。例：ROI +50% ＝ 投資額の1.5倍が戻る。</span><span class="en">Total profit by the sale ÷ total cash put in. It ignores how long the money was invested, so read it alongside IRR (per year). Example: ROI +50% = 1.5× the money invested comes back.</span></dd>
         <dt><span class="ja">倍率（マルチプル）</span><span class="en">Multiple</span></dt>
         <dd><span class="ja">受け取った総額 ÷ 支払った総額。2.0×なら投資額が2倍になったという意味です。</span><span class="en">Total money received ÷ total money paid. 2.0× means the money invested doubled.</span></dd>
         <dt><span class="ja">キャピタルゲイン／インカムゲイン</span><span class="en">Capital gain / Income gain</span></dt>
@@ -3719,9 +3729,9 @@ function _executeReport(opts) {
           <div class="rpt-kpi-sub">${qStr(purchaseQ)} → ${qStr(saleQ)}</div>
         </div>
         <div class="rpt-kpi">
-          <div class="rpt-kpi-label">IRR</div>
-          <div class="rpt-kpi-value">${fmtP(r.irr)}</div>
-          <div class="rpt-kpi-sub">${r.multiple.toFixed(2)}× ${T("総合リターン", "total return")}</div>
+          <div class="rpt-kpi-label">${headlineMetric === "irr" ? "IRR" : "ROI"}</div>
+          <div class="rpt-kpi-value">${headlineMetric === "irr" ? fmtP(r.irr) : ((r.multiple - 1) >= 0 ? "+" : "") + fmtP(r.multiple - 1)}</div>
+          <div class="rpt-kpi-sub">${headlineMetric === "irr" ? `${r.multiple.toFixed(2)}× ${T("総合リターン", "total return")}` : `${T("年率IRR", "IRR")} ${fmtP(r.irr)} · ${r.multiple.toFixed(2)}×`}</div>
         </div>
       </div>
     </section>
@@ -6963,6 +6973,7 @@ function render() {
   })();
   document.getElementById("kpiIrr").textContent = fmtPct(r.irr);
   document.getElementById("kpiMultiple").textContent = fmtMult(r.multiple);
+  paintHeadlineMetric(r);
 
   // ===== What-If sliders sync (Batch 2) =====
   // Sync slider positions FROM the input fields on each render — so when the user
@@ -7350,6 +7361,29 @@ function loanBalanceAfter(loan, annualRatePct, termYears, k) {
   const r = annualRatePct / 100 / 12, n = termYears * 12;
   const b = r > 0 ? loan * (Math.pow(1 + r, n) - Math.pow(1 + r, k)) / (Math.pow(1 + r, n) - 1) : loan * (1 - k / n);
   return Math.max(0, b);
+}
+
+// Gold headline box: ROI (total profit ÷ total cash put in) or IRR. Shoya 2026-10-07.
+let headlineMetric = (() => { try { return localStorage.getItem("exceedHeadlineMetric") || "roi"; } catch (e) { return "roi"; } })();
+function setHeadlineMetric(m) {
+  headlineMetric = m;
+  try { localStorage.setItem("exceedHeadlineMetric", m); } catch (e) {}
+  render();
+}
+function paintHeadlineMetric(r) {
+  const lang = document.body.getAttribute("data-lang") || "ja";
+  const roi = r.multiple - 1;
+  const roiStr = isFinite(roi) ? (roi >= 0 ? "+" : "") + (roi * 100).toFixed(1) + "%" : "—";
+  document.querySelectorAll(".kpi-metric-switch button").forEach(b => b.classList.toggle("active", b.dataset.metric === headlineMetric));
+  const v = document.getElementById("kpiHeadline"), sub = document.getElementById("kpiHeadlineSub");
+  if (!v || !sub) return;
+  if (headlineMetric === "irr") {
+    v.textContent = fmtPct(r.irr);
+    sub.textContent = `${fmtMult(r.multiple)} · ROI ${roiStr}`;
+  } else {
+    v.textContent = roiStr;
+    sub.textContent = `${lang === "ja" ? "年率IRR" : "IRR"} ${fmtPct(r.irr)} · ${fmtMult(r.multiple)}`;
+  }
 }
 
 function renderInvestorPack(inp, r) {
