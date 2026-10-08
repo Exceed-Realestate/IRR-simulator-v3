@@ -1979,6 +1979,10 @@
             <label><span class="ja">家具家電費用（AED）</span><span class="en">Furniture (AED)</span></label>
             <input type="number" id="furniture" value="0" step="50000">
           </div>
+          <div class="field">
+            <label><span class="ja">その他事務手数料など（AED）</span><span class="en">Other admin fees (AED)</span></label>
+            <input type="number" id="otherFees" value="10000" min="0" step="1000">
+          </div>
         </div>
 
         <div class="sim-card">
@@ -2212,7 +2216,7 @@
         </div>
 
         <div class="sim-card" id="card-outlay">
-          <h3><span class="count">A</span><span class="ja">初期手出し内訳</span><span class="en">Initial Outlay Breakdown</span></h3>
+          <h3><span class="count">A</span><span class="ja">売却までの費用内訳</span><span class="en">Costs Until Sale</span></h3>
           <table class="data-table">
             <thead><tr><th><span class="ja">項目</span><span class="en">Item</span></th><th class="num">AED</th><th class="num"><span class="cur-label">HKD</span></th><th><span class="ja">備考</span><span class="en">Notes</span></th></tr></thead>
             <tbody id="initialCashTable"></tbody>
@@ -2266,7 +2270,7 @@
             <button type="button" class="pack-gloss-link" onclick="openGlossary()">📖 <span class="ja">用語集</span><span class="en">Glossary</span></button>
           </div>
           <div class="pack-scroll"><table class="data-table pack-table" id="plcfTable"></table></div>
-          <p class="pack-note"><span class="ja">※ 賃料・費用は毎年一定（下のH欄で賃料上昇も試算可）。ローン返済は引渡し後に開始し、利息と元本に分けて表示。「年度収支」の合計がIRR計算と一致します。</span><span class="en">Rent and costs are flat each year (card H tests rent growth). Loan payments start at handover, split into interest and principal. The "Net cash flow" row is exactly what the IRR is calculated from.</span></p>
+          <p class="pack-note"><span class="ja">※ 賃料・費用は毎年一定（下のH欄で賃料上昇も試算可）。ローン返済は引渡し後に開始し、利息と元本に分けて表示。「年度収支」は年ごとの合計です（IRRは各支払いの実際の月で計算）。</span><span class="en">Rent and costs are flat each year (card H tests rent growth). Loan payments start at handover, split into interest and principal. "Net cash flow" is the yearly total (the IRR uses each payment's actual month).</span></p>
         </div>
 
         <div class="sim-card pack-card" id="card-schedule">
@@ -3017,9 +3021,15 @@
             <span class="rpt-cl-label"><span class="ja">カレンダータイムライン</span><span class="en">Calendar Timeline</span></span>
           </label>
         </li>
+        <li class="rpt-cl-new">
+          <label><input type="checkbox" id="rpt-opt-schedule" checked>
+            <span class="rpt-cl-label"><span class="ja">支払スケジュール <span class="rpt-new-badge">NEW</span></span><span class="en">Payment Schedule <span class="rpt-new-badge">NEW</span></span></span>
+            <span class="rpt-cl-sub"><span class="ja">契約〜引渡し〜売却の時期と金額</span><span class="en">Dates and amounts from contract to handover to sale</span></span>
+          </label>
+        </li>
         <li>
           <label><input type="checkbox" id="rpt-opt-outlay" checked>
-            <span class="rpt-cl-label"><span class="ja">初期手出し内訳</span><span class="en">Initial Outlay Breakdown</span></span>
+            <span class="rpt-cl-label"><span class="ja">売却までの費用内訳</span><span class="en">Costs Until Sale</span></span>
           </label>
         </li>
         <li>
@@ -3036,12 +3046,6 @@
           <label><input type="checkbox" id="rpt-opt-plcf" checked>
             <span class="rpt-cl-label"><span class="ja">年次収支明細（P/L・C/F） <span class="rpt-new-badge">NEW</span></span><span class="en">Annual P/L &amp; Cash Flow <span class="rpt-new-badge">NEW</span></span></span>
             <span class="rpt-cl-sub"><span class="ja">賃料・費用・利息・元本・ローン残高を年ごと</span><span class="en">Rent, costs, interest, principal, loan balance by year</span></span>
-          </label>
-        </li>
-        <li class="rpt-cl-new">
-          <label><input type="checkbox" id="rpt-opt-schedule" checked>
-            <span class="rpt-cl-label"><span class="ja">支払スケジュール <span class="rpt-new-badge">NEW</span></span><span class="en">Payment Schedule <span class="rpt-new-badge">NEW</span></span></span>
-            <span class="rpt-cl-sub"><span class="ja">契約〜引渡し〜売却の時期と金額</span><span class="en">Dates and amounts from contract to handover to sale</span></span>
           </label>
         </li>
         <li class="rpt-cl-new">
@@ -3437,6 +3441,15 @@ function executeReportFromChecklist() {
   setTimeout(() => _executeReport(opts), 80);
 }
 
+// Payment schedule for the printed report — placed right after the calendar timeline (Shoya 2026-10-07).
+function buildScheduleReportSection(T) {
+  try { render(); } catch (e) {}
+  const el = document.getElementById("scheduleTable");
+  const note = document.querySelector("#card-schedule > .pack-note");
+  if (!el || !el.innerHTML) return "";
+  return `<section class="rpt-section"><h2>${T("契約〜引渡し・支払スケジュール", "Contract-to-Handover & Payment Schedule")}</h2><table class="rpt-tbl rpt-tbl-bordered rpt-pack-tbl rpt-sched">${el.innerHTML}</table>${note ? `<p class="rpt-pack-note">${note.innerHTML}</p>` : ""}</section>`;
+}
+
 // Investor-pack sections (E–H) for the printed report: reuse the tables already
 // rendered on the page, so the PDF always shows the same numbers as the screen.
 function buildPackReportSections(opts, T) {
@@ -3448,7 +3461,6 @@ function buildPackReportSections(opts, T) {
   const note = (sel) => { const el = document.querySelector(sel); return el ? `<p class="rpt-pack-note">${el.innerHTML}</p>` : ""; };
   let html = "";
   if (opts.plcf) html += `<section class="rpt-section rpt-page-break"><h2>${T("年次収支明細（P/L・C/F）", "Annual P/L & Cash Flow")}</h2>${tbl("plcfTable")}${note("#card-plcf > .pack-note")}</section>`;
-  if (opts.schedule) html += `<section class="rpt-section"><h2>${T("契約〜引渡し・支払スケジュール", "Contract-to-Handover & Payment Schedule")}</h2>${tbl("scheduleTable", "rpt-sched")}${note("#card-schedule > .pack-note")}</section>`;
   if (opts.risk) {
     const rentLbl = riskRentLevel === 1 ? "" : ` — ${T("賃料", "rent")} ${Math.round(riskRentLevel * 100)}%`;
     const notes = document.querySelector("#card-risk .pack-risk-notes");
@@ -3611,9 +3623,10 @@ function _executeReport(opts) {
     [T("DLD登記料 (4% + AED 580)", "DLD registration (4% + AED 580)"), r.dld, T("物件価格×4%", "Price × 4%")],
     [T("Trustee / Title / Oqood", "Trustee / Title / Oqood"), r.trustee + r.titleDeed + r.oqood, T("各種登記", "Registration")],
     [T("NOC手数料", "NOC fee"), r.noc, T("業界平均", "Industry standard")],
-    [T("エージェント手数料 (2% + 5% VAT)", "Agent fee (2% + 5% VAT)"), r.agentFee, T("価格 × 2.1%", "Price × 2.1%")],
+    [T("エージェント手数料 (2% + 5% VAT)", "Agent fee (2% + 5% VAT)"), r.agentFee, inp.purchaseMode === "offplan" ? T("オフプランのため購入時はなし（売却時に計上）", "Off-plan: none at purchase (booked at sale)") : T("価格 × 2.1%", "Price × 2.1%")],
     ...(inp.useMortgage ? [[T("モーゲージ登記", "Mortgage registration"), r.mortgageReg, T("ローン×0.25% + AED 290", "Loan × 0.25% + AED 290")]] : []),
     ...(inp.useMortgage ? [[T("ブローカー手数料 (1%)", "Broker fee (1%)"), r.brokerFee, T("ローン×1%", "Loan × 1%")]] : []),
+    ...(r.otherFees > 0 ? [[T("その他事務手数料など", "Other admin fees"), r.otherFees, T("入力値", "As entered")]] : []),
     ...(inp.furniture > 0 ? [[T("家具家電", "Furniture"), r.furniture, T("家具設備", "Furnishing")]] : []),
   ].map(([label, val, note]) => `<tr><td>${label}</td><td style="text-align:right; font-family:monospace;">${fmtN(val)} AED<div style="font-size:10px; color:#94a3b8; font-weight:400;">${fmtN(val * fx)} ${cur}</div></td><td style="font-size:10px; color:#94a3b8;">${note}</td></tr>`).join("");
 
@@ -3655,12 +3668,12 @@ function _executeReport(opts) {
         else if (dubaiOnRpt && qAbs >= vacantStartQ) { bg = "#fde68a"; color = "#78716c"; label = T("空", "Vac"); border = "none"; }
         else { bg = "#10b981"; color = "#fff"; label = T("運用", "Lease"); border = "none"; }
       }
-      cellsHtml += `<td style="background:${bg}; color:${color}; text-align:center; font-size:9px; font-weight:600; padding:6px 4px; border:${border}; border-radius:3px;">${label}</td>`;
+      cellsHtml += `<td style="background:${bg}; color:${color}; text-align:center; font-size:8px; font-weight:600; padding:1px 4px; line-height:1.3; border:${border}; border-radius:2px;">${label}</td>`;
     }
-    calRows += `<tr><td style="font-weight:600; padding:4px 8px; font-size:10px; vertical-align:middle;"><div>${T(`${idx + 1}年目`, `Year ${idx + 1}`)}</div><div style="color:#94a3b8; font-size:9px;">${yr}</div></td>${cellsHtml}</tr>`;
+    calRows += `<tr><td style="font-weight:600; padding:1px 6px; font-size:9px; white-space:nowrap; vertical-align:middle;">${T(`${idx + 1}年目`, `Year ${idx + 1}`)} <span style="color:#94a3b8; font-weight:400;">${yr}</span></td>${cellsHtml}</tr>`;
   }
   const calendarHTML = `
-    <table style="width:100%; border-collapse:separate; border-spacing:3px; font-size:10px;">
+    <table style="width:100%; border-collapse:separate; border-spacing:2px; font-size:9px;">
       <thead><tr>
         <th style="width:80px;"></th>
         <th style="text-align:center; font-size:10px; color:#6b7280; padding:2px;">Q1</th>
@@ -3670,7 +3683,7 @@ function _executeReport(opts) {
       </tr></thead>
       <tbody>${calRows}</tbody>
     </table>
-    <div style="margin-top:8px; display:flex; gap:14px; font-size:9px; color:#6b7280;">
+    <div style="margin-top:4px; display:flex; gap:14px; font-size:8.5px; color:#6b7280;">
       <span><span style="display:inline-block; width:10px; height:10px; background:#94a3b8; border-radius:2px; vertical-align:middle; margin-right:4px;"></span>${T("建設中", "Construction")}</span>
       <span><span style="display:inline-block; width:10px; height:10px; background:#10b981; border-radius:2px; vertical-align:middle; margin-right:4px;"></span>${T("運用中", "Operating")}</span>
       <span><span style="display:inline-block; width:10px; height:10px; background:#fde68a; border-radius:2px; vertical-align:middle; margin-right:4px;"></span>${T("空室期間", "Vacant")}</span>
@@ -3801,12 +3814,21 @@ function _executeReport(opts) {
       ${calendarHTML}
     </section>` : ""}
 
+    ${opts.schedule ? buildScheduleReportSection(T) : ""}
+
     ${opts.outlay ? `<section class="rpt-section rpt-page-break">
-      <h2>${T("初期手出し内訳", "Initial Outlay Breakdown")}</h2>
+      <h2>${T("売却までの費用内訳", "Costs Until Sale")}</h2>
       <table class="rpt-tbl rpt-tbl-bordered">
         <thead><tr><th>${T("項目", "Item")}</th><th style="text-align:right;">AED</th><th>${T("備考", "Notes")}</th></tr></thead>
         <tbody>${outlayRows}</tbody>
-        <tfoot><tr><td><strong>${T("合計", "Total")}</strong></td><td style="text-align:right;"><strong>${fmtN(r.initialCashAED)} AED</strong></td><td>${fmtN(r.initialCashAED * fx)} ${cur}</td></tr></tfoot>
+        <tfoot><tr><td><strong>${T("初期手出し合計", "Total initial outlay")}</strong></td><td style="text-align:right;"><strong>${fmtN(r.initialCashAED)} AED</strong></td><td>${fmtN(r.initialCashAED * fx)} ${cur}</td></tr></tfoot>
+      </table>
+      <table class="rpt-tbl rpt-tbl-bordered" style="margin-top:8px;">
+        <tbody>
+          <tr><td>${T("仲介手数料（売却時 2% + VAT）", "Agent fee at sale (2% + VAT)")}</td><td style="text-align:right; font-family:monospace;">${fmtN(r.saleAgentFee)} AED<div style="font-size:10px; color:#94a3b8;">${fmtN(r.saleAgentFee * fx)} ${cur}</div></td><td style="font-size:10px; color:#94a3b8;">${T("売却価格 × 2.1%", "Sale price × 2.1%")}</td></tr>
+          <tr><td>${T("NOC手数料（売却時）", "NOC fee at sale")}</td><td style="text-align:right; font-family:monospace;">${fmtN(r.saleNOC)} AED</td><td></td></tr>
+        </tbody>
+        <tfoot><tr><td><strong>${T("売却までの費用合計（頭金を除く）", "Total costs until sale (excl. down payment)")}</strong></td><td style="text-align:right;"><strong>${fmtN(r.initialCashAED - r.cashDown + r.saleAgentFee + r.saleNOC)} AED</strong></td><td>${fmtN((r.initialCashAED - r.cashDown + r.saleAgentFee + r.saleNOC) * fx)} ${cur}</td></tr></tfoot>
       </table>
     </section>` : ""}
 
@@ -6500,12 +6522,14 @@ function calculate(inp) {
   const trustee = 4000, titleDeed = 250;
   const oqood = inp.purchaseMode === "offplan" ? 3000 : 0;
   const noc = 5000;
-  const agentFee = p * 0.021;
+  // Off-plan: no buy-side brokerage at purchase; the brokerage is booked at sale (Shoya 2026-10-07)
+  const agentFee = inp.purchaseMode === "offplan" ? 0 : p * 0.021;
+  const otherFees = Math.max(0, inp.otherFees || 0);   // other admin / processing fees
   // Commercial property: VAT on the purchase price is paid at purchase (the sale price is VAT-exclusive, VAT on sale passes through to the buyer)
   const propertyVat = inp.addVat ? p * ((inp.vatPct || 0) / 100) : 0;
   const mortgageReg = inp.useMortgage ? loanAmount * 0.0025 + 290 : 0;
   const brokerFee = inp.useMortgage ? loanAmount * 0.01 : 0;
-  const initialCashAED = cashDown + propertyVat + dld + trustee + titleDeed + oqood + noc + agentFee + mortgageReg + brokerFee + inp.furniture;
+  const initialCashAED = cashDown + propertyVat + dld + trustee + titleDeed + oqood + noc + agentFee + mortgageReg + brokerFee + otherFees + inp.furniture;
 
   const grossRent = p * (inp.grossYield / 100);
   const vacancyLoss = grossRent * (inp.vacancy / 100);
@@ -6557,6 +6581,9 @@ function calculate(inp) {
     // Bucket each milestone (and the loan disbursement, if any) into year indices
     // 0 = year 0 (the t=0 bucket), 1 = year 1, etc.
     const milestoneByYear = new Map();
+    const ppFlows = [];   // exact-month payment-plan flows (months from anchor) for the IRR
+    // Key 0 = at purchase (month 0 only); key k = row k-1 (months (k-1)*12 .. k*12-1, excl. month 0)
+    const bucketOf = (mo) => mo <= 0 ? 0 : Math.floor(mo / 12) + 1;
     if (usePP) {
       paymentPlan.forEach(m => {
         let monthsFromAnchor;
@@ -6565,14 +6592,16 @@ function calculate(inp) {
         else if (typeof m.at === "string" && m.at.startsWith("handover+")) {
           monthsFromAnchor = handoverMonthsFromAnchor + (parseInt(m.at.slice(9)) || 0);
         } else monthsFromAnchor = 0;
-        const yi = Math.max(0, Math.floor(monthsFromAnchor / 12));
+        const yi = bucketOf(monthsFromAnchor);
         const amount = -((m.pct || 0) / 100) * p;
         milestoneByYear.set(yi, (milestoneByYear.get(yi) || 0) + amount);
+        ppFlows.push({ mo: Math.max(0, monthsFromAnchor), v: amount });
       });
       // Loan disbursement (positive) at handover year
       if (inp.useMortgage && loanAmount > 0) {
-        const hYi = Math.max(0, Math.floor(handoverMonthsFromAnchor / 12));
+        const hYi = bucketOf(handoverMonthsFromAnchor);
         milestoneByYear.set(hYi, (milestoneByYear.get(hYi) || 0) + loanAmount);
+        ppFlows.push({ mo: Math.max(0, handoverMonthsFromAnchor), v: loanAmount });
       }
     }
 
@@ -6636,7 +6665,16 @@ function calculate(inp) {
     const net = salePrice - saleAgentFee - saleNOC - remainingLoan;
     if (cf.length > 1) cf[cf.length-1] += net;
     else cf.push(net);
-    return { cf, times, salePrice, saleAgentFee, saleNOC, remainingLoan, netSaleProceeds: net, operatingYears: opMonths / 12, saleYr: saleYrLocal, totalMonths, usePP,
+    // IRR flows: yearly rows WITHOUT payment-plan amounts, plus each payment at its exact month
+    // (capped at the sale). Avoids pulling a month-6 instalment forward to day 0.
+    let irrCf = cf.slice(), irrT = times.slice();
+    if (usePP) {
+      irrCf[0] -= (milestoneByYear.get(0) || 0);
+      rows.forEach((row, i) => { irrCf[i + 1] -= row.milestone; });
+      [...milestoneByYear.entries()].forEach(([k, amt]) => { if (k > numRows) irrCf[irrCf.length - 1] -= amt; });
+      ppFlows.forEach(f => { irrCf.push(f.v); irrT.push(Math.min(f.mo, totalMonths) / 12); });
+    }
+    return { cf, times, irrCf, irrT, salePrice, saleAgentFee, saleNOC, remainingLoan, netSaleProceeds: net, operatingYears: opMonths / 12, saleYr: saleYrLocal, totalMonths, usePP,
       rows, anchorQ, saleQabs, opMonths, initialOut: cf.length ? (usePP ? -upfrontFees + (milestoneByYear.get(0) || 0) : -initialCashAED) : 0,
       handoverMonthsFromAnchor };
   }
@@ -6648,7 +6686,7 @@ function calculate(inp) {
     ? (Math.pow(1 + inp.appreciation/100, totalYearsHeld) - 1) * 100
     : inp.appreciation;
   const main = scenOperating(inp.holdYears, effectiveCumulativePct, inp.holdMonths);
-  const mainIrr = irr(main.cf, main.times);
+  const mainIrr = irr(main.irrCf, main.irrT);
   // Multiple: total positive cashflows / total negative cashflows. For the
   // common no-payment-plan case this reduces to the original formula
   // (sum of cf[1..N] / |cf[0]|) since cf[0] is the only outflow.
@@ -6705,7 +6743,7 @@ function calculate(inp) {
   const breakEvenSalePrice = (requiredNet + main.saleNOC + main.remainingLoan) / (1 - 0.021);
 
   return {
-    cashDown, loanAmount, propertyVat, dld, trustee, titleDeed, oqood, noc, agentFee, mortgageReg, brokerFee,
+    cashDown, loanAmount, propertyVat, otherFees, dld, trustee, titleDeed, oqood, noc, agentFee, mortgageReg, brokerFee,
     furniture: inp.furniture, initialCashAED,
     grossRent, vacancyLoss, pmFee, serviceCharge, maintenance, annualLoanPayment: annualLoan, annualNetCF,
     salePrice: main.salePrice, saleAgentFee: main.saleAgentFee, saleNOC: main.saleNOC,
@@ -6715,10 +6753,10 @@ function calculate(inp) {
     constructionYears, operatingYears: main.operatingYears,
     cashOnCashPct, paybackYears, breakEvenSalePrice,
     scenarios: {
-      s1: { irr: irr(s1.cf, s1.times), net: s1.netSaleProceeds, return: _scenReturn(s1.cf) },
-      s2: { irr: irr(s2.cf, s2.times), net: s2.netSaleProceeds, return: _scenReturn(s2.cf) },
-      s3: { irr: irr(s3.cf, s3.times), net: s3.netSaleProceeds, return: _scenReturn(s3.cf) },
-      s4: { irr: irr(s4.cf, s4.times), net: s4.netSaleProceeds, return: _scenReturn(s4.cf) }
+      s1: { irr: irr(s1.irrCf, s1.irrT), net: s1.netSaleProceeds, return: _scenReturn(s1.cf) },
+      s2: { irr: irr(s2.irrCf, s2.irrT), net: s2.netSaleProceeds, return: _scenReturn(s2.cf) },
+      s3: { irr: irr(s3.irrCf, s3.irrT), net: s3.netSaleProceeds, return: _scenReturn(s3.cf) },
+      s4: { irr: irr(s4.irrCf, s4.irrT), net: s4.netSaleProceeds, return: _scenReturn(s4.cf) }
     }
   };
 }
@@ -6741,6 +6779,7 @@ function getInputs() {
     pmFee: +document.getElementById("pmFee").value || 0,
     maintenancePct: +document.getElementById("maintenancePct").value || 0,
     furniture: +document.getElementById("furniture").value || 0,
+    otherFees: (() => { const el = document.getElementById("otherFees"); return el && el.value !== "" ? Math.max(0, +el.value || 0) : 10000; })(),
     appreciation: +document.getElementById("appreciation").value || 0,
     appreciationMode: document.getElementById("appreciationMode").value || "annual",
     holdYears: +document.getElementById("holdYears").value || 1,
@@ -7154,20 +7193,27 @@ function render() {
     document.getElementById("s4Net").textContent = fmt(s.s4.net * fx) + " " + cur;
   }
 
+  const T0 = (ja, en) => (document.body.getAttribute("data-lang") || "ja") === "ja" ? ja : en;
   const initRows = [
     [L("downPayment"), r.cashDown, L("downPaymentNote")],
     ...(inp.addVat ? [[L("propertyVat") + " (" + inp.vatPct + "%)", r.propertyVat, L("propertyVatNote")]] : []),
     [L("dld"), r.dld, L("dldNote")],
     [L("trustee"), r.trustee + r.titleDeed + r.oqood, L("trusteeNote")],
     [L("noc"), r.noc, L("nocNote")],
-    [L("agentFee"), r.agentFee, L("agentFeeNote")],
+    [L("agentFee"), r.agentFee, inp.purchaseMode === "offplan" ? T0("オフプランのため購入時はなし（売却時に計上）", "Off-plan: none at purchase (booked at sale)") : L("agentFeeNote")],
     ...(inp.useMortgage ? [[L("mortgageReg"), r.mortgageReg, L("mortgageRegNote")]] : []),
     ...(inp.useMortgage ? [[L("brokerFee"), r.brokerFee, L("brokerFeeNote")]] : []),
+    ...(r.otherFees > 0 ? [[T0("その他事務手数料など", "Other admin fees"), r.otherFees, T0("入力値", "As entered")]] : []),
     ...(inp.furniture > 0 ? [[L("furniture"), r.furniture, L("furnitureNote")]] : [])
   ];
   document.getElementById("initialCashTable").innerHTML = initRows.map(([label, val, note]) =>
     `<tr><td>${label}</td><td class="num">${fmt(val)}</td><td class="num">${fmt(val * fx)}</td><td style="font-size:11px;color:var(--text-muted)">${note}</td></tr>`
-  ).join("") + `<tr class="total"><td>${L("initialTotal")}</td><td class="num">${fmt(r.initialCashAED)}</td><td class="num">${fmt(r.initialCashAED * fx)}</td><td></td></tr>`;
+  ).join("") + `<tr class="total"><td>${L("initialTotal")}</td><td class="num">${fmt(r.initialCashAED)}</td><td class="num">${fmt(r.initialCashAED * fx)}</td><td></td></tr>`
+    + [[T0("仲介手数料（売却時 2% + VAT）", "Agent fee at sale (2% + VAT)"), r.saleAgentFee, T0("売却価格 × 2.1%", "Sale price × 2.1%")],
+       [T0("NOC手数料（売却時）", "NOC fee at sale"), r.saleNOC, ""]].map(([label, val, note]) =>
+      `<tr><td>${label}</td><td class="num">${fmt(val)}</td><td class="num">${fmt(val * fx)}</td><td style="font-size:11px;color:var(--text-muted)">${note}</td></tr>`).join("")
+    + (() => { const tot = r.initialCashAED - r.cashDown + r.saleAgentFee + r.saleNOC;
+        return `<tr class="total"><td>${T0("売却までの費用合計（頭金を除く）", "Total costs until sale (excl. down payment)")}</td><td class="num">${fmt(tot)}</td><td class="num">${fmt(tot * fx)}</td><td></td></tr>`; })();
 
   // CF table: ONE row per year-from-purchase (rolling 12-month from purchase quarter).
   // 1年目 = first 12 months from purchase (may be all construction).
@@ -7470,26 +7516,37 @@ function renderInvestorPack(inp, r) {
     const saleM = (d.saleQabs + 1) * 3 - 1;
     const p = inp.price;
     const ev = [];
-    const fees = r.initialCashAED - r.cashDown;
+    // Purchase-day order (Shoya 2026-10-07): first payment, then DLD 4%, then the other costs.
+    const feeItems = [
+      { ja: "DLD登録料（4% + AED 580）", en: "DLD registration (4% + AED 580)", pct: 4, v: r.dld },
+      { ja: `物件VAT（コマーシャル ${inp.vatPct}%）`, en: `Property VAT (commercial ${inp.vatPct}%)`, pct: inp.vatPct, v: r.propertyVat },
+      { ja: "登記・Oqood・NOC", en: "Trustee, title, Oqood, NOC", v: r.trustee + r.titleDeed + r.oqood + r.noc },
+      { ja: "仲介手数料（2% + VAT）", en: "Agent fee (2% + VAT)", v: r.agentFee },
+      { ja: "モーゲージ登記・ブローカー手数料", en: "Mortgage registration & broker fee", v: r.mortgageReg + r.brokerFee },
+      { ja: "その他事務手数料など", en: "Other admin fees", v: r.otherFees },
+      { ja: "家具家電", en: "Furniture", v: r.furniture }
+    ].filter(f => f.v > 0);
+    const pushFees = () => feeItems.forEach((f, i) => ev.push({ m: purchaseM, ja: f.ja, en: f.en, pct: f.pct, amt: -f.v, order: -50 + i }));
     if (d.usePP) {
-      ev.push({ m: purchaseM, ja: "契約・登録費用（DLD 4%、仲介手数料など）", en: "Contract & registration costs (DLD 4%, agent fee etc.)", amt: -fees });
       paymentPlan.forEach(ms => {
         let m;
         if (typeof ms.at === "number") m = purchaseM + ms.at;
         else if (ms.at === "handover") m = handoverM;
         else m = handoverM + (parseInt(String(ms.at).slice(9)) || 0);
         const lbl = escapeHtml(ms.label || "");
-        ev.push({ m, ja: `支払い：${lbl}`, en: `Payment: ${lbl}`, pct: ms.pct, amt: -(ms.pct / 100) * p });
+        ev.push({ m, ja: `支払い：${lbl}`, en: `Payment: ${lbl}`, pct: ms.pct, amt: -(ms.pct / 100) * p, order: -100 });
       });
+      pushFees();
       if (inp.useMortgage && r.loanAmount > 0)
         ev.push({ m: handoverM, ja: `ローン実行（LTV ${inp.ltv}%、銀行が支払い）`, en: `Loan drawdown (LTV ${inp.ltv}%, paid by the bank)`, amt: r.loanAmount, order: 1 });
     } else {
-      ev.push({ m: purchaseM, ja: inp.useMortgage ? `頭金（ローン ${inp.ltv}% を除く）＋諸費用` : "物件代金＋諸費用", en: inp.useMortgage ? `Down payment (excl. ${inp.ltv}% loan) + costs` : "Purchase price + costs", amt: -r.initialCashAED });
+      ev.push({ m: purchaseM, ja: inp.useMortgage ? `頭金（ローン ${inp.ltv}% を除く）` : "物件代金", en: inp.useMortgage ? `Down payment (excl. ${inp.ltv}% loan)` : "Purchase price", pct: inp.useMortgage ? 100 - inp.ltv : 100, amt: -r.cashDown, order: -100 });
+      pushFees();
     }
     if (inp.purchaseMode === "offplan")
       ev.push({ m: handoverM, ja: "引渡し（鍵の受け取り）", en: "Handover (keys)", amt: 0, order: 2 });
     ev.push({ m: Math.max(handoverM, purchaseM), ja: "賃貸開始" + (inp.useMortgage && r.loanAmount > 0 ? `・ローン返済開始（月 ${fmt(r.monthlyLoan * mult)} ${unit}）` : ""), en: "Rent starts" + (inp.useMortgage && r.loanAmount > 0 ? ` · loan payments start (${fmt(r.monthlyLoan * mult)} ${unit}/month)` : ""), amt: 0, order: 3 });
-    ev.push({ m: saleM, ja: "売却（想定）— ローン返済後の手取り", en: "Sale (assumed) — proceeds after loan payoff", amt: d.netSaleProceeds, order: 4 });
+    ev.push({ m: saleM, ja: "売却（想定）— 仲介手数料・NOC・ローン返済後の手取り", en: "Sale (assumed) — proceeds after agent fee, NOC and loan payoff", amt: d.netSaleProceeds, order: 4 });
     ev.sort((a, b) => (a.m - b.m) || ((a.order || 0) - (b.order || 0)));
     let paid = 0;
     const rows = ev.map(e => {
