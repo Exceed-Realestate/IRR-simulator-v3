@@ -3624,7 +3624,7 @@ function _executeReport(opts) {
     ...(inp.addVat ? [[T(`物件VAT (${inp.vatPct}%)`, `Property VAT (${inp.vatPct}%)`), r.propertyVat, T("コマーシャル物件", "Commercial property")]] : []),
     [T("DLD登記料 (4% + AED 580)", "DLD registration (4% + AED 580)"), r.dld, T("物件価格×4%", "Price × 4%")],
     [T("Trustee / Title / Oqood", "Trustee / Title / Oqood"), r.trustee + r.titleDeed + r.oqood, T("各種登記", "Registration")],
-    ...(inp.purchaseMode !== "offplan" ? [[T("エージェント手数料 (2% + 5% VAT)", "Agent fee (2% + 5% VAT)"), r.agentFee, T("価格 × 2.1%", "Price × 2.1%")]] : []),
+    ...(inp.purchaseMode === "ready" ? [[T("エージェント手数料 (2% + 5% VAT)", "Agent fee (2% + 5% VAT)"), r.agentFee, T("価格 × 2.1%", "Price × 2.1%")]] : []),
     ...(inp.useMortgage ? [[T("モーゲージ登記", "Mortgage registration"), r.mortgageReg, T("ローン×0.25% + AED 290", "Loan × 0.25% + AED 290")]] : []),
     ...(inp.useMortgage ? [[T("ブローカー手数料 (1%)", "Broker fee (1%)"), r.brokerFee, T("ローン×1%", "Loan × 1%")]] : []),
     ...(r.otherFees > 0 ? [[T("その他事務手数料など", "Other admin fees"), r.otherFees, T("入力値", "As entered")]] : []),
@@ -5891,7 +5891,7 @@ function openIrrBreakdown() {
         <tr><td style="padding:3px 8px;">頭金 / Down payment</td><td style="text-align:right;font-family:monospace;">${fmtN(r.cashDown)} AED</td></tr>
         ${inp.addVat ? `<tr><td style="padding:3px 8px;">物件VAT (${inp.vatPct}%)</td><td style="text-align:right;font-family:monospace;">${fmtN(r.propertyVat)} AED</td></tr>` : ''}
         <tr><td style="padding:3px 8px;">DLD登記料 (4% + 580)</td><td style="text-align:right;font-family:monospace;">${fmtN(r.dld)} AED</td></tr>
-        ${inp.purchaseMode !== "offplan" ? `<tr><td style="padding:3px 8px;">エージェント手数料 (2.1%)</td><td style="text-align:right;font-family:monospace;">${fmtN(r.agentFee)} AED</td></tr>` : ''}
+        ${inp.purchaseMode === "ready" ? `<tr><td style="padding:3px 8px;">エージェント手数料 (2.1%)</td><td style="text-align:right;font-family:monospace;">${fmtN(r.agentFee)} AED</td></tr>` : ''}
         <tr><td style="padding:3px 8px;">Trustee/Title/Oqood</td><td style="text-align:right;font-family:monospace;">${fmtN(r.trustee + r.titleDeed + r.oqood)} AED</td></tr>
         ${inp.useMortgage ? `<tr><td style="padding:3px 8px;">モーゲージ登記 + ブローカー手数料</td><td style="text-align:right;font-family:monospace;">${fmtN(r.mortgageReg + r.brokerFee)} AED</td></tr>` : ''}
         ${inp.furniture > 0 ? `<tr><td style="padding:3px 8px;">家具家電</td><td style="text-align:right;font-family:monospace;">${fmtN(r.furniture)} AED</td></tr>` : ''}
@@ -6522,7 +6522,7 @@ function calculate(inp) {
   const oqood = inp.purchaseMode === "offplan" ? 3000 : 0;
   const noc = 0;   // NOC is paid once, at sale (saleNOC) — none at purchase (Teruo 2026-10-11)
   // Off-plan: no buy-side brokerage at purchase; the brokerage is booked at sale (Shoya 2026-10-07)
-  const agentFee = inp.purchaseMode === "offplan" ? 0 : p * 0.021;
+  const agentFee = inp.purchaseMode === "ready" ? p * 0.021 : 0;   // buy-side agent fee only for Ready (Primary) (Teruo 2026-10-11)
   const otherFees = Math.max(0, inp.otherFees || 0);   // other admin / processing fees
   // Commercial property: VAT on the purchase price is paid at purchase (the sale price is VAT-exclusive, VAT on sale passes through to the buyer)
   const propertyVat = inp.addVat ? p * ((inp.vatPct || 0) / 100) : 0;
@@ -7198,7 +7198,7 @@ function render() {
     ...(inp.addVat ? [[L("propertyVat") + " (" + inp.vatPct + "%)", r.propertyVat, L("propertyVatNote")]] : []),
     [L("dld"), r.dld, L("dldNote")],
     [L("trustee"), r.trustee + r.titleDeed + r.oqood, L("trusteeNote")],
-    ...(inp.purchaseMode !== "offplan" ? [[L("agentFee"), r.agentFee, L("agentFeeNote")]] : []),
+    ...(inp.purchaseMode === "ready" ? [[L("agentFee"), r.agentFee, L("agentFeeNote")]] : []),
     ...(inp.useMortgage ? [[L("mortgageReg"), r.mortgageReg, L("mortgageRegNote")]] : []),
     ...(inp.useMortgage ? [[L("brokerFee"), r.brokerFee, L("brokerFeeNote")]] : []),
     ...(r.otherFees > 0 ? [[T0("その他事務手数料など", "Other admin fees"), r.otherFees, T0("入力値", "As entered")]] : []),
