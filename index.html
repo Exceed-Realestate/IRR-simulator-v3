@@ -1620,6 +1620,7 @@
   #card-payment-plan .pp-rows-header > div:first-child { display:none; }
   #card-payment-plan .pp-row { padding:8px 0; border-bottom:1px dashed #eee; }
   #card-payment-plan .pp-label-custom { display:flex; gap:6px; min-width:0; }
+  #card-payment-plan .pp-row.pp-late .pp-months { border-color:#dc2626; background:#fef2f2; }
   #card-payment-plan .pp-label-custom button { flex:0 0 34px; border:1px solid #cbd5e1; border-radius:5px; background:#fff; cursor:pointer; }
 
   /* Header Tools dropdown */
@@ -2480,9 +2481,9 @@
         <dt>ROI <span class="ja">（投資利益率）</span><span class="en">(Return on investment)</span></dt>
         <dd><span class="ja">売却までに得た利益の合計 ÷ 物件の総投資額（物件価格＋購入諸費用。ローンで借りた分も含む）。物件そのものの収益力を表します。期間の長さは考慮しないので、IRR（年率）とあわせて見ると分かりやすいです。</span><span class="en">Total profit by the sale ÷ total property cost (price + purchase costs, including the part paid with the loan). Shows how well the property itself performs. It ignores how long the money was invested, so read it alongside IRR (per year).</span></dd>
         <dt>ROE <span class="ja">（自己資本利益率）</span><span class="en">(Return on equity)</span></dt>
-        <dd><span class="ja">売却までに得た利益の合計 ÷ 投じた自己資金の合計。ローンを使うと自己資金が少なくなるため、ROIより高くなります。例：ROE +50% ＝ 自己資金の1.5倍が戻る。</span><span class="en">Total profit by the sale ÷ total own cash put in. A loan means less own cash, so ROE is higher than ROI. Example: ROE +50% = 1.5× your own cash comes back.</span></dd>
+        <dd><span class="ja">売却までに得た利益の合計 ÷ 自己資金（支払いが最も膨らんだ時点の自己負担額）。ローンを使うと自己資金が少なくなるため、ROIより高くなります。例：ROE +50% ＝ 自己資金の1.5倍が戻る。</span><span class="en">Total profit by the sale ÷ own cash (the most the client has paid in at any point). A loan means less own cash, so ROE is higher than ROI. Example: ROE +50% = 1.5× your own cash comes back.</span></dd>
         <dt><span class="ja">倍率（マルチプル）</span><span class="en">Multiple</span></dt>
-        <dd><span class="ja">受け取った総額 ÷ 支払った総額。2.0×なら投資額が2倍になったという意味です。</span><span class="en">Total money received ÷ total money paid. 2.0× means the money invested doubled.</span></dd>
+        <dd><span class="ja">（自己資金＋利益）÷ 自己資金。2.0×なら自己資金が2倍になったという意味です。</span><span class="en">(Own cash + profit) ÷ own cash. 2.0× means the client's own cash doubled.</span></dd>
         <dt><span class="ja">キャピタルゲイン／インカムゲイン</span><span class="en">Capital gain / Income gain</span></dt>
         <dd><span class="ja">キャピタルゲイン＝売却価格と購入価格の差による利益。インカムゲイン＝保有中の賃料から費用を引いた利益。</span><span class="en">Capital gain = profit from selling above the purchase price. Income gain = rent minus costs while holding.</span></dd>
         <dt><span class="ja">損益分岐売却価格</span><span class="en">Break-even sale price</span></dt>
@@ -6306,20 +6307,58 @@ const PP_PRESETS = {
 
 let paymentPlan = []; // [{label, at: <number months> | "handover" | "handover+N", pct}]
 
+// Months from purchase to handover, same quarter maths as calculate().
+function ppMonthsToHandover() {
+  const v = (id, d) => +((document.getElementById(id) || {}).value) || d;
+  const y = new Date().getFullYear();
+  const handoverQ = v("completionYear", y) * 4 + v("completionQuarter", 1);
+  const purchaseQ = v("purchaseYear", y) * 4 + (v("purchaseQuarter", 1) - 1);
+  return Math.max(0, (handoverQ - purchaseQ) * 3);
+}
+
+// Presets: construction instalments are spread evenly between booking and handover,
+// so none lands after the keys are handed over (audit 2026-10-12: Ritz/ORLA had
+// Construction 3/4 dated after handover). Re-spread when the dates change, until
+// the agent edits the plan by hand.
+let ppPresetName = null, ppEdited = false, ppSpreadFor = null;
+function ppSpreadPreset(name) {
+  const tpl = PP_PRESETS[name];
+  const H = ppMonthsToHandover();
+  const builds = tpl.filter(m => typeof m.at === "number" && m.at > 0);
+  let i = 0;
+  ppSpreadFor = H;
+  return tpl.map(m => {
+    const c = Object.assign({}, m);
+    if (typeof m.at === "number" && m.at > 0 && H > 0) {
+      i++;
+      c.at = Math.max(1, Math.min(H - 1, Math.round(H * i / (builds.length + 1))));
+    }
+    return c;
+  });
+}
 function applyPpPreset(name) {
   const tpl = PP_PRESETS[name];
   if (!tpl) return;
-  paymentPlan = tpl.map(m => Object.assign({}, m));
+  paymentPlan = ppSpreadPreset(name);
+  ppPresetName = name; ppEdited = false;
   renderPpRows();
   if (typeof render === "function") render();
 }
+function ppRespreadIfNeeded() {
+  if (!ppPresetName || ppEdited || !PP_PRESETS[ppPresetName]) return;
+  if (ppMonthsToHandover() === ppSpreadFor) return;
+  paymentPlan = ppSpreadPreset(ppPresetName);
+  renderPpRows();
+}
 
 function addPpRow() {
+  ppEdited = true;
   paymentPlan.push({ label: "New milestone", at: 6, pct: 0 });
   renderPpRows();
 }
 
 function deletePpRow(idx) {
+  ppEdited = true;
   paymentPlan.splice(idx, 1);
   renderPpRows();
   if (typeof render === "function") render();
@@ -6327,6 +6366,7 @@ function deletePpRow(idx) {
 
 function updatePpRow(idx, field, value) {
   if (!paymentPlan[idx]) return;
+  if (field !== "label") ppEdited = true;
   if (field === "pct") paymentPlan[idx].pct = +value || 0;
   else if (field === "label") paymentPlan[idx].label = value;
   else if (field === "at") {
@@ -6422,7 +6462,9 @@ function renderPpRows() {
     paymentPlan.map((m, i) => {
       const fromHandover = typeof m.at === "string" && m.at.startsWith("handover");
       const months = fromHandover ? (parseFloat(m.at.slice(9)) || 0) : (+m.at || 0);
-      return '<div class="pp-row">' +
+      const H = ppMonthsToHandover();
+      const late = !fromHandover && H > 0 && months >= H;
+      return '<div class="pp-row' + (late ? ' pp-late' : '') + '"' + (late ? ' title="' + T("引渡し以降の支払いです（購入から" + H + "ヶ月で引渡し）", "This payment falls on/after handover (handover is " + H + " months from purchase)") + '"' : '') + '>' +
         ppLabelField(i, m, T, lang) +
         '<div class="pp-at">' +
           '<select class="pp-base" onchange="updatePpTiming(' + i + ', this.closest(\'.pp-row\'))">' +
@@ -6784,8 +6826,23 @@ function calculate(inp) {
   // Multiple: total positive cashflows / total negative cashflows. For the
   // common no-payment-plan case this reduces to the original formula
   // (sum of cf[1..N] / |cf[0]|) since cf[0] is the only outflow.
-  const totalOut = Math.abs(main.cf.reduce((s, v) => s + Math.min(0, v), 0)) || initialCashAED;
-  const totalIn  = main.cf.reduce((s, v) => s + Math.max(0, v), 0);
+  // Own cash = the most the client has paid out at any point, flows taken at their
+  // real month (IRR flows). Yearly totals net the handover payment against the sale
+  // money when both fall in the same year, which understated own cash for off-plan
+  // (audit 2026-10-12: Ritz 2y no-loan ROE 63.5% vs 23% on real cash).
+  function _peakCash(sc) {
+    const cfs = sc.irrCf || sc.cf, ts = sc.irrT || sc.times || cfs.map((_, i) => i);
+    const order = cfs.map((v, i) => [ts[i] ?? i, v]).sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+    let run = 0, peak = 0;
+    for (let i = 0; i < order.length; i++) {
+      run += order[i][1];
+      // flows in the same month settle together (e.g. loan drawdown with the handover payment)
+      if (i === order.length - 1 || order[i + 1][0] !== order[i][0]) peak = Math.min(peak, run);
+    }
+    return -peak || initialCashAED;
+  }
+  const totalOut = _peakCash(main);
+  const totalIn  = totalOut + main.cf.reduce((s, v) => s + v, 0);
   const multiple = totalOut > 0 ? totalIn / totalOut : 0;
   // ROE = profit ÷ the client's own cash (= multiple − 1).
   // ROI = profit ÷ total property cost incl. the loan-funded part (price + purchase costs).
@@ -6795,10 +6852,9 @@ function calculate(inp) {
   const roi = totalPropertyCost > 0 ? profitTotal / totalPropertyCost : 0;
   // Helper used for scenario return calculations — total positive / total
   // negative, equivalent to (sum cf[1..]) / |cf[0]| in the simple case.
-  function _scenReturn(cfArr) {
-    const out = Math.abs(cfArr.reduce((s, v) => s + Math.min(0, v), 0)) || initialCashAED;
-    const inn = cfArr.reduce((s, v) => s + Math.max(0, v), 0);
-    return out > 0 ? (inn - out) / out : 0;
+  function _scenReturn(sc) {
+    const eq = _peakCash(sc);
+    return eq > 0 ? sc.cf.reduce((s, v) => s + v, 0) / eq : 0;
   }
   // Fix #4: scenarios now SCALE WITH USER'S APPRECIATION INPUT instead of using
   // hardcoded 25/32/40. Convert user's input to an annual rate, then re-apply
@@ -6853,10 +6909,10 @@ function calculate(inp) {
     constructionYears, operatingYears: main.operatingYears,
     cashOnCashPct, paybackYears, breakEvenSalePrice,
     scenarios: {
-      s1: { irr: irr(s1.irrCf, s1.irrT), net: s1.netSaleProceeds, return: _scenReturn(s1.cf) },
-      s2: { irr: irr(s2.irrCf, s2.irrT), net: s2.netSaleProceeds, return: _scenReturn(s2.cf) },
-      s3: { irr: irr(s3.irrCf, s3.irrT), net: s3.netSaleProceeds, return: _scenReturn(s3.cf) },
-      s4: { irr: irr(s4.irrCf, s4.irrT), net: s4.netSaleProceeds, return: _scenReturn(s4.cf) }
+      s1: { irr: irr(s1.irrCf, s1.irrT), net: s1.netSaleProceeds, return: _scenReturn(s1) },
+      s2: { irr: irr(s2.irrCf, s2.irrT), net: s2.netSaleProceeds, return: _scenReturn(s2) },
+      s3: { irr: irr(s3.irrCf, s3.irrT), net: s3.netSaleProceeds, return: _scenReturn(s3) },
+      s4: { irr: irr(s4.irrCf, s4.irrT), net: s4.netSaleProceeds, return: _scenReturn(s4) }
     }
   };
 }
@@ -7063,6 +7119,7 @@ function syncVatField() {
   document.getElementById("vatAmount").textContent = on ? "VAT: AED " + Math.round(price * pct / 100).toLocaleString() : "";
 }
 function render() {
+  if (typeof ppRespreadIfNeeded === "function") ppRespreadIfNeeded();
   syncMortgageFields();
   syncVatField();
   const inp = getInputs();
