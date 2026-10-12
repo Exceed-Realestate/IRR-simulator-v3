@@ -2273,7 +2273,10 @@
           <div class="pack-toolbar">
             <span class="ja">表示通貨</span><span class="en">Show in</span>
             <button type="button" class="pack-cur-btn active" data-packcur="AED" onclick="setPackCurrency('AED')">AED</button>
-            <button type="button" class="pack-cur-btn" data-packcur="CUR" onclick="setPackCurrency('CUR')"><span class="cur-label">HKD</span></button>
+            <button type="button" class="pack-cur-btn" data-packcur="JPY" onclick="setPackCurrency('JPY')">JPY</button>
+            <button type="button" class="pack-cur-btn" data-packcur="USD" onclick="setPackCurrency('USD')">USD</button>
+            <button type="button" class="pack-cur-btn" data-packcur="EUR" onclick="setPackCurrency('EUR')">EUR</button>
+            <button type="button" class="pack-cur-btn" data-packcur="HKD" onclick="setPackCurrency('HKD')">HKD</button>
             <button type="button" class="pack-gloss-link" onclick="openGlossary()">📖 <span class="ja">用語集</span><span class="en">Glossary</span></button>
           </div>
           <div class="pack-scroll"><table class="data-table pack-table" id="plcfTable"></table></div>
@@ -3656,7 +3659,7 @@ function _executeReport(opts) {
 
   // Initial outlay rows
   const outlayRows = [
-    [T("頭金", "Down payment"), r.cashDown, T("ローン控除後", "After loan deduction")],
+    [T("物件支払い金額", "Property payment (own cash)"), r.cashDown, T("ローン控除後", "After loan deduction")],
     ...(inp.addVat ? [[T(`物件VAT (${inp.vatPct}%)`, `Property VAT (${inp.vatPct}%)`), r.propertyVat, T("コマーシャル物件", "Commercial property")]] : []),
     [T("DLD登記料 (4% + AED 580)", "DLD registration (4% + AED 580)"), r.dld, T("物件価格×4%", "Price × 4%")],
     [T("Trustee / Title / Oqood", "Trustee / Title / Oqood"), r.trustee + r.titleDeed + r.oqood, T("各種登記", "Registration")],
@@ -3862,7 +3865,7 @@ function _executeReport(opts) {
           <tr><td>${T("仲介手数料（売却時 2% + VAT）", "Agent fee at sale (2% + VAT)")}</td><td style="text-align:right; font-family:monospace;">${fmtN(r.saleAgentFee)} AED<div style="font-size:10px; color:#94a3b8;">${fmtN(r.saleAgentFee * fx)} ${cur}</div></td><td style="font-size:10px; color:#94a3b8;">${T("売却価格 × 2.1%", "Sale price × 2.1%")}</td></tr>
           <tr><td>${T("NOC手数料（売却時）", "NOC fee at sale")}</td><td style="text-align:right; font-family:monospace;">${fmtN(r.saleNOC)} AED</td><td></td></tr>
         </tbody>
-        <tfoot><tr><td><strong>${T("売却までの費用合計", "Total costs until sale")}</strong></td><td style="text-align:right;"><strong>${fmtN(r.initialCashAED - r.cashDown + r.saleAgentFee + r.saleNOC)} AED</strong></td><td>${fmtN((r.initialCashAED - r.cashDown + r.saleAgentFee + r.saleNOC) * fx)} ${cur}</td></tr></tfoot>
+        <tfoot><tr><td><strong>${T("費用の総額（物件支払い＋諸費用）", "Total outlay (property payment + costs)")}</strong></td><td style="text-align:right;"><strong>${fmtN(r.initialCashAED + r.saleAgentFee + r.saleNOC)} AED</strong></td><td>${fmtN((r.initialCashAED + r.saleAgentFee + r.saleNOC) * fx)} ${cur}</td></tr></tfoot>
       </table>
     </section>` : ""}
 
@@ -6575,7 +6578,7 @@ function syncScenarioToggles() {
 
 const labels = {
   ja: {
-    downPayment: "頭金（物件価格の自己資金部分）", downPaymentNote: "ローン控除後",
+    downPayment: "物件支払い金額", downPaymentNote: "ローン控除後",
     dld: "DLD登記料（4% + AED 580）", dldNote: "物件価格×4%",
     propertyVat: "物件VAT", propertyVatNote: "コマーシャル物件・購入時に支払い",
     trustee: "Trustee / Title / Oqood", trusteeNote: "各種登記",
@@ -6595,7 +6598,7 @@ const labels = {
     yearPrefix: "年"
   },
   en: {
-    downPayment: "Down payment (equity portion)", downPaymentNote: "After loan",
+    downPayment: "Property payment (own cash)", downPaymentNote: "After loan",
     dld: "DLD registration (4% + AED 580)", dldNote: "4% of price",
     propertyVat: "Property VAT", propertyVatNote: "Commercial property, paid at purchase",
     trustee: "Trustee / Title / Oqood", trusteeNote: "Registrations",
@@ -7376,8 +7379,8 @@ function render() {
     + [[T0("仲介手数料（売却時 2% + VAT）", "Agent fee at sale (2% + VAT)"), r.saleAgentFee, T0("売却価格 × 2.1%", "Sale price × 2.1%")],
        [T0("NOC手数料（売却時）", "NOC fee at sale"), r.saleNOC, ""]].map(([label, val, note]) =>
       `<tr><td>${label}</td><td class="num">${fmt(val)}</td><td class="num">${fmt(val * fx)}</td><td style="font-size:11px;color:var(--text-muted)">${note}</td></tr>`).join("")
-    + (() => { const tot = r.initialCashAED - r.cashDown + r.saleAgentFee + r.saleNOC;
-        return `<tr class="total"><td>${T0("売却までの費用合計", "Total costs until sale")}</td><td class="num">${fmt(tot)}</td><td class="num">${fmt(tot * fx)}</td><td></td></tr>`; })();
+    + (() => { const tot = r.initialCashAED + r.saleAgentFee + r.saleNOC;   // property payment + all costs (Shoya 2026-10-12)
+        return `<tr class="total"><td>${T0("費用の総額（物件支払い＋諸費用）", "Total outlay (property payment + costs)")}</td><td class="num">${fmt(tot)}</td><td class="num">${fmt(tot * fx)}</td><td></td></tr>`; })();
 
   // CF table: ONE row per year-from-purchase (rolling 12-month from purchase quarter).
   // 1年目 = first 12 months from purchase (may be all construction).
@@ -7505,7 +7508,7 @@ function render() {
 // ============ Investor pack: E P/L・C/F · F schedule · G risk · H upside ============
 // Requested by Shoya 2026-10-05. Every figure here comes from calculate(), so the
 // tables always agree with the headline IRR.
-let packCurrency = "AED";   // "AED" or "CUR" (the currency picked in the simulator)
+let packCurrency = "AED";   // "AED", "JPY", "USD", "EUR" or "HKD" for cards E–H
 let riskRentLevel = 1;      // share of the entered rent, e.g. 0.8 = rent 20% lower
 let riskDrops = [0, -10, -20, -30];   // sale price change rows, % vs purchase price
 let upsidePriceG = [0, 3, 5, 8];      // card H columns: yearly price growth % (current input is always added)
@@ -7615,8 +7618,9 @@ function paintHeadlineMetric(r) {
 function renderInvestorPack(inp, r) {
   const lang = document.body.getAttribute("data-lang") || "ja";
   const T = (ja, en) => lang === "ja" ? ja : en;
-  const mult = packCurrency === "AED" ? 1 : (inp.fxRate || 1);
-  const unit = packCurrency === "AED" ? "AED" : inp.currency;
+  // The simulator's own currency uses the rate typed in the FX box; the others use the default rates.
+  const mult = packCurrency === "AED" ? 1 : (packCurrency === inp.currency ? (inp.fxRate || 1) : (DEFAULT_FX[packCurrency] || 1));
+  const unit = packCurrency;
   const money = (n) => fmt(n * mult);
   const cls = (n) => n < -0.5 ? "neg" : (n > 0.5 ? "pos" : "");
   const monthName = (absMonth) => {
