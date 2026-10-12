@@ -1487,7 +1487,7 @@
   .pack-toolbar .pack-num { width:64px; padding:3px 6px; border:1px solid var(--border); border-radius:6px; font-size:12px; text-align:right; }
   .pack-toolbar .pack-free { display:inline-flex; gap:4px; align-items:center; margin-left:6px; }
   .pack-toolbar .pack-gloss-link { margin-left:auto; border-color:transparent; color:var(--primary); font-weight:600; }
-  .pack-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  .pack-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; padding-bottom:14px; }
   table.pack-table { min-width:100%; font-size:12px; }
   table.pack-table th, table.pack-table td { white-space:nowrap; }
   table.pack-table td.lbl { position:sticky; left:0; background:#fff; z-index:1; }
@@ -1616,9 +1616,11 @@
   /* Removed unused "%" suffix column slot */
   /* Label on its own line, then timing / % / delete — fits the narrow left column */
   #card-payment-plan .pp-row, #card-payment-plan .pp-rows-header { grid-template-columns:1fr 64px 26px; }
-  #card-payment-plan .pp-row > input[type="text"] { grid-column:1 / -1; }
+  #card-payment-plan .pp-row > input[type="text"], #card-payment-plan .pp-row > .pp-label { grid-column:1 / -1; }
   #card-payment-plan .pp-rows-header > div:first-child { display:none; }
   #card-payment-plan .pp-row { padding:8px 0; border-bottom:1px dashed #eee; }
+  #card-payment-plan .pp-label-custom { display:flex; gap:6px; min-width:0; }
+  #card-payment-plan .pp-label-custom button { flex:0 0 34px; border:1px solid #cbd5e1; border-radius:5px; background:#fff; cursor:pointer; }
 
   /* Header Tools dropdown */
   .nav-tools-wrap { position:relative; display:inline-block; }
@@ -1872,6 +1874,7 @@
                 <option value="standard">Standard</option>
                 <option value="branded" selected>Branded</option>
                 <option value="villa">Villa</option>
+                <option value="commercial">Commercial</option>
               </select>
             </div>
             <div class="field">
@@ -2057,10 +2060,10 @@
           <div class="cb-item">
             <label><span class="ja">表示通貨</span><span class="en">Display</span></label>
             <div class="currency-btns" role="group">
-              <button type="button" class="cur-btn active" data-cur="HKD">HKD</button>
-              <button type="button" class="cur-btn" data-cur="USD">USD</button>
               <button type="button" class="cur-btn" data-cur="JPY">JPY</button>
+              <button type="button" class="cur-btn" data-cur="USD">USD</button>
               <button type="button" class="cur-btn" data-cur="EUR">EUR</button>
+              <button type="button" class="cur-btn active" data-cur="HKD">HKD</button>
             </div>
             <input type="hidden" id="currency" value="HKD">
           </div>
@@ -2101,6 +2104,7 @@
           <div class="kpi accent" style="position:relative;">
             <div class="kpi-label kpi-metric-switch">
               <button type="button" data-metric="roi" onclick="setHeadlineMetric('roi')">ROI</button>
+              <button type="button" data-metric="roe" onclick="setHeadlineMetric('roe')">ROE</button>
               <button type="button" data-metric="irr" onclick="setHeadlineMetric('irr')">IRR</button>
             </div>
             <div class="kpi-value" id="kpiHeadline">—</div>
@@ -2301,7 +2305,7 @@
             <button type="button" onclick="resetRiskInputs()"><span class="ja">リセット</span><span class="en">Reset</span></button>
           </div>
           <div class="pack-scroll"><table class="data-table pack-table" id="riskTable"></table></div>
-          <p class="pack-note"><span class="ja">各セル＝購入から売却までの手残り合計（売却損益）と年率IRR。売却価格は購入価格に対する変化率。</span><span class="en">Each cell = total money made or lost from purchase to sale, and the IRR. Sale price change is versus the purchase price.</span></p>
+          <p class="pack-note"><span class="ja">各セル＝購入から売却までの手残り合計（売却損益）。売却価格は購入価格に対する変化率。</span><span class="en">Each cell = total money made or lost from purchase to sale. Sale price change is versus the purchase price.</span></p>
           <div class="pack-risk-notes">
             <div><strong>📉 <span class="ja">値下がりリスク</span><span class="en">Price-fall risk</span></strong>
               <span class="ja">不動産価格は下がることがあります。上の表は、入力した変化率で売却した場合の結果です（初期値は −10〜−30%）。保有期間が長いほど賃料収入が積み上がり、損益分岐の売却価格は下がります。</span>
@@ -2319,6 +2323,22 @@
           <h3><span class="count">H</span><span class="ja">上昇シナリオ（市場実績ベース）</span><span class="en">Upside Scenarios (Based on Market History)</span></h3>
           <div id="upsideHistory"></div>
           <h4 class="pack-sub"><span class="ja">価格上昇率 × 賃料上昇率 別の年率IRR</span><span class="en">IRR by yearly price growth × yearly rent growth</span></h4>
+          <div class="pack-toolbar">
+            <span class="ja">価格上昇率／年</span><span class="en">Price growth/yr</span>
+            <input type="number" class="pack-num up-price" value="0" step="0.5" oninput="setUpsideAxes()">
+            <input type="number" class="pack-num up-price" value="3" step="0.5" oninput="setUpsideAxes()">
+            <input type="number" class="pack-num up-price" value="5" step="0.5" oninput="setUpsideAxes()">
+            <input type="number" class="pack-num up-price" value="8" step="0.5" oninput="setUpsideAxes()">
+            <span>%</span>
+          </div>
+          <div class="pack-toolbar">
+            <span class="ja">賃料上昇率／年</span><span class="en">Rent growth/yr</span>
+            <input type="number" class="pack-num up-rent" value="0" step="0.5" oninput="setUpsideAxes()">
+            <input type="number" class="pack-num up-rent" value="2" step="0.5" oninput="setUpsideAxes()">
+            <input type="number" class="pack-num up-rent" value="4" step="0.5" oninput="setUpsideAxes()">
+            <span>%</span>
+            <button type="button" onclick="resetUpsideInputs()"><span class="ja">リセット</span><span class="en">Reset</span></button>
+          </div>
           <div class="pack-scroll"><table class="data-table pack-table" id="upsideTable"></table></div>
           <p class="pack-note"><span class="ja">各セル＝年率IRR（下段は売却までの手残り合計）。保有期間・ローン等は上で入力した条件のまま。◎＝現在の入力（上のIRRと同じ値）。</span><span class="en">Each cell = IRR (below: total money made by the sale). Hold, loan etc. are as entered above. ◎ = the current inputs (same as the headline IRR).</span></p>
         </div>
@@ -2458,7 +2478,9 @@
         <dt>IRR <span class="ja">（内部収益率）</span><span class="en">(Internal Rate of Return)</span></dt>
         <dd><span class="ja">投資したお金が、保有期間を通じて毎年平均何%で増えたかを表す数字。支払いと受取りの「時期」も考慮するため、異なる物件・期間を公平に比較できます。</span><span class="en">The average yearly growth rate of the money invested, over the whole hold. It accounts for when each payment and receipt happens, so different properties and periods can be compared fairly.</span></dd>
         <dt>ROI <span class="ja">（投資利益率）</span><span class="en">(Return on investment)</span></dt>
-        <dd><span class="ja">売却までに得た利益の合計 ÷ 投じた自己資金の合計。期間の長さは考慮しないので、IRR（年率）とあわせて見ると分かりやすいです。例：ROI +50% ＝ 投資額の1.5倍が戻る。</span><span class="en">Total profit by the sale ÷ total cash put in. It ignores how long the money was invested, so read it alongside IRR (per year). Example: ROI +50% = 1.5× the money invested comes back.</span></dd>
+        <dd><span class="ja">売却までに得た利益の合計 ÷ 物件の総投資額（物件価格＋購入諸費用。ローンで借りた分も含む）。物件そのものの収益力を表します。期間の長さは考慮しないので、IRR（年率）とあわせて見ると分かりやすいです。</span><span class="en">Total profit by the sale ÷ total property cost (price + purchase costs, including the part paid with the loan). Shows how well the property itself performs. It ignores how long the money was invested, so read it alongside IRR (per year).</span></dd>
+        <dt>ROE <span class="ja">（自己資本利益率）</span><span class="en">(Return on equity)</span></dt>
+        <dd><span class="ja">売却までに得た利益の合計 ÷ 投じた自己資金の合計。ローンを使うと自己資金が少なくなるため、ROIより高くなります。例：ROE +50% ＝ 自己資金の1.5倍が戻る。</span><span class="en">Total profit by the sale ÷ total own cash put in. A loan means less own cash, so ROE is higher than ROI. Example: ROE +50% = 1.5× your own cash comes back.</span></dd>
         <dt><span class="ja">倍率（マルチプル）</span><span class="en">Multiple</span></dt>
         <dd><span class="ja">受け取った総額 ÷ 支払った総額。2.0×なら投資額が2倍になったという意味です。</span><span class="en">Total money received ÷ total money paid. 2.0× means the money invested doubled.</span></dd>
         <dt><span class="ja">キャピタルゲイン／インカムゲイン</span><span class="en">Capital gain / Income gain</span></dt>
@@ -2674,6 +2696,7 @@
             <option value="standard">Standard</option>
             <option value="branded" selected>Branded</option>
             <option value="villa">Villa</option>
+                <option value="commercial">Commercial</option>
           </select>
         </div>
         <div class="field">
@@ -3044,6 +3067,12 @@
             <span class="rpt-cl-label"><span class="ja">EXIT（売却時）内訳</span><span class="en">Sale (Exit) Breakdown</span></span>
           </label>
         </li>
+        <li>
+          <label><input type="checkbox" id="rpt-opt-scenarios" checked>
+            <span class="rpt-cl-label"><span class="ja">シナリオ比較</span><span class="en">Scenario Comparison</span></span>
+            <span class="rpt-cl-sub"><span class="ja">表示中のシナリオ（①〜④）とチャート</span><span class="en">The scenarios shown (1–4) and the chart</span></span>
+          </label>
+        </li>
         <li class="rpt-cl-new">
           <label><input type="checkbox" id="rpt-opt-plcf" checked>
             <span class="rpt-cl-label"><span class="ja">年次収支明細（P/L・C/F） <span class="rpt-new-badge">NEW</span></span><span class="en">Annual P/L &amp; Cash Flow <span class="rpt-new-badge">NEW</span></span></span>
@@ -3053,7 +3082,13 @@
         <li class="rpt-cl-new">
           <label><input type="checkbox" id="rpt-opt-risk" checked>
             <span class="rpt-cl-label"><span class="ja">リスク分析 <span class="rpt-new-badge">NEW</span></span><span class="en">Risk Analysis <span class="rpt-new-badge">NEW</span></span></span>
-            <span class="rpt-cl-sub"><span class="ja">値下がり・賃料下落・戦争リスク、損益分岐価格</span><span class="en">Price/rent falls, war risk, break-even price</span></span>
+            <span class="rpt-cl-sub"><span class="ja">値下がり・賃料下落の表、損益分岐価格</span><span class="en">Price/rent fall table, break-even price</span></span>
+          </label>
+        </li>
+        <li class="rpt-cl-new">
+          <label><input type="checkbox" id="rpt-opt-riskNotes">
+            <span class="rpt-cl-label"><span class="ja">リスク解説</span><span class="en">Risk Notes</span></span>
+            <span class="rpt-cl-sub"><span class="ja">値下がり・賃料下落・戦争リスクの説明文（任意）</span><span class="en">Price-fall, rent-fall and war risk explanations (optional)</span></span>
           </label>
         </li>
         <li class="rpt-cl-new">
@@ -3403,7 +3438,7 @@ window.addEventListener("afterprint", () => {
 // chooses "Save as PDF" or prints. Injects a landscape @page rule at runtime.
 // =========== REPORT CHECKLIST (v3) ===========
 const REPORT_OPTS_KEY = "exceedReportOptions";
-const DEFAULT_REPORT_OPTS = { terms: true, holding: true, timeline: true, outlay: true, cashflow: true, exit: true, plcf: true, schedule: true, risk: true, upside: true, area: true, glossary: true };
+const DEFAULT_REPORT_OPTS = { terms: true, holding: true, timeline: true, outlay: true, cashflow: true, exit: true, scenarios: true, plcf: true, schedule: true, risk: true, riskNotes: false, upside: true, area: true, glossary: true };
 function loadReportOptions() {
   try {
     const stored = JSON.parse(localStorage.getItem(REPORT_OPTS_KEY) || "{}");
@@ -3434,7 +3469,7 @@ function closeReportChecklist() {
 }
 function executeReportFromChecklist() {
   const opts = {};
-  ["terms","holding","timeline","outlay","cashflow","exit","plcf","schedule","risk","upside","area","glossary"].forEach(k => {
+  ["terms","holding","timeline","outlay","cashflow","exit","scenarios","plcf","schedule","risk","riskNotes","upside","area","glossary"].forEach(k => {
     const cb = document.getElementById("rpt-opt-" + k);
     if (cb) opts[k] = !!cb.checked;
   });
@@ -3466,7 +3501,7 @@ function buildPackReportSections(opts, T) {
   if (opts.risk) {
     const rentLbl = riskRentLevel === 1 ? "" : ` — ${T("賃料", "rent")} ${Math.round(riskRentLevel * 100)}%`;
     const notes = document.querySelector("#card-risk .pack-risk-notes");
-    html += `<section class="rpt-section rpt-page-break"><h2>${T("リスク分析（値下がり・賃料下落）", "Risk Analysis (Price & Rent Falls)")}${rentLbl}</h2>${tbl("riskTable")}${note("#card-risk > .pack-note")}${notes ? `<div class="rpt-pack-risk">${notes.innerHTML}</div>` : ""}</section>`;
+    html += `<section class="rpt-section rpt-page-break"><h2>${T("リスク分析（値下がり・賃料下落）", "Risk Analysis (Price & Rent Falls)")}${rentLbl}</h2>${tbl("riskTable")}${note("#card-risk > .pack-note")}${notes && opts.riskNotes ? `<div class="rpt-pack-risk">${notes.innerHTML}</div>` : ""}</section>`;
   }
   if (opts.upside) {
     const hist = document.getElementById("upsideHistory");
@@ -3637,16 +3672,14 @@ function _executeReport(opts) {
     [T("売却エージェント手数料 (2.1%)", "Sale agent fee (2.1%)"), -r.saleAgentFee, T("売却価格×2.1%", "Sale × 2.1%")],
     [T("NOC（売却時）", "NOC (sale)"), -r.saleNOC, T("固定", "Fixed")],
     ...(r.remainingLoan > 0 ? [[T("ローン残債返済", "Remaining loan payoff"), -r.remainingLoan, T(`${inp.mortgageTerm}年ローン`, `${inp.mortgageTerm}y mortgage`)]] : []),
-    [T("UAE売却益課税", "UAE capital gains"), 0, T("ゼロ", "0% — no CGT")],
-    [T("香港受取時課税", "HK receipt tax"), 0, T("属地主義で非課税", "Territorial — exempt")],
   ].map(([label, val, note]) => `<tr><td>${label}</td><td style="text-align:right; font-family:monospace; color:${val>=0?'#16a34a':'#dc2626'};">${val>=0?'+':''}${fmtN(val)} AED${val !== 0 ? `<div style="font-size:10px; color:#94a3b8; font-weight:400;">${val>=0?'+':''}${fmtN(val * fx)} ${cur}</div>` : ''}</td><td style="font-size:10px; color:#94a3b8;">${note}</td></tr>`).join("");
 
   // Scenario rows
   const s = r.scenarios || {};
-  const scenRows = ["s1","s2","s3","s4"].filter(k => s[k]).map(k => {
+  const scenRows = ["s1","s2","s3","s4"].filter(k => s[k] && (typeof scenarioVisible === "undefined" || scenarioVisible[k])).map(k => {
     const titles = lang === "ja"
-      ? { s1: "① 短期保有 (2年)", s2: "② 中期保有 (4年)", s3: "③ 長期保有 (7年)", s4: `④ カスタム (${inp.s4Years || 5}年)` }
-      : { s1: "① Short Hold (2y)", s2: "② Mid Hold (4y)", s3: "③ Long Hold (7y)", s4: `④ Custom (${inp.s4Years || 5}y)` };
+      ? { s1: "① オフプラン・リセール (2年)", s2: "② 引渡後・短期売却 (4年)", s3: "③ 中長期保有 (7年)", s4: `④ カスタム (${inp.s4Years || 5}年)` }
+      : { s1: "(1) Off-plan flip (2y)", s2: "(2) Post-handover short (4y)", s3: "(3) Long-term hold (7y)", s4: `(4) Custom (${inp.s4Years || 5}y)` };
     return `<tr><td>${titles[k]}</td><td style="text-align:right;">${fmtP(s[k].return)}</td><td style="text-align:right;">${fmtP(s[k].irr)}</td><td style="text-align:right;">${fmtN(s[k].net * fx)} ${cur}</td></tr>`;
   }).join("");
 
@@ -3739,13 +3772,13 @@ function _executeReport(opts) {
         </div>
         <div class="rpt-kpi">
           <div class="rpt-kpi-label">${T("保有期間", "Holding Period")}</div>
-          <div class="rpt-kpi-value">${(totalMonthsLocal/12).toFixed(2)}${T("年", "y")}</div>
+          <div class="rpt-kpi-value">${(() => { const y = Math.floor(totalMonthsLocal / 12), m = Math.round(totalMonthsLocal % 12); return lang === "ja" ? (y === 0 ? `${m}ヶ月` : (m === 0 ? `${y}年` : `${y}年${m}ヶ月`)) : (y === 0 ? `${m}mo` : (m === 0 ? `${y}y` : `${y}y ${m}mo`)); })()}</div>
           <div class="rpt-kpi-sub">${qStr(purchaseQ)} → ${qStr(saleQ)}</div>
         </div>
         <div class="rpt-kpi">
-          <div class="rpt-kpi-label">${headlineMetric === "irr" ? "IRR" : "ROI"}</div>
-          <div class="rpt-kpi-value">${headlineMetric === "irr" ? fmtP(r.irr) : ((r.multiple - 1) >= 0 ? "+" : "") + fmtP(r.multiple - 1)}</div>
-          <div class="rpt-kpi-sub">${headlineMetric === "irr" ? `${r.multiple.toFixed(2)}× ${T("総合リターン", "total return")}` : `${T("年率IRR", "IRR")} ${fmtP(r.irr)} · ${r.multiple.toFixed(2)}×`}</div>
+          <div class="rpt-kpi-label">${headlineMetric === "irr" ? "IRR" : (headlineMetric === "roe" ? "ROE" : "ROI")}</div>
+          <div class="rpt-kpi-value">${headlineMetric === "irr" ? fmtP(r.irr) : (() => { const x = headlineMetric === "roe" ? r.roe : r.roi; return (x >= 0 ? "+" : "") + fmtP(x); })()}</div>
+          <div class="rpt-kpi-sub">${headlineMetric === "irr" ? `${r.multiple.toFixed(2)}× ${T("総合リターン", "total return")}` : ""}</div>
         </div>
       </div>
     </section>
@@ -3828,7 +3861,7 @@ function _executeReport(opts) {
           <tr><td>${T("仲介手数料（売却時 2% + VAT）", "Agent fee at sale (2% + VAT)")}</td><td style="text-align:right; font-family:monospace;">${fmtN(r.saleAgentFee)} AED<div style="font-size:10px; color:#94a3b8;">${fmtN(r.saleAgentFee * fx)} ${cur}</div></td><td style="font-size:10px; color:#94a3b8;">${T("売却価格 × 2.1%", "Sale price × 2.1%")}</td></tr>
           <tr><td>${T("NOC手数料（売却時）", "NOC fee at sale")}</td><td style="text-align:right; font-family:monospace;">${fmtN(r.saleNOC)} AED</td><td></td></tr>
         </tbody>
-        <tfoot><tr><td><strong>${T("売却までの費用合計（頭金を除く）", "Total costs until sale (excl. down payment)")}</strong></td><td style="text-align:right;"><strong>${fmtN(r.initialCashAED - r.cashDown + r.saleAgentFee + r.saleNOC)} AED</strong></td><td>${fmtN((r.initialCashAED - r.cashDown + r.saleAgentFee + r.saleNOC) * fx)} ${cur}</td></tr></tfoot>
+        <tfoot><tr><td><strong>${T("売却までの費用合計", "Total costs until sale")}</strong></td><td style="text-align:right;"><strong>${fmtN(r.initialCashAED - r.cashDown + r.saleAgentFee + r.saleNOC)} AED</strong></td><td>${fmtN((r.initialCashAED - r.cashDown + r.saleAgentFee + r.saleNOC) * fx)} ${cur}</td></tr></tfoot>
       </table>
     </section>` : ""}
 
@@ -3847,6 +3880,15 @@ function _executeReport(opts) {
         <tbody>${saleRows}</tbody>
         <tfoot><tr><td><strong>${T("着金ネット", "Net to client")}</strong></td><td style="text-align:right; color:#16a34a;"><strong>+${fmtN(r.netSaleProceeds)} AED</strong></td><td><strong>${fmtN(r.netSaleProceeds * fx)} ${cur}</strong></td></tr></tfoot>
       </table>
+    </section>` : ""}
+
+    ${opts.scenarios && scenRows ? `<section class="rpt-section">
+      <h2>${T("シナリオ比較", "Scenario Comparison")}</h2>
+      <table class="rpt-tbl rpt-tbl-bordered">
+        <thead><tr><th>${T("シナリオ", "Scenario")}</th><th style="text-align:right;">${T("累計リターン", "Total return")}</th><th style="text-align:right;">${T("年率IRR", "IRR")}</th><th style="text-align:right;">${T("着金ネット", "Net to client")}</th></tr></thead>
+        <tbody>${scenRows}</tbody>
+      </table>
+      ${scenImgSrc && typeof chartVisible !== "undefined" && chartVisible ? `<img src="${scenImgSrc}" alt="" style="width:100%; max-height:260px; object-fit:contain; margin-top:10px;">` : ""}
     </section>` : ""}
 
     ${buildPackReportSections(opts, T)}
@@ -6307,6 +6349,59 @@ function updatePpTiming(idx, rowEl) {
   updatePpRow(idx, "at", value);
 }
 
+// Milestone names offered in the Label dropdown, in English and Japanese.
+// A name not in either list (old share links, presets like "30% Construction")
+// or a typed one shows as a free-text box; the ▾ button goes back to the list.
+const PP_LABELS_EN = ["Booking", "Down payment",
+  ...Array.from({ length: 8 }, (_, i) => "Construction " + (i + 1)),
+  "Handover",
+  ...Array.from({ length: 6 }, (_, i) => "Post-handover " + (i + 1))];
+const PP_LABELS_JA = ["予約金", "頭金",
+  ...Array.from({ length: 8 }, (_, i) => "第" + (i + 1) + "回目"),
+  "引渡し時",
+  ...Array.from({ length: 6 }, (_, i) => "引渡し後 第" + (i + 1) + "回目")];
+
+function ppLabelField(i, m, T, lang) {
+  const label = m.label || "";
+  const listed = PP_LABELS_EN.includes(label) || PP_LABELS_JA.includes(label);
+  if (m.customLabel || (label && !listed)) {
+    return '<div class="pp-label pp-label-custom">' +
+      '<input type="text" value="' + escapeHtml(label) + '" placeholder="' + T("名称を入力", "Type a name") + '" oninput="updatePpRow(' + i + ', \'label\', this.value)">' +
+      '<button type="button" onclick="ppLabelToList(' + i + ')" title="' + T("リストから選ぶ", "Pick from list") + '">▾</button>' +
+    '</div>';
+  }
+  const group = (name, list) => '<optgroup label="' + name + '">' +
+    list.map(o => '<option value="' + escapeHtml(o) + '"' + (o === label ? ' selected' : '') + '>' + escapeHtml(o) + '</option>').join("") + '</optgroup>';
+  const groups = lang === "ja" ? group("日本語", PP_LABELS_JA) + group("English", PP_LABELS_EN)
+                               : group("English", PP_LABELS_EN) + group("日本語", PP_LABELS_JA);
+  return '<select class="pp-label" onchange="pickPpLabel(' + i + ', this)">' +
+    (label ? '' : '<option value="" selected></option>') + groups +
+    '<option value="__custom">✏️ ' + T("カスタム（自由入力）", "Custom (type your own)") + '</option>' +
+  '</select>';
+}
+
+function pickPpLabel(i, sel) {
+  if (!paymentPlan[i]) return;
+  if (sel.value === "__custom") {
+    paymentPlan[i].customLabel = true;
+    renderPpRows();
+    const box = document.querySelectorAll("#ppRowsContainer .pp-row")[i];
+    const input = box && box.querySelector(".pp-label-custom input");
+    if (input) { input.focus(); input.select(); }
+    return;
+  }
+  updatePpRow(i, "label", sel.value);
+}
+
+function ppLabelToList(i) {
+  if (!paymentPlan[i]) return;
+  delete paymentPlan[i].customLabel;
+  const l = paymentPlan[i].label;
+  if (!(PP_LABELS_EN.includes(l) || PP_LABELS_JA.includes(l))) paymentPlan[i].label = "";
+  renderPpRows();
+  if (typeof render === "function") render();
+}
+
 function renderPpRows() {
   const container = document.getElementById("ppRowsContainer");
   if (!container) return;
@@ -6328,7 +6423,7 @@ function renderPpRows() {
       const fromHandover = typeof m.at === "string" && m.at.startsWith("handover");
       const months = fromHandover ? (parseFloat(m.at.slice(9)) || 0) : (+m.at || 0);
       return '<div class="pp-row">' +
-        '<input type="text" value="' + escapeHtml(m.label || "") + '" oninput="updatePpRow(' + i + ', \'label\', this.value)">' +
+        ppLabelField(i, m, T, lang) +
         '<div class="pp-at">' +
           '<select class="pp-base" onchange="updatePpTiming(' + i + ', this.closest(\'.pp-row\'))">' +
             '<option value="purchase"' + (fromHandover ? '' : ' selected') + '>' + T("購入から", "From booking") + '</option>' +
@@ -6692,6 +6787,12 @@ function calculate(inp) {
   const totalOut = Math.abs(main.cf.reduce((s, v) => s + Math.min(0, v), 0)) || initialCashAED;
   const totalIn  = main.cf.reduce((s, v) => s + Math.max(0, v), 0);
   const multiple = totalOut > 0 ? totalIn / totalOut : 0;
+  // ROE = profit ÷ the client's own cash (= multiple − 1).
+  // ROI = profit ÷ total property cost incl. the loan-funded part (price + purchase costs).
+  const profitTotal = totalIn - totalOut;
+  const roe = totalOut > 0 ? profitTotal / totalOut : 0;
+  const totalPropertyCost = initialCashAED + loanAmount;
+  const roi = totalPropertyCost > 0 ? profitTotal / totalPropertyCost : 0;
   // Helper used for scenario return calculations — total positive / total
   // negative, equivalent to (sum cf[1..]) / |cf[0]| in the simple case.
   function _scenReturn(cfArr) {
@@ -6747,7 +6848,7 @@ function calculate(inp) {
     grossRent, vacancyLoss, pmFee, serviceCharge, maintenance, annualLoanPayment: annualLoan, annualNetCF,
     salePrice: main.salePrice, saleAgentFee: main.saleAgentFee, saleNOC: main.saleNOC,
     remainingLoan: main.remainingLoan, netSaleProceeds: main.netSaleProceeds,
-    irr: mainIrr, multiple, cashflowSeries: main.cf, cashflowTimes: main.times, mainDetail: main,
+    irr: mainIrr, multiple, roi, roe, profitTotal, totalPropertyCost, cashflowSeries: main.cf, cashflowTimes: main.times, mainDetail: main,
     effRent, monthlyLoan, handoverQabs, purchaseQabs,
     constructionYears, operatingYears: main.operatingYears,
     cashOnCashPct, paybackYears, breakEvenSalePrice,
@@ -6948,6 +7049,12 @@ function syncMortgageFields() {
     if (el) { el.disabled = !on; el.style.opacity = on ? "" : "0.45"; }
   });
 }
+document.addEventListener("change", (e) => {
+  if (e.target && e.target.id === "propertyType" && e.target.value === "commercial") {
+    const vat = document.getElementById("addVat");
+    if (vat && !vat.checked) { vat.checked = true; render(); }
+  }
+});
 function syncVatField() {
   const on = document.getElementById("addVat").checked;
   document.getElementById("vatField").style.display = on ? "" : "none";
@@ -6997,16 +7104,18 @@ function render() {
     const v = inp.appreciation || 0;
     if (totalY <= 0 || v === 0) { el.textContent = ""; return; }
     const langCur = document.body.getAttribute("data-lang") || "ja";
+    const hy = Math.floor(totalY), hm = Math.round((totalY - hy) * 12);
+    const holdTxt = langCur === "ja" ? (hm ? `${hy}年${hm}ヶ月` : `${hy}年`) : (hm ? `${hy}y ${hm}mo` : `${hy}y`);
     if (inp.appreciationMode === "annual") {
       const cumPct = (Math.pow(1 + v/100, totalY) - 1) * 100;
       el.textContent = langCur === "ja"
-        ? `→ ${totalY.toFixed(2)}年で累計 ${cumPct.toFixed(1)}%`
-        : `→ ${cumPct.toFixed(1)}% cumulative over ${totalY.toFixed(2)}y`;
+        ? `→ ${holdTxt}で累計 ${cumPct.toFixed(1)}%`
+        : `→ ${cumPct.toFixed(1)}% cumulative over ${holdTxt}`;
     } else {
       const annualPct = (Math.pow(1 + v/100, 1/totalY) - 1) * 100;
       el.textContent = langCur === "ja"
-        ? `→ 年率換算 ${annualPct.toFixed(2)}% / 年（${totalY.toFixed(2)}年保有）`
-        : `→ implied ${annualPct.toFixed(2)}% / yr (over ${totalY.toFixed(2)}y)`;
+        ? `→ 年率換算 ${annualPct.toFixed(2)}% / 年（${holdTxt}保有）`
+        : `→ implied ${annualPct.toFixed(2)}% / yr (over ${holdTxt})`;
     }
   })();
   document.getElementById("kpiIrr").textContent = fmtPct(r.irr);
@@ -7211,7 +7320,7 @@ function render() {
        [T0("NOC手数料（売却時）", "NOC fee at sale"), r.saleNOC, ""]].map(([label, val, note]) =>
       `<tr><td>${label}</td><td class="num">${fmt(val)}</td><td class="num">${fmt(val * fx)}</td><td style="font-size:11px;color:var(--text-muted)">${note}</td></tr>`).join("")
     + (() => { const tot = r.initialCashAED - r.cashDown + r.saleAgentFee + r.saleNOC;
-        return `<tr class="total"><td>${T0("売却までの費用合計（頭金を除く）", "Total costs until sale (excl. down payment)")}</td><td class="num">${fmt(tot)}</td><td class="num">${fmt(tot * fx)}</td><td></td></tr>`; })();
+        return `<tr class="total"><td>${T0("売却までの費用合計", "Total costs until sale")}</td><td class="num">${fmt(tot)}</td><td class="num">${fmt(tot * fx)}</td><td></td></tr>`; })();
 
   // CF table: ONE row per year-from-purchase (rolling 12-month from purchase quarter).
   // 1年目 = first 12 months from purchase (may be all construction).
@@ -7324,9 +7433,7 @@ function render() {
     [L("salePrice"), r.salePrice, L("salePriceNote")],
     [L("saleAgent"), -r.saleAgentFee, L("saleAgentNote")],
     [L("saleNoc"), -r.saleNOC, L("saleNocNote")],
-    ...(inp.useMortgage && r.remainingLoan > 0 ? [[L("remainingLoan"), -r.remainingLoan, `${inp.mortgageTerm}yr`]] : []),
-    [L("uaeTax"), 0, L("uaeTaxNote")],
-    [L("hkTax"), 0, L("hkTaxNote")]
+    ...(inp.useMortgage && r.remainingLoan > 0 ? [[L("remainingLoan"), -r.remainingLoan, `${inp.mortgageTerm}yr`]] : [])
   ];
   document.getElementById("exitTable").innerHTML = exitRows.map(([label, val, note]) =>
     `<tr><td>${label}</td><td class="num">${fmt(val)}</td><td class="num">${fmt(val * fx)}</td><td style="font-size:11px;color:var(--text-muted)">${note}</td></tr>`
@@ -7344,6 +7451,8 @@ function render() {
 let packCurrency = "AED";   // "AED" or "CUR" (the currency picked in the simulator)
 let riskRentLevel = 1;      // share of the entered rent, e.g. 0.8 = rent 20% lower
 let riskDrops = [0, -10, -20, -30];   // sale price change rows, % vs purchase price
+let upsidePriceG = [0, 3, 5, 8];      // card H columns: yearly price growth % (current input is always added)
+let upsideRentG = [0, 2, 4];          // card H rows: yearly rent growth %
 
 // Market history for card H. Filled from sourced data only; an empty array hides the table.
 // REIDIN Dubai all-residential sales & rent indices, December-on-December change
@@ -7389,6 +7498,19 @@ function resetRiskInputs() {
   riskDrops = [0, -10, -20, -30];
   setRiskRent(1);
 }
+function setUpsideAxes() {
+  const read = (sel) => [...new Set([...document.querySelectorAll(sel)].map(el => el.value === "" ? NaN : +el.value).filter(v => isFinite(v) && v > -100))];
+  upsidePriceG = read(".up-price");
+  upsideRentG = read(".up-rent");
+  render();
+}
+function resetUpsideInputs() {
+  [0, 3, 5, 8].forEach((v, i) => { const el = document.querySelectorAll(".up-price")[i]; if (el) el.value = v; });
+  [0, 2, 4].forEach((v, i) => { const el = document.querySelectorAll(".up-rent")[i]; if (el) el.value = v; });
+  upsidePriceG = [0, 3, 5, 8];
+  upsideRentG = [0, 2, 4];
+  render();
+}
 function openGlossary() {
   document.getElementById("glossaryModal").classList.add("open");
   document.body.style.overflow = "hidden";
@@ -7416,17 +7538,20 @@ function setHeadlineMetric(m) {
 }
 function paintHeadlineMetric(r) {
   const lang = document.body.getAttribute("data-lang") || "ja";
-  const roi = r.multiple - 1;
-  const roiStr = isFinite(roi) ? (roi >= 0 ? "+" : "") + (roi * 100).toFixed(1) + "%" : "—";
+  const pctStr = (x) => isFinite(x) ? (x >= 0 ? "+" : "") + (x * 100).toFixed(1) + "%" : "—";
+  const roiStr = pctStr(r.roi), roeStr = pctStr(r.roe);
   document.querySelectorAll(".kpi-metric-switch button").forEach(b => b.classList.toggle("active", b.dataset.metric === headlineMetric));
   const v = document.getElementById("kpiHeadline"), sub = document.getElementById("kpiHeadlineSub");
   if (!v || !sub) return;
   if (headlineMetric === "irr") {
     v.textContent = fmtPct(r.irr);
     sub.textContent = `${fmtMult(r.multiple)} · ROI ${roiStr}`;
+  } else if (headlineMetric === "roe") {
+    v.textContent = roeStr;
+    sub.textContent = "";
   } else {
     v.textContent = roiStr;
-    sub.textContent = `${lang === "ja" ? "年率IRR" : "IRR"} ${fmtPct(r.irr)} · ${fmtMult(r.multiple)}`;
+    sub.textContent = "";
   }
 }
 
@@ -7583,7 +7708,7 @@ function renderInvestorPack(inp, r) {
     });
     const head = `<thead><tr><th>${T("売却価格の変化", "Sale price change")}</th>` + holds.map(h => `<th class="num">${T("保有", "Hold")} ${holdLbl(h)}</th>`).join("") + `</tr></thead>`;
     const body = drops.map(drop => `<tr${drop === 0 ? ' class="sub"' : ""}><td class="lbl">${drop === 0 ? T("±0%（購入価格で売却）", "±0% (sold at purchase price)") : (drop > 0 ? "+" : "") + drop + "%"}<span class="cell-sub">${money(inp.price * (1 + drop / 100))} ${unit}</span></td>` +
-      holds.map(h => { const c = caseFor(h, drop); return `<td class="num ${cls(c.profit)}"><strong>${money(c.profit)}</strong><span class="cell-sub">IRR ${fmtPct(c.irr)}</span></td>`; }).join("") + `</tr>`).join("");
+      holds.map(h => { const c = caseFor(h, drop); return `<td class="num ${cls(c.profit)}"><strong>${money(c.profit)}</strong></td>`; }).join("") + `</tr>`).join("");
     const be = `<tr class="strong"><td class="lbl">${T("損益分岐の売却価格", "Break-even sale price")}</td>` + holds.map(h => {
       const c = caseFor(h, 0);
       const pct = inp.price > 0 ? (c.breakEven / inp.price - 1) * 100 : 0;
@@ -7612,11 +7737,13 @@ function renderInvestorPack(inp, r) {
     const curPrice = inp.appreciationMode === "annual" ? inp.appreciation
       : (holdTotal > 0 ? (Math.pow(1 + inp.appreciation / 100, 1 / holdTotal) - 1) * 100 : 0);
     const curRounded = Math.round(curPrice * 100) / 100;
-    const priceG = [...new Set([0, 3, 5, 8, curRounded])].sort((a, b) => a - b), rentG = [0, 2, 4];
+    const priceG = [...new Set([...upsidePriceG, curRounded])].sort((a, b) => a - b);
+    const rentG = (upsideRentG.length ? [...upsideRentG] : [0]).sort((a, b) => a - b);
     const bestP = curRounded, bestR = 0;
     const colLbl = (g) => (g === 0 ? "±0%" : (g > 0 ? "+" : "") + (Number.isInteger(g) ? g : g.toFixed(2)) + "%") + (g === curRounded ? `<span class="cell-sub" style="color:inherit;opacity:.8">${T("現在の入力", "current input")}</span>` : "");
-    const head = `<thead><tr><th>${T("賃料上昇率／年 ＼ 価格上昇率／年", "Rent growth/yr ＼ Price growth/yr")}</th>` + priceG.map(g => `<th class="num">${colLbl(g)}</th>`).join("") + `</tr></thead>`;
-    const body = rentG.map(rg => `<tr><td class="lbl">${rg === 0 ? T("±0%（賃料据え置き）", "±0% (flat rent)") : "+" + rg + "%"}</td>` +
+    const head = `<thead><tr><th></th><th class="num" colspan="${priceG.length}" style="text-align:center">${T("価格上昇率／年 →", "Price growth / yr →")}</th></tr>` +
+      `<tr><th>${T("賃料上昇率／年 ↓", "Rent growth / yr ↓")}</th>` + priceG.map(g => `<th class="num">${colLbl(g)}</th>`).join("") + `</tr></thead>`;
+    const body = rentG.map(rg => `<tr><td class="lbl">${rg === 0 ? T("±0%（賃料据え置き）", "±0% (flat rent)") : (rg > 0 ? "+" : "") + rg + "%"}</td>` +
       priceG.map(g => {
         const c = runCase({ appreciationMode: "annual", appreciation: g === curRounded ? curPrice : g, rentGrowth: rg });
         const best = g === bestP && rg === bestR ? " cell-best" : "";
